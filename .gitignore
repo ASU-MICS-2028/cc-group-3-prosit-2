@@ -1,0 +1,29 @@
+team_credentials/
+*_credentials.csv
+.dbpass
+*.pem
+
+# course materials — don't publish
+week*.docx
+week*.pptx
+
+# terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/tfplan
+infra/.terraform.lock.hcl
+infra/*.tfvars
+!infra/example.tfvars
+
+# node
+node_modules/
+dist/
+
+# misc
+.DS_Store
+.env
+
+# AI-tool working directories — not part of the project (see docs/ai-tools-usage.md)
+.claude/
+.commandcode/

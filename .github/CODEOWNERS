@@ -1,0 +1,17 @@
+# CODEOWNERS: who reviews what. Flow and branch protection: see CONTRIBUTING.md.
+
+# Default owner: the project overall.
+*                       @josetseph
+
+# Infrastructure and repo plumbing.
+/infra/                 @eugene-sew
+/.github/               @eugene-sew
+
+# Database schema.
+/db/                    @Elise-Oyi
+
+# Backend service.
+/backend/               @josetseph
+
+# Frontend app.
+/frontend/              @PeaElorm
