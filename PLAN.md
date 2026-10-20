@@ -52,7 +52,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | CHV offline PWA: register patient, vitals, photo, consent | **Build** (fork of the AgroConnect PWA) |
 | Patient-record API (FHIR-shaped), audit log, RBAC | **Build** (Labs 5–6) |
 | Security foundation: least privilege, TLS, encryption, private DB | **Build + evidence** (Labs 5–6) |
-| Telemedicine: scheduling, reminders, one consult flow | **Build** (Lab 7); audio first, video if bandwidth allows |
+| Telemedicine: appointments, event-driven reminders, a WebRTC video-call proof of concept | **Build** (Lab 7) |
 | Mobile money fee, SMS reminders | **Reuse** Prosit 1 integrations (test mode) |
 | Multi-country data residency | **Design doc** (+ optional second-region DB) |
 | Real FHIR server | **Sandbox only** (Lab 6 homework) |
@@ -161,45 +161,83 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | ☐ | **Report:** 300 words: IAM and what it protects against · encryption · FHIR decisions and gaps · one ethics/consent point naming the Act 843 principle | Lab 6 Google Doc → PDF | L6-R | Joseph (paragraphs from Perfect, Elise) |
 | ☐ | *Optional:* FHIR sandbox comparison (150 words), rotation-drill time, RBAC table | `learnings/`, `docs/` | L6-H1/H2/H3 | Eugene, Eugene + Joseph, Elise |
 
-## Phase 3: Lab 7 prep (before Lab 7 is released)
+## Phase 3: Lab 7: serverless reminders + a telemedicine video call
+
+Two halves that don't depend on each other: **A/B** (Joseph, Eugene, Elise) and **C** (Perfect). Neither needs the Lab 5/6
+AWS setup to be finished: the service can run locally and publish to AWS, as the handout's own example does.
+Design for A/B is decision D-010 (one SNS topic fanning out to two SQS queues).
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L7-P1 | Check `af-south-1` support: API Gateway WebSockets, EventBridge Scheduler, Kinesis Video Streams WebRTC (otherwise plan a self-hosted TURN server) | Eugene | — | 🟢 Ready | Findings in `knowledge/` |
-| L7-P2 | WebRTC spike: audio-first, works on a throttled network | Perfect | S9 | ⛔ Blocked | Demo + learnings note |
-| L7-P3 | Appointment/referral data model + event flow (booked → SMS reminder → consult → prescription) | Joseph + Elise | L6-C1 | 🟢 Ready (draft `appointments` table already in `db/migrations/001_initial_schema.sql`) | Diagram + draft schema in `docs/` |
+| L7-A1 | Infra: SNS topic `appointment-events` → 2 SQS queues (`reminders`, `specialist-notify`), each with a dead-letter queue; 2 Lambda functions with their own scoped roles, each triggered by its queue; the service role may only `sns:Publish` to that topic | Eugene | S4 | ⛔ Blocked | `terraform apply` done; the trigger shows on each function in the console |
+| L7-A2 | The two function handlers (Python, as in the handout): reminder (logs "reminder for <phone> at <time>"; real SMS through the Prosit 1 provider is optional) and specialist-notify; both log the `appointmentId` | Joseph | — | 🟢 Ready | Code in `functions/` + a local test with a sample event |
+| L7-A3 | `appointments` table migration (UUID id, patient, specialist, `starts_at`/`ends_at`, status) | Elise | L6-C1 | ✅ Done | In `db/migrations/001_initial_schema.sql`; Postgres blocks double-booking (D-017) |
+| L7-A4 | `POST /appointments` in `patient-record-service`: save the appointment (UUID id, `starts_at`; a double-booking clash → 409, per D-017), then publish `appointment.created` to the topic | Joseph | S10, L7-A3 | 🟢 Ready | Tests pass; returns 201 |
+| L7-A5 | End-to-end run: create one appointment → **both** functions fire from that one event; capture evidence A and B | Joseph | L7-A1, L7-A2, L7-A4 | ⛔ Blocked | Checklist rows A and B ticked |
+| L7-C1 | Signaling server + browser client from the handout's starter code, served over **HTTPS/WSS** (phones only allow the camera on secure pages), e.g. through a Cloudflare tunnel or our domain | Perfect | — | 🟢 Ready | Opens on a phone; camera works |
+| L7-C2 | Call on the **same network**: both video feeds connect | Perfect + one teammate | L7-C1 | ⛔ Blocked | Screenshot C1 |
+| L7-C3 | Call across **two different networks** (campus Wi-Fi vs a phone hotspot); record whether it connected directly or needed a relay (TURN), from `chrome://webrtc-internals` | Perfect + one teammate | L7-C2 | ⛔ Blocked | Screenshot C2 + note of the candidate type |
+| L7-C4 | Real call stats (packet loss, jitter, round-trip time) on the same network vs Slow 3G throttling, with the numbers written down | Perfect | L7-C2 | ⛔ Blocked | Screenshot C3 + numbers in `learnings/lab7-webrtc.md` |
+| L7-R | Lab 7 report (300 words) + package (PDF + code snippets + screenshots A–C) | Joseph (paragraphs: serverless fit, Eugene; WebRTC and TURN, Perfect; resilience question, Elise) | L7-A5, L7-C3, L7-C4 | ⛔ Blocked | Submitted on Canvas **before the Week 8 exam** |
+| L7-H1 | Homework: break the reminder function on a bad message; show it landing in the dead-letter queue | Eugene | L7-A5 | ⚪ Optional | DLQ config + screenshot |
+| L7-H2 | Homework: publish the same event twice; make the reminder send only once (idempotency check) | Elise | L7-A5 | ⚪ Optional | Before/after logs + learnings note |
+| L7-H3 | Homework: TURN relay cost for 50 calls a day × 15 minutes (managed service vs self-hosted coturn) | Perfect | L7-C3 | ⚪ Optional | Number + sources in `learnings/`; reused in Week 11 |
+| L7-W | Syllabus homework: "Justify serverless component" (500 words) | Joseph | L7-A5 | ❓ Confirm | Submitted, if required |
 
-## Phase 4: Lab 7 (not released yet)
+### Lab 7 deliverables checklist
 
-Expected from Lab 6's "Looking Ahead" and the syllabus: **serverless telemedicine**, meaning functions (Lambda), event-driven
-appointment scheduling, and low-bandwidth WebRTC video. Expected deliverables: a working serverless function for the project,
-evidence and a **300-word lab report**. When the handout is released, Joseph replaces this section with real tasks
-and a deliverables checklist like Labs 5 and 6.
+**Submit:** PDF report + code snippets + screenshots/recording from Parts A–C, on Canvas, before the Week 8 exam.
+
+| ✓ | What the lab asks for | Evidence file (`evidence/lab7/`) | From task | Who captures it |
+|---|---|---|---|---|
+| ☐ | **A.** Appointment created (the `curl` and its 201 response) | `outputs_A_create_appointment.txt` | L7-A5 | Joseph |
+| ☐ | **A.** Event published (service log line, or SNS "messages published" metric) | `A-event-published.png` | L7-A5 | Joseph |
+| ☐ | **A.** Reminder function triggered and the reminder logged/sent (CloudWatch log) | `A-reminder-logs.png` + `outputs_A_reminder_logs.txt` | L7-A5 | Joseph |
+| ☐ | **B.** **Both** functions fired from the same single event (same `appointmentId` in both log groups) | `B-both-functions.png` + `outputs_B_logs.txt` | L7-A5 | Joseph |
+| ☐ | **C1.** Call connected on the same network, both video feeds visible | `C1-same-network.png` | L7-C2 | Perfect |
+| ☐ | **C2.** Connection state across two different networks (direct, or relay needed) | `C2-cross-network.png` | L7-C3 | Perfect |
+| ☐ | **C3.** Real stats (packet loss, jitter, round-trip time) from the Slow 3G test, plus the same-network baseline | `C3-stats-slow3g.png`, `C3-stats-baseline.png` | L7-C4 | Perfect |
+| ☐ | **C.** Written notes on what happened across networks and under throttling, **quoting the numbers** | `learnings/lab7-webrtc.md` | L7-C3, L7-C4 | Perfect |
+| ☐ | **Code snippets:** the endpoint, both functions, the signaling server, the client | links to files in the repo | L7-A2, L7-A4, L7-C1 | Joseph, Perfect |
+| ☐ | **Report:** what we moved to serverless and one thing we deliberately didn't (and why) · the cross-network result and what TURN means for architecture and budget · one open resilience question | Lab 7 Google Doc → PDF | L7-R | Joseph |
+| ☐ | *Optional:* dead-letter queue screenshot, duplicate-event test, TURN cost figure | `H-dlq.png`, `learnings/` | L7-H1/H2/H3 | Eugene, Elise, Perfect |
+
+**Rubric:** event flow end-to-end with 2 independent consumers 35% · WebRTC call established and tested under throttling 35% · report reasoning about serverless fit and network reality 30%.
+
+## Phase 4: Lab 8: peer review + midterm preparation
+
+No new code. In class, we present HealthConnect to a partner team and answer four set questions, review their design, then
+revise our diagram. **60% of the grade is live:** the questions we ask (30%) and how well we answer theirs (30%). Everyone must be
+able to explain every part, which is what the `learnings/` notes are for.
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L7-0 | Read the Lab 7 handout; add its tasks and deliverables checklist here; assign owners | Joseph | Lab 7 release | ⛔ Blocked | This section rewritten |
-| L7-R | Lab 7 report (300 words) + package | Joseph | L7 tasks | ⛔ Blocked | Submitted on Canvas |
-| L7-W | Syllabus homework: "Justify serverless component" (500 words) | Joseph | L7 tasks | ❓ Confirm | Submitted, if required |
+| L8-A1 | Current HealthConnect architecture diagram (client → API → data → security layer → event/serverless layer), plus the AgroConnect diagram from Lab 5, ready to show | Perfect | L5-R1 | ⛔ Blocked | `docs/architecture-healthconnect.png` + draw.io file |
+| L8-A2 | 5-minute walkthrough script: the diagram, one decision we're proud of, one known weakness | Joseph | L8-A1 | ⛔ Blocked | Script in `docs/peer-review.md`; rehearsed once |
+| L8-A3 | Our answers to the four questions, each lead for their area: where it breaks at 10× load · the weakest security link · what happens if the network drops mid-consultation or the DB is unreachable · likely open questions | Everyone (Joseph collates) | L8-A1 | ⛔ Blocked | Answers in `docs/peer-review.md` |
+| L8-B1 | In class: present, answer, then review the partner team with the same four questions; everyone takes notes | Everyone | Lab 8 session | ⛔ Blocked | Notes in `docs/peer-review.md` |
+| L8-B2 | Round 3 revision: the "before" diagram with the gap circled, and the "after" diagram with the change highlighted and a one-line caption | Perfect | L8-B1 | ⛔ Blocked | Screenshots B1 and B2 |
+| L8-B3 | Written peer review of the partner team (200 words): one strength, one risk (using the four questions), one question for their final grading; names the team reviewed | Elise (from everyone's notes) | L8-B1 | ⛔ Blocked | PDF submitted by the end of Week 8 |
+| L8-C | Pre-midterm resource audit (`pre_midterm_audit.sh` across AWS + the two other accounts), clean up anything forgotten, after checking with the team | Eugene | — | ⚪ Optional | Output + one-line note |
+| L8-X | Midterm prep: each person walks the others through their `learnings/` notes (teach-back); practice scenarios from the Week 8 lecture | Everyone | — | 🟢 Ready | One session held |
+| L8-M | Syllabus: project design milestone (1,000 words) | Joseph (editor) | L8-B2 | ❓ Confirm | Submitted, if required |
 
-**Evidence to expect** (confirm against the handout): the function's code; console screenshots of the function and its trigger;
-an invocation with its CloudWatch log; the scheduled/event-driven flow firing; a call working on a throttled network.
+### Lab 8 deliverables checklist
 
-## Phase 5: Week 8 / Lab 8 (not released yet)
+**Submit:** one PDF per team, naming the team we reviewed: the 200-word written review + screenshots B1/B2, by the end of Week 8.
 
-The syllabus says Week 8 is the **midterm**, a **project design milestone (1,000-word report)** and a **peer review of
-another team's design (200 words)**. If a "Lab 8" handout appears, it replaces this section.
+| ✓ | What the lab asks for | Evidence file (`evidence/lab8/`) | From task | Who captures it |
+|---|---|---|---|---|
+| ☐ | **B1.** "Before" architecture diagram (as presented), with the gap from review circled or annotated | `B1-before.png` | L8-B2 | Perfect |
+| ☐ | **B2.** "After" diagram, change highlighted, one-sentence caption on what changed and why | `B2-after.png` | L8-B2 | Perfect |
+| ☐ | **Written peer review:** 200 words, specific, cites their actual design | `lab8-peer-review.pdf` | L8-B3 | Elise |
+| ☐ | *Optional:* audit script output + one-line cleanup note | `outputs_C_audit.txt` | L8-C | Eugene |
 
-| ID | Task | Owner | Blocked by | Status | Done when |
-|---|---|---|---|---|---|
-| L8-0 | Read the Week 8 / Lab 8 handout; add its tasks and deliverables here | Joseph | Release | ⛔ Blocked | This section rewritten |
-| L8-M | Project design milestone (1,000 words): each owner writes their section, Joseph edits | Joseph (editor) | L6-R | ❓ Confirm | Submitted |
-| L8-P | Peer review of another team's design (200 words) | Everyone | Week 8 session | ❓ Confirm | Submitted |
-| L8-X | Midterm revision: each person walks the others through their `learnings/` notes | Everyone | — | 🟢 Ready | One session held |
+**Rubric:** quality of our live questions 30% · quality of our answers 30% · written feedback 30% · real revision based on feedback 10%.
 
-Week 9 (CI/CD + incident response) gets its own phase when released.
+After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It gets its own phase when its handout is released.
 
-## Phase 6: Prosit 2 final package
+## Phase 5: Prosit 2 final package
 
 The final report reuses every lab's evidence and report text. Nothing new should need to be screenshotted at the end.
 
