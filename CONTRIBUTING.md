@@ -8,15 +8,19 @@ arrives through a pull request.
 1. Branch off an up-to-date `main`:
    - `feat/<topic>`, `fix/<topic>`, `chore/<topic>`, `docs/<topic>`, `lab5/<part>`, `lab6/<part>`
 2. Do the work **and capture evidence as you go** (see [`evidence/README.md`](./evidence/README.md)).
-3. Write or update your findings note in `docs/findings/` (template: [`TEMPLATE.md`](./docs/findings/TEMPLATE.md)).
+3. Write or update your learnings note in `learnings/` (template: [`TEMPLATE.md`](./learnings/TEMPLATE.md)).
+   If you made a decision, add it to [`docs/decisions.md`](./docs/decisions.md).
+   If you worked with a coding assistant, add a **summary** of the session to `knowledge/sessions/` (never the raw transcript; see [`knowledge/README.md`](./knowledge/README.md)).
 4. Open a pull request into `main`. [`CODEOWNERS`](./.github/CODEOWNERS) requests a review from the path owner.
-   Where possible, also ask someone **outside** your lane to review it. If they can't follow your findings note, it isn't done.
+   Where possible, also ask someone **outside** your lane to review it. If they can't follow your learnings note, it isn't done.
 5. Squash-merge once approved.
 
 ## Definition of done for any PR
 
 - [ ] It works, and the evidence (outputs/screenshots) is in `evidence/labN/`
-- [ ] The findings note explains it **in plain words**: what, why, how to check, what's missing, gotchas
+- [ ] The learnings note explains it **in plain words**: what, why, how to check, what's missing, gotchas
+- [ ] Decisions are in `docs/decisions.md`; new project facts are in `knowledge/`
+- [ ] Your task's status is updated in [`PLAN.md`](./PLAN.md) (including the tasks it unblocks), **and** the "Pending now" table in the README matches
 - [ ] No secrets, passwords, keys or real patient data in the diff
 - [ ] Any new cloud resource is in the cost tracker
 - [ ] AI help, if used, is noted in `docs/ai-tools-usage.md`
@@ -46,5 +50,5 @@ Imperative and scoped:
 ```
 feat(infra): add HealthConnect VPC with private data subnets
 fix(backend): log reads of missing patients without FK failure
-docs(findings): explain least-privilege role in plain terms
+docs(learnings): explain least-privilege role in plain terms
 ```
