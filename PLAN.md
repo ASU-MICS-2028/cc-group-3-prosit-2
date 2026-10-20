@@ -53,7 +53,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
 | S1 | Repo set up: README, CONTRIBUTING, CODEOWNERS, docs, learnings, knowledge, AGENTS.md | Joseph | — | ✅ Done | Pushed to `main` |
-| S2 | Turn on branch protection for `main` (settings in CONTRIBUTING) | Joseph | — | 🟢 Ready | Direct pushes to `main` are refused |
+| S2 | Turn on branch protection for `main` (settings in CONTRIBUTING) | Joseph | — | ✅ Done | Direct pushes to `main` are refused (on since 2026-10-20: 1 approval, code-owner review, applies to admins too) |
 | S3 | Ask the facilitator: Lab 5 on HealthConnect OK? Real due dates? Must AgroConnect's API stay live? Prosit 2 final format? | Joseph | — | 🟢 Ready | Answers recorded in `docs/decisions.md` / `knowledge/` |
 | S4 | Copy Terraform modules into `infra/`: new state key, VPC `10.30.0.0/16`, `Project=healthconnect` tags, `terraform validate` in CI | Eugene | — | ✅ Done | CI passes on a PR |
 | S5 | HealthConnect subdomain + ACM certificate | Eugene | S4 | 🟢 Ready | Certificate issued |
@@ -61,7 +61,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | S7 | Rotate the Prosit 1 Lab 4 DB password (or delete that database) | Eugene | — | 🟢 Ready | Old password no longer works |
 | S8 | Shared vocabulary in `knowledge/`: user roles (CHV, nurse, specialist, GHS official, admin) and data resources (Patient, Observation, Consent, AuditEvent) | Elise | — | 🟢 Ready | Merged |
 | S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready | Builds and runs offline locally |
-| S10 | Scaffold `patient-record-service` in `backend/`: Express/TypeScript, `/health` (returns instance id), `/ready` (checks DB), Dockerfile | Joseph | — | 🟢 Ready | Container runs locally |
+| S10 | Scaffold `patient-record-service` in `backend/`: Express/TypeScript, `/health` (returns instance id), `/ready` (checks DB), Dockerfile | Joseph | — | ✅ Done | Container runs locally ([learnings](./learnings/patient-record-service.md)) |
 
 ## Phase 1: Lab 5 (on HealthConnect)
 
@@ -92,7 +92,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | L6-A2 | Run allow/deny checks (allowed: our secret; denied: delete DB, AgroConnect's secret) + "what it protects against" paragraph | Perfect | L6-A1 | ⛔ Blocked | `evidence/lab6/outputs_A_least_privilege.txt` + learnings note |
 | L6-B1 | Encryption build: customer-managed KMS key, S3 policy denying non-HTTPS, HSTS header, `rds.force_ssl` on | Eugene | L5-B1, S5 | ⛔ Blocked | Applied via Terraform |
 | L6-B2 | Encryption verification evidence: RDS at rest, DB connection uses SSL, HTTP→HTTPS redirect, S3 encrypted + not public | Elise | L6-B1 | ⛔ Blocked | Screenshots + outputs in `evidence/lab6/` |
-| L6-D1 | Audit logging in the service: identity from the session (not a header), data + audit write in one transaction, 404 still logged, denied attempts logged | Joseph | S10, L6-C1 | ⛔ Blocked | Tests pass locally |
+| L6-D1 | Audit logging in the service: identity from the session (not a header), data + audit write in one transaction, 404 still logged, denied attempts logged | Joseph | S10, L6-C1 | 🟢 Ready (needs `withTransaction` first; see Elise's PR #2 review) | Tests pass locally |
 | L6-D2 | Deploy the service and capture audit evidence (POST as a CHV, GET as a doctor, last 5 log rows, failed DELETE on the log) | Joseph | L6-D1, L5-B2 | ⛔ Blocked | `evidence/lab6/outputs_D_audit.txt` |
 | L6-R | Lab 6 report (300 words) + package (PDF, policy, schema, screenshots) | Joseph | L6-A2, L6-B2, L6-C2, L6-D2 | ⛔ Blocked | Submitted on Canvas |
 | L6-H1 | Homework: FHIR managed-service sandbox + 150-word comparison (check whether it exists in `af-south-1`) | Eugene | — | ⚪ Optional | Note in `learnings/` |
