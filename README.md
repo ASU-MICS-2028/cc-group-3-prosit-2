@@ -50,7 +50,9 @@ _Last updated: 2026-10-21_
 | Joseph + Elise | L7-P3 Appointment data model + event flow | 🟢 Ready | — |
 | Perfect | S9 Fork the PWA into `frontend/` | 🟢 Ready | L5-R2, L5-H2, L7-P2 |
 | Perfect | L5-R1 Consolidated architecture diagram (draft) | 🟢 Ready | L5-R4 |
-| Everyone | L5-R3 One retrospective sentence each · L6-H4 Lambda reading | 🟢 Ready | L5-R4 |
+| Everyone | L5-R3 One retrospective sentence each · L6-H4 Lambda reading · L8-X walk each other through your learnings notes (midterm prep) | 🟢 Ready | L5-R4 |
+
+**Lab submissions:** each lab is evidence (screenshots + outputs) + a ~300-word report. What to capture, file by file and by whom, is in each lab's **Deliverables checklist** in [`PLAN.md`](./PLAN.md). Capture it while you do the task.
 
 **Critical path:** S4 → L5-A → L5-B1 → L5-B2 → most of Lab 6. Eugene's S4 unblocks the most work, so it goes first.
 

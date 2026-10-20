@@ -12,7 +12,21 @@ with one owner, the tasks that block it, and a status. This file is the source o
 - "Done" means the evidence is in `evidence/` and the learnings note is written (see [`CONTRIBUTING.md`](./CONTRIBUTING.md)).
 - New task? Add a row in the right place, with a new ID, an owner and its blockers.
 
-**Status:** ✅ Done · 🔄 In progress · 🟢 Ready (nothing blocking) · ⛔ Blocked · ⚪ Optional
+**Status:** ✅ Done · 🔄 In progress · 🟢 Ready (nothing blocking) · ⛔ Blocked · ⚪ Optional · ❓ Confirm with the facilitator (S3)
+
+### How every lab works
+
+Each lab (5, 6, 7, 8) is graded on its own **and** feeds the Prosit 2 final report. Every lab is handed in as
+**evidence (screenshots + terminal outputs) + a short report (usually 300 words)**, submitted as a PDF on Canvas.
+
+1. **Whoever does a task captures its evidence at the same time**, using the file names in that lab's
+   "Deliverables checklist" below. Many things can't be re-shot later: a failover only happens once, and
+   resources get torn down to save money.
+2. Screenshots must show the **resource name, the region (`af-south-1`) and the console page**, with no secrets on screen
+   ([rules](./evidence/README.md)).
+3. Tick the checklist row when the file is in `evidence/labN/`.
+4. The report task for each lab (L5-R4, L6-R, …) starts only when every row is ticked. Its owner assembles the PDF and submits it.
+5. The same evidence is reused in the final report (F1), so name things clearly.
 
 ---
 
@@ -54,7 +68,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 |---|---|---|---|---|---|
 | S1 | Repo set up: README, CONTRIBUTING, CODEOWNERS, docs, learnings, knowledge, AGENTS.md | Joseph | — | ✅ Done | Pushed to `main` |
 | S2 | Turn on branch protection for `main` (settings in CONTRIBUTING) | Joseph | — | ✅ Done | Direct pushes to `main` are refused (on since 2026-10-20: 1 approval, code-owner review, applies to admins too) |
-| S3 | Ask the facilitator: Lab 5 on HealthConnect OK? Real due dates? Must AgroConnect's API stay live? Prosit 2 final format? | Joseph | — | 🟢 Ready | Answers recorded in `docs/decisions.md` / `knowledge/` |
+| S3 | Ask the facilitator: Lab 5 on HealthConnect OK? Real due dates? Must AgroConnect's API stay live? Prosit 2 final format? Are the syllabus's weekly 500-word homework reports (L5-W, L6-W, L7-W) and the Week 8 milestone required? | Joseph | — | 🟢 Ready | Answers recorded in `docs/decisions.md` / `knowledge/` |
 | S4 | Copy Terraform modules into `infra/`: new state key, VPC `10.30.0.0/16`, `Project=healthconnect` tags, `terraform validate` in CI | Eugene | — | 🟢 Ready | CI passes on a PR |
 | S5 | HealthConnect subdomain + ACM certificate | Eugene | S4 | ⛔ Blocked | Certificate issued |
 | S6 | Prosit 2 cost tracker (Resource Inventory + Weekly Log) + budget alarm | Eugene | — | 🟢 Ready | Alarm email confirmed |
@@ -81,6 +95,31 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | L5-H1 | Homework: egress audit + NAT cost comparison | Eugene | L5-B2 | ⚪ Optional | Note in `learnings/` |
 | L5-H2 | Homework: CDN page-load before/after on Slow 3G | Perfect | S9 | ⚪ Optional | Numbers in the report |
 | L5-H3 | Homework: second-country DB + one query that would need federation | Elise | L5-B1 | ⚪ Optional | Query + note in `learnings/` |
+| L5-W | Syllabus homework: "Propose network architecture" (500 words) | Eugene | L5-B2 | ❓ Confirm | Submitted, if required |
+
+### Lab 5 deliverables checklist
+
+**Submit:** one PDF (300-word report + retrospective + diagram + all screenshots below, with links) on Canvas. Due: "before the Week 6 lecture" per the handout; real date via S3.
+
+| ✓ | What the lab asks for | Evidence file (`evidence/lab5/`) | From task | Who captures it |
+|---|---|---|---|---|
+| ☐ | **A.** VPC with at least 2 subnets (console resource map) | `A-vpc-resource-map.png` | L5-A | Eugene |
+| ☐ | **A.** Route tables: public subnet → internet gateway; data subnet has **no** internet gateway route | `outputs_A_routes.txt` + `A-route-tables.png` | L5-A | Eugene |
+| ☐ | **B.** Database in the private subnet: "Publicly accessible: No", data subnets, security group | `B-rds-private.png` | L5-B1 | Eugene |
+| ☐ | **B.** Load balancer target health: **both instances healthy** | `B-targets-both-healthy.png` | L5-B2 | Eugene |
+| ☐ | **B.** `test_load_balancer.sh` output **before** stopping an instance (both instance ids appear) | `outputs_B_lb_before.txt` | L5-B2 | Eugene |
+| ☐ | **B.** Target health after stopping one: **one unhealthy/removed** | `B-targets-after-failover.png` | L5-B2 | Eugene |
+| ☐ | **B.** `test_load_balancer.sh` output **after**: 10/10 succeed on the survivor | `outputs_B_lb_after.txt` | L5-B2 | Eugene |
+| ☐ | **C.** One-page data residency design (diagram + text) | `lab5-data-residency.pdf` | L5-C3 | Elise |
+| ☐ | **D.** Decommissioning checklist: what's still running for AgroConnect and why | `D-decommissioning.md` + `D-resource-inventory.png` | L5-D | Eugene |
+| ☐ | **D.** Month-to-date spend (billing console or cost tracker) | `D-spend.png` | L5-D | Eugene |
+| ☐ | **Package:** consolidated architecture diagram, public/private boundaries marked | `docs/architecture.png` | L5-R1 | Perfect |
+| ☐ | **Package:** working PWA, including the offline demo (airplane mode) | `R-pwa-online.png`, `R-pwa-offline.png` | L5-R2 | Perfect |
+| ☐ | **Package:** container registry (ECR repository with the image) | `R-ecr.png` | L5-B2 | Eugene |
+| ☐ | **Package:** running load-balanced service (`curl https://…/health`) | covered by `outputs_B_lb_*.txt` | L5-B2 | Eugene |
+| ☐ | **Report:** 300 words on the network setup and what changed from Prosit 1 | Lab 5 Google Doc → PDF | L5-R4 | Joseph |
+| ☐ | **Report:** one honest retrospective paragraph | Lab 5 Google Doc | L5-R3 → L5-R4 | Everyone → Joseph |
+| ☐ | *Optional:* CDN page-load before/after on Slow 3G, egress audit, NAT cost note | `H-cdn.png`, `learnings/` | L5-H1/H2/H3 | Eugene, Perfect, Elise |
 
 ## Phase 2: Lab 6
 
@@ -99,6 +138,28 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | L6-H2 | Homework: secrets rotation drill, timed | Eugene + Joseph | L6-D2 | ⚪ Optional | Time recorded in `learnings/` |
 | L6-H3 | Homework: RBAC table (CHV / specialist / GHS official × patients / observations / access_log) | Elise | L6-C1 | ⚪ Optional (unblocked) | Table in `docs/` |
 | L6-H4 | Read the Lambda "Getting Started" docs | Everyone | — | 🟢 Ready | — |
+| L6-W | Syllabus homework: "Develop a security plan" (500 words) | Perfect | L6-A2 | ❓ Confirm | Submitted, if required |
+
+### Lab 6 deliverables checklist
+
+**Submit:** PDF report + IAM policy file + schema file + screenshots from Parts A–D, on Canvas. Due: "before the Week 7 lecture" per the handout; real date via S3.
+
+| ✓ | What the lab asks for | Evidence file (`evidence/lab6/`) | From task | Who captures it |
+|---|---|---|---|---|
+| ☐ | **A.** The least-privilege policy document | `A-policy.json` (copy of the one in `infra/`) | L6-A1 | Eugene |
+| ☐ | **A.** Role attached to the service (instance profile on the EC2 instances, not embedded keys) | `A-role-attached.png` | L6-A1 | Eugene |
+| ☐ | **A.** An **allowed** action succeeding (reading our own secret) | `outputs_A_least_privilege.txt` + `A-allowed.png` | L6-A2 | Perfect |
+| ☐ | **A.** A **forbidden** action denied (`AccessDenied` deleting the DB, reading AgroConnect's secret) | same output file + `A-denied.png` | L6-A2 | Perfect |
+| ☐ | **B.** Database encryption at rest **enabled** (console, with the KMS key) | `B-rds-encryption.png` | L6-B2 | Elise |
+| ☐ | **B.** Bucket encryption + public access block (`get-bucket-encryption`, `get-public-access-block`) | `outputs_B_s3.txt` | L6-B2 | Elise |
+| ☐ | **B.** Plaintext HTTP rejected or redirected (`curl -v http://…` → 301), HTTPS works (`curl -v https://…` → 200) | `outputs_B_tls.txt` | L6-B2 | Elise |
+| ☐ | **B.** *Extra:* DB connection is encrypted (`SHOW rds.force_ssl`, `pg_stat_ssl`) | `outputs_B_db_ssl.txt` | L6-B2 | Elise |
+| ☐ | **C.** The schema file | `db/migrations/*.sql` | L6-C1 | Elise |
+| ☐ | **C.** FHIR mapping write-up + gaps + data minimisation (Act 843) | `docs/fhir-mapping.md` | L6-C2 | Elise |
+| ☐ | **D.** Query result showing populated audit-log entries (a write by a CHV, a read by a doctor) | `outputs_D_audit.txt` + `D-audit-log.png` | L6-D2 | Joseph |
+| ☐ | **D.** *Extra:* deleting from the audit log is refused | `outputs_D_append_only.txt` | L6-D2 | Joseph |
+| ☐ | **Report:** 300 words: IAM and what it protects against · encryption · FHIR decisions and gaps · one ethics/consent point naming the Act 843 principle | Lab 6 Google Doc → PDF | L6-R | Joseph (paragraphs from Perfect, Elise) |
+| ☐ | *Optional:* FHIR sandbox comparison (150 words), rotation-drill time, RBAC table | `learnings/`, `docs/` | L6-H1/H2/H3 | Eugene, Eugene + Joseph, Elise |
 
 ## Phase 3: Lab 7 prep (before Lab 7 is released)
 
@@ -108,9 +169,39 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | L7-P2 | WebRTC spike: audio-first, works on a throttled network | Perfect | S9 | ⛔ Blocked | Demo + learnings note |
 | L7-P3 | Appointment/referral data model + event flow (booked → SMS reminder → consult → prescription) | Joseph + Elise | L6-C1 | 🟢 Ready (draft `appointments` table already in `db/migrations/001_initial_schema.sql`) | Diagram + draft schema in `docs/` |
 
-Lab 7, Week 8 and Week 9 tasks get added here when those labs are released.
+## Phase 4: Lab 7 (not released yet)
 
-## Phase 4: Prosit 2 final package
+Expected from Lab 6's "Looking Ahead" and the syllabus: **serverless telemedicine**, meaning functions (Lambda), event-driven
+appointment scheduling, and low-bandwidth WebRTC video. Expected deliverables: a working serverless function for the project,
+evidence and a **300-word lab report**. When the handout is released, Joseph replaces this section with real tasks
+and a deliverables checklist like Labs 5 and 6.
+
+| ID | Task | Owner | Blocked by | Status | Done when |
+|---|---|---|---|---|---|
+| L7-0 | Read the Lab 7 handout; add its tasks and deliverables checklist here; assign owners | Joseph | Lab 7 release | ⛔ Blocked | This section rewritten |
+| L7-R | Lab 7 report (300 words) + package | Joseph | L7 tasks | ⛔ Blocked | Submitted on Canvas |
+| L7-W | Syllabus homework: "Justify serverless component" (500 words) | Joseph | L7 tasks | ❓ Confirm | Submitted, if required |
+
+**Evidence to expect** (confirm against the handout): the function's code; console screenshots of the function and its trigger;
+an invocation with its CloudWatch log; the scheduled/event-driven flow firing; a call working on a throttled network.
+
+## Phase 5: Week 8 / Lab 8 (not released yet)
+
+The syllabus says Week 8 is the **midterm**, a **project design milestone (1,000-word report)** and a **peer review of
+another team's design (200 words)**. If a "Lab 8" handout appears, it replaces this section.
+
+| ID | Task | Owner | Blocked by | Status | Done when |
+|---|---|---|---|---|---|
+| L8-0 | Read the Week 8 / Lab 8 handout; add its tasks and deliverables here | Joseph | Release | ⛔ Blocked | This section rewritten |
+| L8-M | Project design milestone (1,000 words): each owner writes their section, Joseph edits | Joseph (editor) | L6-R | ❓ Confirm | Submitted |
+| L8-P | Peer review of another team's design (200 words) | Everyone | Week 8 session | ❓ Confirm | Submitted |
+| L8-X | Midterm revision: each person walks the others through their `learnings/` notes | Everyone | — | 🟢 Ready | One session held |
+
+Week 9 (CI/CD + incident response) gets its own phase when released.
+
+## Phase 6: Prosit 2 final package
+
+The final report reuses every lab's evidence and report text. Nothing new should need to be screenshotted at the end.
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|

@@ -3,6 +3,13 @@
 Summaries of what each lab asks for, what to hand in, how it's graded, and what we learned about
 it. The original lab documents are on Canvas and in the team Drive ([`workspace.md`](./workspace.md)).
 
+**The file-by-file deliverables checklist for each lab, with who captures what, is in [`../PLAN.md`](../PLAN.md).**
+This file explains what the labs ask for and what we've learned about them.
+
+**Possibly also required:** the syllabus lists a weekly homework report next to each lab: a 500-word network architecture
+proposal (Week 5), a security plan (Week 6), a serverless justification (Week 7), and a 1,000-word project design
+milestone plus a 200-word peer review (Week 8). The lab handouts don't mention them; we're confirming with the facilitator (S3).
+
 Reflection questions are not graded but count toward participation (5%). Homework extensions are
 optional, but they help with the "innovation" and "autonomous learning" parts of the Prosit grade.
 
