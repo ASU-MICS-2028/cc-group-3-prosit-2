@@ -37,10 +37,9 @@ _Last updated: 2026-10-21_
 
 | Owner | Task (ID in PLAN.md) | Status | Unblocks |
 |---|---|---|---|
-| Joseph | S2 Turn on branch protection for `main` | 🟢 Ready | — |
 | Joseph | S3 Ask the facilitator the open questions | 🟢 Ready | L5-D, F1 |
-| Joseph | S10 Scaffold `patient-record-service` | 🟢 Ready | L5-B2, L6-D1 |
 | Joseph | L5-C2 Data residency: law per country | 🟢 Ready | L5-C3 |
+| Joseph | L6-D1 Audit logging in the service (transaction helper first) | 🟢 Ready | L6-D2 |
 | Eugene | S4 Copy Terraform modules into `infra/` | 🟢 Ready | S5, L5-A → most of Labs 5 and 6 |
 | Eugene | S6 Cost tracker + budget alarm | 🟢 Ready | — |
 | Eugene | S7 Rotate the Prosit 1 Lab 4 DB password | 🟢 Ready | — |

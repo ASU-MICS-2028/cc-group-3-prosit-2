@@ -27,13 +27,15 @@ arrives through a pull request.
 
 ## Who owns what
 
-| Path | Owner |
-| --- | --- |
-| `infra/`, `.github/` | Eugene Sewor (`@eugene-sew`) |
-| `db/` | Elise Kennedy-Angbo (`@Elise-Oyi`) |
-| `backend/` | Joseph Etse (`@josetseph`) |
-| `frontend/` | Perfect Avugla (`@PeaElorm`) |
-| everything else | Joseph Etse (`@josetseph`) |
+| Path | Lead | Backup reviewer |
+| --- | --- | --- |
+| `infra/`, `.github/` | Eugene Sewor (`@eugene-sew`) | Joseph |
+| `db/` | Elise Kennedy-Angbo (`@Elise-Oyi`) | Joseph |
+| `backend/` | Joseph Etse (`@josetseph`) | Elise |
+| `frontend/` | Perfect Avugla (`@PeaElorm`) | Joseph |
+| everything else (plan, docs, learnings, knowledge) | Joseph Etse (`@josetseph`) | anyone on the team |
+
+Nobody can approve their own PR, which is why every path has a backup.
 
 ## Branch protection for `main`
 

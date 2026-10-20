@@ -25,4 +25,4 @@ simply as you can.
 | Note | Owner | What it covers |
 |---|---|---|
 | [`database.md`](./database.md) | Elise | FHIR-shaped schema, consent and audit rules in the database, how to test it (L6-C1, L6-C2, L7-A3) |
-| — | — | Add a row when you add a note |
+| [`patient-record-service.md`](./patient-record-service.md) | Joseph | The API in `backend/`: health checks, how to run it, settings it needs on AWS |
