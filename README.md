@@ -29,31 +29,23 @@ If a teammate has to ask you how your part works, the note was not simple enough
 
 ## Pending now
 
-**The full ordered task list, with blockers, is in [`PLAN.md`](./PLAN.md).** This table shows only
-what can be worked on **right now** (nothing blocking it) or is in progress.
-**Whenever you change a task in PLAN.md, update this table in the same PR.**
+**Find your name.** "Now" means you can start today; "Next" is what's coming, and what it's waiting on.
+Task IDs link to the full detail in [`PLAN.md`](./PLAN.md): blockers, "done when", and each lab's screenshot checklist.
+**Whenever a task changes state, update this section in the same PR.**
 
 _Last updated: 2026-10-21_
 
-| Owner | Task (ID in PLAN.md) | Status | Unblocks |
-|---|---|---|---|
-| Joseph | S3 Ask the facilitator the open questions | 🟢 Ready | L5-D, F1 |
-| Joseph | L5-C2 Data residency: law per country | 🟢 Ready | L5-C3 |
-| Joseph | L7-A2 The two Lambda function handlers (Lab 7) | 🟢 Ready | L7-A5 |
-| Eugene | S4 Copy Terraform modules into `infra/` | 🟢 Ready | S5, L5-A → most of Labs 5 and 6 |
-| Eugene | S6 Cost tracker + budget alarm | 🟢 Ready | — |
-| Eugene | S7 Rotate the Prosit 1 Lab 4 DB password | 🟢 Ready | — |
-| Elise | S8 Shared vocabulary | 🟢 Ready | — |
-| Elise | L5-C1 Data residency: sharding design | 🟢 Ready | L5-C3 |
-| Elise | L6-C1 FHIR-aligned schema migrations | 🟢 Ready | L6-C2, L6-D1, L6-H3, L7-A3 → most of Lab 7 A/B |
-| Perfect | S9 Fork the PWA into `frontend/` | 🟢 Ready | L5-R2, L5-H2 |
-| Perfect | L5-R1 Consolidated architecture diagram (draft) | 🟢 Ready | L5-R4, L8-A1 |
-| Perfect | L7-C1 WebRTC signaling server + client over HTTPS (Lab 7) | 🟢 Ready | L7-C2 → C3, C4 |
-| Everyone | L5-R3 One retrospective sentence each · L6-H4 Lambda reading · L8-X walk each other through your learnings notes (midterm prep) | 🟢 Ready | L5-R4 |
+| Who | Now | Next (waiting on) |
+|---|---|---|
+| **Joseph** | S3 Ask the facilitator the open questions · L5-C2 Data residency: law per country · L7-A2 The two Lambda function handlers | L7-A4 `POST /appointments` (Elise's L7-A3) · L6-D1 Audit logging (Elise's L6-C1) · L8-A2 Peer-review walkthrough (Perfect's L8-A1) · Lab reports L5-R4, L6-R, L7-R (each lab's checklist) |
+| **Eugene** | **Review [PR #1](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/1)** · **S4 Copy Terraform into `infra/` (first: most of Labs 5–7 waits on it)** · S6 Cost tracker + budget alarm · S7 Rotate the Prosit 1 Lab 4 DB password | S5 Certificate, L5-A VPC, L7-A1 SNS/SQS/Lambda (S4) → L5-B1 RDS → L5-B2 Failover demo, L6-A1 IAM role, L6-B1 Encryption · L5-D AgroConnect decommissioning (S3) |
+| **Elise** | **Review [PR #2](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/2)** (after #1 merges) · **L6-C1 FHIR schema (first: unblocks Lab 6 C/D and Lab 7 A/B)** · L5-C1 Sharding design · S8 Shared vocabulary | L7-A3 Appointments table, L6-C2 FHIR mapping (L6-C1) · L5-C3 Residency PDF (L5-C1 + Joseph's L5-C2) · L6-B2 Encryption evidence (Eugene's L6-B1) · L8-B3 Written peer review (Lab 8 session) |
+| **Perfect** | **Review [PR #3](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/3)** (after #2 merges) · **L7-C1 WebRTC signaling + client over HTTPS** · S9 Fork the PWA · L5-R1 Architecture diagram | L7-C2 → C3, C4 Call tests + stats (L7-C1) · L5-R2 PWA offline evidence (S9) · L6-A2 Allow/deny checks (Eugene's L6-A1) · L8-A1 Diagrams for peer review (L5-R1) → L8-B2 Revision |
+| **Everyone** | L5-R3 One retrospective sentence each · L6-H4 Lambda reading · L8-X Teach-back of your `learnings/` notes (midterm prep) | L8-A3 Answers to the four review questions, L8-B1 Lab 8 session (in class) |
 
-**Lab submissions:** each lab is evidence (screenshots + outputs) + a ~300-word report. What to capture, file by file and by whom, is in each lab's **Deliverables checklist** in [`PLAN.md`](./PLAN.md). Capture it while you do the task.
+**Critical path:** Eugene's S4 and Elise's L6-C1 unblock the most work, so do them first.
 
-**Critical path:** S4 → L5-A → L5-B1 → L5-B2 → most of Lab 6. Eugene's S4 unblocks the most work, so it goes first.
+**Lab submissions:** each lab is evidence (screenshots + outputs) + a ~300-word report. Every screenshot, its file name and who takes it are in each lab's **Deliverables checklist** in [`PLAN.md`](./PLAN.md). Capture them while you do the task.
 
 ---
 
