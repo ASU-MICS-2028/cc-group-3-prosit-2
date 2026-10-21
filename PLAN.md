@@ -86,8 +86,8 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L6-C1 | FHIR-aligned schema migrations: UUID ids, LOINC code + UCUM unit on observations, consent required before writes, append-only `access_log` | Elise | — | 🟢 Ready | `db/migrations/*.sql` applies cleanly to an empty Postgres |
-| L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | ⛔ Blocked | `docs/fhir-mapping.md` |
+| L6-C1 | FHIR-aligned schema migrations: UUID ids, LOINC code + UCUM unit on observations, consent required before writes, append-only `access_log` | Elise | — | ✅ Done | `db/migrations/*.sql` applies cleanly to an empty Postgres (`db/tests/run_tests.sh`: 25 deny, 14 allow, 0 problems) |
+| L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | 🔄 In progress (Elise): written; waiting on D-018 and LOINC code check | `docs/fhir-mapping.md` |
 | L6-A1 | `healthconnect-service` IAM role + least-privilege policy (only its own secret, bucket, logs, ECR) | Eugene | L5-B1 | ⛔ Blocked | Policy JSON in `infra/` + `evidence/lab6/` |
 | L6-A2 | Run allow/deny checks (allowed: our secret; denied: delete DB, AgroConnect's secret) + "what it protects against" paragraph | Perfect | L6-A1 | ⛔ Blocked | `evidence/lab6/outputs_A_least_privilege.txt` + learnings note |
 | L6-B1 | Encryption build: customer-managed KMS key, S3 policy denying non-HTTPS, HSTS header, `rds.force_ssl` on | Eugene | L5-B1, S5 | ⛔ Blocked | Applied via Terraform |
@@ -97,7 +97,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | L6-R | Lab 6 report (300 words) + package (PDF, policy, schema, screenshots) | Joseph | L6-A2, L6-B2, L6-C2, L6-D2 | ⛔ Blocked | Submitted on Canvas |
 | L6-H1 | Homework: FHIR managed-service sandbox + 150-word comparison (check whether it exists in `af-south-1`) | Eugene | — | ⚪ Optional | Note in `learnings/` |
 | L6-H2 | Homework: secrets rotation drill, timed | Eugene + Joseph | L6-D2 | ⚪ Optional | Time recorded in `learnings/` |
-| L6-H3 | Homework: RBAC table (CHV / specialist / GHS official × patients / observations / access_log) | Elise | L6-C1 | ⚪ Optional | Table in `docs/` |
+| L6-H3 | Homework: RBAC table (CHV / specialist / GHS official × patients / observations / access_log) | Elise | L6-C1 | ⚪ Optional (unblocked) | Table in `docs/` |
 | L6-H4 | Read the Lambda "Getting Started" docs | Everyone | — | 🟢 Ready | — |
 
 ## Phase 3: Lab 7 prep (before Lab 7 is released)
@@ -106,7 +106,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 |---|---|---|---|---|---|
 | L7-P1 | Check `af-south-1` support: API Gateway WebSockets, EventBridge Scheduler, Kinesis Video Streams WebRTC (otherwise plan a self-hosted TURN server) | Eugene | — | 🟢 Ready | Findings in `knowledge/` |
 | L7-P2 | WebRTC spike: audio-first, works on a throttled network | Perfect | S9 | ⛔ Blocked | Demo + learnings note |
-| L7-P3 | Appointment/referral data model + event flow (booked → SMS reminder → consult → prescription) | Joseph + Elise | L6-C1 | ⛔ Blocked | Diagram + draft schema in `docs/` |
+| L7-P3 | Appointment/referral data model + event flow (booked → SMS reminder → consult → prescription) | Joseph + Elise | L6-C1 | 🟢 Ready (draft `appointments` table already in `db/migrations/001_initial_schema.sql`) | Diagram + draft schema in `docs/` |
 
 Lab 7, Week 8 and Week 9 tasks get added here when those labs are released.
 
