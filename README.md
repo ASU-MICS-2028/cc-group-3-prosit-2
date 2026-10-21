@@ -33,7 +33,7 @@ If a teammate has to ask you how your part works, the note was not simple enough
 what can be worked on **right now** (nothing blocking it) or is in progress.
 **Whenever you change a task in PLAN.md, update this table in the same PR.**
 
-_Last updated: 2026-10-20_
+_Last updated: 2026-10-21_
 
 | Owner | Task (ID in PLAN.md) | Status | Unblocks |
 |---|---|---|---|
@@ -47,7 +47,8 @@ _Last updated: 2026-10-20_
 | Eugene | L7-P1 Check `af-south-1` service support for Lab 7 | 🟢 Ready | — |
 | Elise | S8 Shared vocabulary | 🟢 Ready | — |
 | Elise | L5-C1 Data residency: sharding design | 🟢 Ready | L5-C3 |
-| Elise | L6-C1 FHIR-aligned schema migrations | 🟢 Ready | L6-C2, L6-D1, L6-H3, L7-P3 |
+| Elise | L6-C2 FHIR mapping + data minimisation (waiting on D-018) | 🔄 In progress | L6-R |
+| Joseph + Elise | L7-P3 Appointment data model + event flow | 🟢 Ready | — |
 | Perfect | S9 Fork the PWA into `frontend/` | 🟢 Ready | L5-R2, L5-H2, L7-P2 |
 | Perfect | L5-R1 Consolidated architecture diagram (draft) | 🟢 Ready | L5-R4 |
 | Everyone | L5-R3 One retrospective sentence each · L6-H4 Lambda reading | 🟢 Ready | L5-R4 |

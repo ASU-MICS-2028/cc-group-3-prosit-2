@@ -1,6 +1,6 @@
 # Lab 6 Part C: schema tests (db/tests/run_tests.sh)
-# Run at: 2026-10-21 07:32 UTC
-# Server: 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+# Run at: 2026-10-21 10:17 UTC
+# Server: 16.15 (Debian 16.15-1.pgdg13+2)
 # Migrations: 001_initial_schema.sql 002_loinc_reference.sql 003_audit_trail.sql 
 
 --- D-015: audit columns ---
@@ -27,10 +27,10 @@ LINE 1: INSERT INTO patients (id, full_name) VALUES ('not-a-uuid', '...
 --- patients column checks ---
 SHOULD FAIL: phone not in E.164
 ERROR:  new row for relation "patients" violates check constraint "patients_phone_check"
-DETAIL:  Failing row contains (2d699d69-d12c-4cfb-95c2-f340099871c6, Bad Phone, 0200000001, null, f, null, GH, null, null, 2026-10-21 07:32:46.956018+00, 11111111-1111-1111-1111-111111111111, 2026-10-21 07:32:46.956018+00, 11111111-1111-1111-1111-111111111111).
+DETAIL:  Failing row contains (5a07bb11-a244-4673-a943-9dd367045b13, Bad Phone, 0200000001, null, f, null, GH, null, null, 2026-10-21 10:17:34.680366+00, 11111111-1111-1111-1111-111111111111, 2026-10-21 10:17:34.680366+00, 11111111-1111-1111-1111-111111111111).
 SHOULD FAIL: gender outside FHIR AdministrativeGender
 ERROR:  new row for relation "patients" violates check constraint "patients_gender_check"
-DETAIL:  Failing row contains (7f8e1658-a1a9-47ad-8ca2-0ffddf5f7333, Bad Gender, null, null, f, F, GH, null, null, 2026-10-21 07:32:46.956258+00, 11111111-1111-1111-1111-111111111111, 2026-10-21 07:32:46.956258+00, 11111111-1111-1111-1111-111111111111).
+DETAIL:  Failing row contains (074a7552-0771-4c8d-89ff-a0651321efc5, Bad Gender, null, null, f, F, GH, null, null, 2026-10-21 10:17:34.680644+00, 11111111-1111-1111-1111-111111111111, 2026-10-21 10:17:34.680644+00, 11111111-1111-1111-1111-111111111111).
 --- consents ---
 --- DATA-002: LOINC lookup + plausibility ---
 SHOULD PASS: Ama, temperature 36.8 under her own consent
@@ -47,7 +47,7 @@ ERROR:  insert or update on table "observations" violates foreign key constraint
 DETAIL:  Key (consent_id, patient_id)=(cccccccc-0000-0000-0000-00000000000b, aaaaaaaa-0000-0000-0000-000000000001) is not present in table "consents".
 SHOULD FAIL: consent id that does not exist
 ERROR:  insert or update on table "observations" violates foreign key constraint "observations_consent_id_patient_id_fkey"
-DETAIL:  Key (consent_id, patient_id)=(cb802041-82b1-4b23-8e6f-0f414f917fd3, aaaaaaaa-0000-0000-0000-000000000001) is not present in table "consents".
+DETAIL:  Key (consent_id, patient_id)=(0ee27654-b3ff-40e3-8762-fc34caf3ff1f, aaaaaaaa-0000-0000-0000-000000000001) is not present in table "consents".
 --- D-012 guard 2: trigger ---
 SHOULD FAIL: SMS-reminder consent used for a clinical reading
 ERROR:  Consent cccccccc-0000-0000-0000-00000000000c covers "appointment_reminders", not clinical care. Obtain clinical-care consent before recording.
@@ -111,10 +111,10 @@ SHOULD PASS: back-to-back slot at 10:30 is fine
 SHOULD PASS: after Kofi cancels, his 10:00 slot can be rebooked
 SHOULD FAIL: ends before it starts
 ERROR:  new row for relation "appointments" violates check constraint "appointments_check"
-DETAIL:  Failing row contains (48966689-12eb-443f-bcc8-242d85cda8c2, bbbbbbbb-0000-0000-0000-000000000002, 22222222-2222-2222-2222-222222222222, 2027-02-01 10:00:00+00, 2027-02-01 09:00:00+00, booked, 2026-10-21 07:32:46.97262+00, 11111111-1111-1111-1111-111111111111, 2026-10-21 07:32:46.97262+00, 11111111-1111-1111-1111-111111111111).
+DETAIL:  Failing row contains (a593728d-35ca-4feb-8872-ff057613d5a6, bbbbbbbb-0000-0000-0000-000000000002, 22222222-2222-2222-2222-222222222222, 2027-02-01 10:00:00+00, 2027-02-01 09:00:00+00, booked, 2026-10-21 10:17:34.693025+00, 11111111-1111-1111-1111-111111111111, 2026-10-21 10:17:34.693025+00, 11111111-1111-1111-1111-111111111111).
 SHOULD FAIL: specialist who does not exist
 ERROR:  insert or update on table "appointments" violates foreign key constraint "appointments_specialist_id_fkey"
-DETAIL:  Key (specialist_id)=(f444d05c-3f0e-470d-98a9-e2e3c30c6727) is not present in table "practitioners".
+DETAIL:  Key (specialist_id)=(741dc3ab-1c20-4272-9c37-8de4fad81625) is not present in table "practitioners".
 --- access_log (Lab 6 Part D) ---
 SHOULD PASS: log a read of Ama, and a probe of a patient id that does not exist
 SHOULD FAIL: edit the audit log
@@ -139,10 +139,10 @@ SHOULD PASS: Ama's full history. Phone and name show as [redacted]; region, cons
   4 | patients     | insert | {birth_date_estimated,country_code,date_of_birth,full_name,gender,id,phone,preferred_language,region} |                                            | {"id": "aaaaaaaa-0000-0000-0000-000000000001", "phone": "[redacted]", "gender": "female", "region": "Volta", "full_name": "[redacted]", "country_code": "GH", "date_of_birth": "[redacted]", "preferred_language": "ewe", "birth_date_estimated": false}                                                                 | Abena Mensah    | postgres
   6 | consents     | insert | {given_at,given_by,id,patient_id,purpose,recorded_by}                                                 |                                            | {"id": "cccccccc-0000-0000-0000-00000000000a", "purpose": "clinical_care", "given_at": "2026-10-01T09:00:00+00:00", "given_by": "patient", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111"}                                                                  | Abena Mensah    | postgres
   8 | consents     | insert | {given_at,given_by,id,patient_id,purpose,recorded_by}                                                 |                                            | {"id": "cccccccc-0000-0000-0000-00000000000c", "purpose": "appointment_reminders", "given_at": "2026-10-01T09:00:00+00:00", "given_by": "patient", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111"}                                                          | Abena Mensah    | postgres
-  9 | observations | insert | {consent_id,effective_at,id,loinc_code,patient_id,recorded_by,status,value}                           |                                            | {"id": "85833781-d070-4477-b5be-2b93ead8d5bb", "value": 36.8, "status": "final", "consent_id": "cccccccc-0000-0000-0000-00000000000a", "loinc_code": "8310-5", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111", "effective_at": "2026-10-15T10:00:00+00:00"} | Abena Mensah    | postgres
+  9 | observations | insert | {consent_id,effective_at,id,loinc_code,patient_id,recorded_by,status,value}                           |                                            | {"id": "6ec69e6d-9f27-4ec7-a5db-56ac616f762b", "value": 36.8, "status": "final", "consent_id": "cccccccc-0000-0000-0000-00000000000a", "loinc_code": "8310-5", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111", "effective_at": "2026-10-15T10:00:00+00:00"} | Abena Mensah    | postgres
  10 | consents     | update | {withdrawn_at}                                                                                        | {"withdrawn_at": null}                     | {"withdrawn_at": "2026-12-05T12:00:00+00:00"}                                                                                                                                                                                                                                                                            | Dr. Yaw Boateng | postgres
- 12 | appointments | insert | {ends_at,id,patient_id,specialist_id,starts_at,status}                                                |                                            | {"id": "61b37948-3acb-478c-a7d2-1db7e142abeb", "status": "booked", "ends_at": "2027-01-15T11:00:00+00:00", "starts_at": "2027-01-15T10:30:00+00:00", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "specialist_id": "22222222-2222-2222-2222-222222222222"}                                                      | Abena Mensah    | postgres
- 14 | appointments | insert | {ends_at,id,patient_id,specialist_id,starts_at,status}                                                |                                            | {"id": "9b4e03af-7885-4d09-8be9-6fe5a3370e34", "status": "booked", "ends_at": "2027-01-15T10:30:00+00:00", "starts_at": "2027-01-15T10:00:00+00:00", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "specialist_id": "22222222-2222-2222-2222-222222222222"}                                                      | Abena Mensah    | postgres
+ 12 | appointments | insert | {ends_at,id,patient_id,specialist_id,starts_at,status}                                                |                                            | {"id": "c2dba86a-7210-481c-8c0a-77d73b6df80c", "status": "booked", "ends_at": "2027-01-15T11:00:00+00:00", "starts_at": "2027-01-15T10:30:00+00:00", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "specialist_id": "22222222-2222-2222-2222-222222222222"}                                                      | Abena Mensah    | postgres
+ 14 | appointments | insert | {ends_at,id,patient_id,specialist_id,starts_at,status}                                                |                                            | {"id": "ab149f14-ffcb-4c21-87f4-4804a45ef5e3", "status": "booked", "ends_at": "2027-01-15T10:30:00+00:00", "starts_at": "2027-01-15T10:00:00+00:00", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "specialist_id": "22222222-2222-2222-2222-222222222222"}                                                      | Abena Mensah    | postgres
  15 | patients     | update | {phone,region}                                                                                        | {"phone": "[redacted]", "region": "Volta"} | {"phone": "[redacted]", "region": "Greater Accra"}                                                                                                                                                                                                                                                                       | Abena Mensah    | postgres
  16 | observations | update | {status}                                                                                              | {"status": "final"}                        | {"status": "entered-in-error"}                                                                                                                                                                                                                                                                                           | Abena Mensah    | postgres
 
