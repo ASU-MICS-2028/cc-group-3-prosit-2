@@ -1,17 +1,21 @@
 # CODEOWNERS: who reviews what. Flow and branch protection: see CONTRIBUTING.md.
+#
+# Each path lists its lead first, then a backup. Branch protection needs one code-owner approval,
+# and nobody can approve their own PR, so every path needs at least two owners or the lead's own
+# PRs could never merge.
 
-# Default owner: the project overall.
-*                       @josetseph
+# Default: the plan, docs, learnings, knowledge. Anyone on the team can approve.
+*                       @josetseph @eugene-sew @Elise-Oyi @PeaElorm
 
 # Infrastructure and repo plumbing.
-/infra/                 @eugene-sew
-/.github/               @eugene-sew
+/infra/                 @eugene-sew @josetseph
+/.github/               @eugene-sew @josetseph
 
 # Database schema.
-/db/                    @Elise-Oyi
+/db/                    @Elise-Oyi @josetseph
 
 # Backend service.
-/backend/               @josetseph
+/backend/               @josetseph @Elise-Oyi
 
 # Frontend app.
-/frontend/              @PeaElorm
+/frontend/              @PeaElorm @josetseph
