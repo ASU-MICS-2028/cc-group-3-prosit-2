@@ -52,8 +52,12 @@ Verified on 2026-10-20 with exactly these commands.
 
 ## 5. What is NOT done, or is faked
 
-- No patient endpoints, no login, no audit log yet. Those are L6-D1, after Elise's schema (L6-C1).
-- No database migrations yet (they come with L6-C1).
+- No patient endpoints, no login, no audit log yet. Those are L6-D1.
+- **No transaction helper yet, and every write will need one.** Elise's schema (`db/migrations/`) refuses any write unless the
+  same transaction first runs `SELECT set_config('app.user_id', <who>, true)`. `pool.query()` may send each statement
+  on a different connection, losing that setting. So L6-D1 starts by adding `withTransaction(actorId, fn)` to `db.ts`:
+  one connection, `BEGIN` → set the user → the writes + the `access_log` row → `COMMIT`. (From Elise's review of PR #2.)
+- The service doesn't run the migrations itself yet. For now, apply them with Elise's `db/tests/run_tests.sh` setup.
 - Not deployed to AWS yet. That's L5-B2, after Eugene's VPC and database.
 - No CI job runs these tests yet. `.github/` is Eugene's; a "backend tests" job is worth adding alongside S4.
 

@@ -12,8 +12,9 @@ export interface Ctx {
 export function createApp(ctx: Ctx): Express {
   const app = express()
   app.disable('x-powered-by')
-  // The ALB is the only proxy in front of the app.
-  app.set('trust proxy', true)
+  // Trust exactly one proxy, the ALB. `true` would trust every hop, letting a client forge
+  // X-Forwarded-For and put a fake IP into the audit log.
+  app.set('trust proxy', 1)
   // One JSON line per request. Bodies are never logged: they will hold patient data.
   app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/ready' } }))
   app.use(helmet())
