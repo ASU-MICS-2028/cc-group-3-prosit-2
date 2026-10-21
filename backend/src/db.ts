@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import pg from 'pg'
 import type { Config } from './config.js'
+import { logger } from './logging.js'
 import { getSecretJson } from './secrets.js'
 
 export interface Db {
@@ -37,7 +38,7 @@ export async function createPgDb(config: Config): Promise<Db> {
   }
 
   const pool = new pg.Pool({ max: 10, idleTimeoutMillis: 30_000, ...poolConfig })
-  pool.on('error', (error) => console.error('[db] idle client error', error.message))
+  pool.on('error', (error) => logger.error({ err: error }, 'idle database client error'))
   return {
     query: (sql, params) => pool.query(sql, params),
     close: () => pool.end(),
