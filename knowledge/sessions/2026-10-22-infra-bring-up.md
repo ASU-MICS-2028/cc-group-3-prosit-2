@@ -29,7 +29,7 @@ Retire AgroConnect's AWS resources, then get HealthConnect's infrastructure (S4)
 ## Open questions / next steps
 
 1. Choose the API domain (S5), then set `api_hostname` and apply: HTTPS comes on.
-2. Run `db/migrations/` on RDS through the SSM tunnel (needs the Session Manager plugin installed).
+2. ~~Run `db/migrations/` on RDS~~ Done: `001`–`003` applied through the SSM tunnel (8 tables). Elise's `run_tests.sh` stays local-only (it drops databases).
 3. When PR #2 merges, rebuild the image from `main` and do the L5-B2 failover demo.
 4. The frontend doesn't exist yet (S9, Perfect). Amplify hosting returns to Terraform once it does.
 5. Screenshots: VPC resource map (L5-A), RDS "Publicly accessible: No" (L5-B1).

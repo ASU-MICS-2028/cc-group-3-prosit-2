@@ -90,6 +90,7 @@ for f in ../db/migrations/*.sql; do psql "host=localhost port=15432 dbname=healt
 ```
 
 Needs the Session Manager plugin for the AWS CLI (`brew install --cask session-manager-plugin`).
+Never point `db/tests/run_tests.sh` at this tunnel: it drops and recreates databases (its RDS guard only checks the hostname).
 
 ## Rollback
 
