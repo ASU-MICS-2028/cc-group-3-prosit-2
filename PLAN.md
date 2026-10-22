@@ -55,9 +55,9 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | S1 | Repo set up: README, CONTRIBUTING, CODEOWNERS, docs, learnings, knowledge, AGENTS.md | Joseph | — | ✅ Done | Pushed to `main` |
 | S2 | Turn on branch protection for `main` (settings in CONTRIBUTING) | Joseph | — | 🟢 Ready | Direct pushes to `main` are refused |
 | S3 | Ask the facilitator: Lab 5 on HealthConnect OK? Real due dates? Must AgroConnect's API stay live? Prosit 2 final format? | Joseph | — | 🟢 Ready | Answers recorded in `docs/decisions.md` / `knowledge/` |
-| S4 | Copy Terraform modules into `infra/`: new state key, VPC `10.30.0.0/16`, `Project=healthconnect` tags, `terraform validate` in CI | Eugene | — | 🟢 Ready | CI passes on a PR |
-| S5 | HealthConnect subdomain + ACM certificate | Eugene | S4 | ⛔ Blocked | Certificate issued |
-| S6 | Prosit 2 cost tracker (Resource Inventory + Weekly Log) + budget alarm | Eugene | — | 🟢 Ready | Alarm email confirmed |
+| S4 | Copy Terraform modules into `infra/`: new state key, VPC `10.30.0.0/16`, `Project=healthconnect` tags, `terraform validate` in CI | Eugene | — | ✅ Done | CI passes on a PR |
+| S5 | HealthConnect subdomain + ACM certificate | Eugene | S4 | 🟢 Ready | Certificate issued |
+| S6 | Prosit 2 cost tracker (Resource Inventory + Weekly Log) + budget alarm | Eugene | — | 🔄 In progress (budget alarm applied; tracker sheet to do) | Alarm email confirmed |
 | S7 | Rotate the Prosit 1 Lab 4 DB password (or delete that database) | Eugene | — | 🟢 Ready | Old password no longer works |
 | S8 | Shared vocabulary in `knowledge/`: user roles (CHV, nurse, specialist, GHS official, admin) and data resources (Patient, Observation, Consent, AuditEvent) | Elise | — | 🟢 Ready | Merged |
 | S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready | Builds and runs offline locally |
@@ -67,13 +67,13 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L5-A | VPC applied (2 public, 2 private-app, 2 private-data subnets, 2 AZs, IGW, fck-nat) + route-table proof | Eugene | S4 | ⛔ Blocked | `evidence/lab5/outputs_A_routes.txt` + VPC screenshot |
-| L5-B1 | RDS in data subnets, not public, port 5432 open only to the app security group | Eugene | L5-A | ⛔ Blocked | Console screenshot; connection from outside fails |
+| L5-A | VPC applied (2 public, 2 private-app, 2 private-data subnets, 2 AZs, IGW, fck-nat) + route-table proof | Eugene | S4 | 🔄 In progress (applied; routes proof in; VPC screenshot to do) | `evidence/lab5/outputs_A_routes.txt` + VPC screenshot |
+| L5-B1 | RDS in data subnets, not public, port 5432 open only to the app security group | Eugene | L5-A | 🔄 In progress (applied; screenshot + outside-connection test to do) | Console screenshot; connection from outside fails |
 | L5-B2 | 2 instances of the service behind the ALB; failover demo (stop one, 10/10 requests still succeed) | Eugene | L5-B1, S10 | ⛔ Blocked | Target-health screenshots + both script outputs |
 | L5-C1 | Data residency: sharding design + diagram (country key, one DB per country, only anonymised aggregates cross borders) | Elise | — | 🟢 Ready | Draft in `docs/data-residency.md` |
 | L5-C2 | Data residency: law per country (Ghana Act 843 + Kenya or Nigeria), one concrete control each, "needs legal review" list | Joseph | — | 🟢 Ready | Section added to `docs/data-residency.md`, clauses verified |
 | L5-C3 | One-page residency PDF | Elise | L5-C1, L5-C2 | ⛔ Blocked | PDF in `evidence/lab5/` |
-| L5-D | AgroConnect decommissioning: inventory, scale down, snapshot/stop RDS (note the 7-day restart), log spend | Eugene (Joseph reviews) | S3 | ⛔ Blocked | Checklist + spend figure in `evidence/lab5/` |
+| L5-D | AgroConnect decommissioning: everything was destroyed with `terraform destroy` on 2026-10-15 (74 resources, no DB snapshot); write the checklist note and log the spend | Eugene (Joseph reviews) | — | 🟢 Ready | Checklist + spend figure in `evidence/lab5/` |
 | L5-R1 | Consolidated architecture diagram (client → ALB → app → data → external APIs, subnet boundaries marked) | Perfect | — (finalise after L5-B2) | 🟢 Ready | PNG + draw.io in `docs/` |
 | L5-R2 | PWA offline demo evidence (screenshots or short recording) | Perfect | S9 | ⛔ Blocked | Files in `evidence/lab5/` |
 | L5-R3 | AgroConnect retrospective: one honest sentence each | Everyone | — | 🟢 Ready | Sentences in the "Lab 5" Google Doc tabs |

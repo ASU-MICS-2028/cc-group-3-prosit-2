@@ -24,7 +24,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-003: Same AWS region and a non-overlapping network
 
-- **Date:** 2026-10-18 · **Status:** Proposed (Eugene to confirm)
+- **Date:** 2026-10-18 · **Status:** Accepted (Eugene, 2026-10-22: built this way in S4)
 - **Decision:** AWS `af-south-1` (Cape Town), VPC `10.30.0.0/16`.
 - **Why:** `af-south-1` had the lowest measured latency from Ghana in Prosit 1 (74 ms median). AgroConnect uses `10.20.0.0/16`; not overlapping keeps peering possible later.
 - **Gave up:** there is no AWS region in Ghana, so health data leaves the country. The data residency doc (Lab 5 Part C) must deal with this openly.
@@ -141,3 +141,11 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** HealthConnect's stated purposes become: triage support, appointment scheduling, health advisory, and **public health reporting limited to aggregated, anonymised counts** (e.g. "42 fever cases in Volta this month"), never individual records.
 - **Why:** The data minimisation pass found that the real reasons for collecting `region` (planning resources, seeing where illnesses are more common) are reporting, which wasn't a stated purpose. Under Act 843 an unstated purpose can't justify collection. Stating it, and limiting it to aggregates, also matches the residency rule that only anonymised aggregates cross borders.
 - **Gave up:** using identifiable records for reporting.
+
+## D-019: Our own FHIR-shaped Postgres now; AWS HealthLake for demo day
+
+- **Date:** 2026-10-22 · **Status:** Proposed (Eugene)
+- **Decision:** Until demo day, patient data lives in our own RDS Postgres with the FHIR-shaped schema (`db/migrations/`), served by `patient-record-service`. For demo day we add AWS HealthLake (AWS's managed FHIR server) and show the same records there. This answers the brief's "choose and justify a cloud healthcare platform".
+- **Why:** The labs grade our own schema, audit log and security controls, which a managed service would hide. HealthLake is not offered in `af-south-1` (checked 2026-10-22: no endpoint there; it answers in `eu-west-1`, `eu-west-2`, `us-east-1`), so it would sit in another region from the rest of the system. Building on Postgres first keeps the core in one region and lets HealthLake be added once, near the end, without paying for it for weeks.
+- **Gave up:** a real FHIR server from day one. Our schema is FHIR-*shaped*, not a FHIR API; the gaps are in `docs/fhir-mapping.md`.
+- **Watch:** HealthLake data stores may bill for as long as they exist, not per request. Check the pricing page and create the data store only close to demo day, then delete it.
