@@ -15,6 +15,18 @@ output "ecr_repo_url" {
   value = module.ecr.repository_url
 }
 
+output "call_url" {
+  value = local.call_enabled ? "https://${var.call_hostname}" : null
+}
+
+output "call_ecr_repo_url" {
+  value = one(module.ecr_call[*].repository_url)
+}
+
+output "call_instance_id" {
+  value = one(module.call[*].instance_id)
+}
+
 output "asg_name" {
   value = module.compute.asg_name
 }

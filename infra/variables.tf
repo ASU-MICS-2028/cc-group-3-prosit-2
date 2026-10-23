@@ -60,10 +60,17 @@ variable "github_repo" {
   default     = "ASU-MICS-2028/cc-group-3-prosit-2"
 }
 
+# S5: subdomains of agroconnect.space (ours, DNS at Hostinger). See docs/ for the ADR.
 variable "api_hostname" {
-  description = "FQDN for the API's TLS certificate (S5). Empty = HTTP only on the ALB's own DNS name, until the domain is chosen."
+  description = "FQDN for the API's TLS certificate. Empty = HTTP only on the ALB's own DNS name."
   type        = string
-  default     = ""
+  default     = "api-hc.agroconnect.space"
+}
+
+variable "call_hostname" {
+  description = "FQDN for the Lab 7 call page (webrtc-spike). Empty = no call server. Needs api_hostname (shares its certificate)."
+  type        = string
+  default     = "call-hc.agroconnect.space"
 }
 
 variable "alarm_email_addresses" {

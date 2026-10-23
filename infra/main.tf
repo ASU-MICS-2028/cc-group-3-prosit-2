@@ -117,6 +117,33 @@ module "alb" {
   public_subnet_ids = module.network.public_subnet_ids
   app_port          = var.app_port
   api_hostname      = var.api_hostname
+  extra_hostnames   = compact([var.call_hostname])
+}
+
+# ---------- call (Lab 7 WebRTC call page + signaling on one instance; torn down after Lab 7) ----------
+locals {
+  call_enabled = var.call_hostname != "" && var.api_hostname != ""
+}
+
+module "ecr_call" {
+  source      = "./modules/ecr"
+  count       = local.call_enabled ? 1 : 0
+  name_prefix = local.name
+  repo_suffix = "call"
+}
+
+module "call" {
+  source = "./modules/call"
+  count  = local.call_enabled ? 1 : 0
+
+  name_prefix           = local.name
+  region                = var.region
+  vpc_id                = module.network.vpc_id
+  subnet_id             = module.network.private_subnet_ids[0]
+  alb_security_group_id = module.alb.alb_security_group_id
+  https_listener_arn    = module.alb.https_listener_arn
+  hostname              = var.call_hostname
+  ecr_repository_url    = module.ecr_call[0].repository_url
 }
 
 # ---------- cicd (GitHub Actions OIDC + deploy role) ----------

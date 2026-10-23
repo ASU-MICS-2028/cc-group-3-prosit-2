@@ -36,3 +36,7 @@ output "cert_validation_records" {
     for o in aws_acm_certificate.api[0].domain_validation_options : { name = o.resource_record_name, type = o.resource_record_type, value = o.resource_record_value }
   ] : []
 }
+
+output "https_listener_arn" {
+  value = one(aws_lb_listener.https[*].arn)
+}

@@ -1,0 +1,16 @@
+import { createRequire } from "node:module";
+const { WebSocket } = createRequire(process.cwd() + "/")("ws");
+const url = process.argv[2], room = "idle-" + Date.now(), t0 = Date.now();
+const a = new WebSocket(url); const got = [];
+a.on("message", (d) => got.push(JSON.parse(d).type));
+a.on("close", () => console.log(`a closed after ${Math.round((Date.now()-t0)/1000)} s`));
+await new Promise((r) => a.on("open", r));
+a.send(JSON.stringify({ type: "join", room }));
+await new Promise((r) => setTimeout(r, 90_000));
+const b = new WebSocket(url); await new Promise((r) => b.on("open", r));
+b.send(JSON.stringify({ type: "join", room }));
+await new Promise((r) => setTimeout(r, 1000));
+b.close(); await new Promise((r) => setTimeout(r, 1000));
+const ok = a.readyState === WebSocket.OPEN && got.includes("peer-left");
+console.log((ok ? "PASS" : "FAIL") + ` caller idle 90 s through the ALB still in the room when the second person joins and leaves (a got: ${got.join(",")})`);
+a.close(); process.exit(ok ? 0 : 1);

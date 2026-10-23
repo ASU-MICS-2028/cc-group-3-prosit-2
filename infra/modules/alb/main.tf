@@ -108,9 +108,10 @@ resource "aws_lb_listener" "http" {
 
 # ---------- ACM cert for the API hostname ----------
 resource "aws_acm_certificate" "api" {
-  count             = local.https ? 1 : 0
-  domain_name       = var.api_hostname
-  validation_method = "DNS"
+  count                     = local.https ? 1 : 0
+  domain_name               = var.api_hostname
+  subject_alternative_names = var.extra_hostnames
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true

@@ -1,0 +1,16 @@
+# Lab 7 Part C: signaling server hosted at https://call-hc.agroconnect.space (D-023), checked through the load balancer
+# Run 2026-10-23 12:44 UTC from webrtc-spike/: node ../evidence/lab7/signal-smoke.mjs <url> ; node ../evidence/lab7/idle.mjs <url>
+# These check signaling only (rooms, wss, keepalive). The real video call tests are L7-C2 to C4 (Perfect).
+
+$ curl -s https://call-hc.agroconnect.space/health
+{"status":"ok"}
+
+$ node signal-smoke.mjs wss://call-hc.agroconnect.space/ws
+PASS first joiner waits (initiator=false)
+PASS second joiner starts the call (initiator=true)
+PASS third joiner refused (full)
+PASS first is told when the second leaves (peer-left)
+PASS garbage messages ignored, socket still open
+
+$ node idle.mjs wss://call-hc.agroconnect.space/ws   (the load balancer drops connections silent for 60 s)
+PASS caller idle 90 s through the ALB still in the room when the second person joins and leaves (a got: joined,peer-left)

@@ -22,7 +22,8 @@ infra/
     ├── database/        # RDS Postgres in the isolated data subnets
     ├── storage/         # S3 bucket for patient photos + lifecycle
     ├── observability/   # SNS alarms, CloudWatch dashboard, AWS Budgets
-    └── cicd/            # GitHub Actions OIDC + deploy role
+    ├── cicd/            # GitHub Actions OIDC + deploy role
+    └── call/            # Lab 7: one server for webrtc-spike/ behind the ALB (D-023)
 ```
 
 ## Remote state
@@ -39,14 +40,29 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
 - 2 private-app subnets (EC2 app tier, routes to fck-nat for egress)
 - 2 private-data subnets (RDS Postgres, no default route, fully isolated)
 - fck-nat on `t4g.nano` in `af-south-1a` for private-tier egress
-- ALB: target group `/health` on port 8000. Until `api_hostname` is set (S5), `:80` forwards straight to the app on
-  the ALB's DNS name. Once set: ACM cert, `:443` with TLS 1.3, and `:80` → 301 → HTTPS
+- ALB: `:80` → 301 → HTTPS `:443` (TLS 1.3, one ACM cert for `api-hc.agroconnect.space` + `call-hc.agroconnect.space`, D-022).
+  Default action → API target group (`/health` on 8000); host `call-hc.agroconnect.space` → call target group (3000)
 - Launch Template: Ubuntu 24.04, `t3.micro`, IMDSv2, SSM-managed (no SSH keys)
 - ASG: **min 2**, desired 2, max 4 (two instances for the Lab 5 failover demo), rolling instance refresh
 - Scaling: target-tracking on `ALBRequestCountPerTarget` @ 500 req/min/target
 - ECR repo `healthconnect-dev-backend`
 - IAM OIDC provider + role for GitHub Actions (no long-lived keys)
-- No frontend hosting yet: added when the PWA exists (S9)
+- Call server (Lab 7, D-023): one `t3.micro` (Amazon Linux 2023) in a private-app subnet running `webrtc-spike/`
+  from ECR `healthconnect-dev-call`; own IAM role (ECR read, its log group, SSM). Off when `call_hostname = ""`
+- No PWA hosting yet: added when `frontend/` exists (S9)
+
+## DNS (at Hostinger, not in Terraform)
+
+`agroconnect.space` is registered at Hostinger. HealthConnect uses four records there:
+
+| Name | Type | Points to |
+|---|---|---|
+| `api-hc` | CNAME | the ALB (`terraform output alb_dns`) |
+| `call-hc` | CNAME | the ALB |
+| `_….api-hc`, `_….call-hc` | CNAME | ACM validation (`terraform output cert_validation_records`) |
+
+If the ALB or the certificate is recreated, update these by hand, or `terraform apply` will wait on certificate
+validation until it times out.
 
 ## First-time bring-up
 
@@ -57,12 +73,18 @@ cd infra
 export AWS_PROFILE=ashesi-dev
 cp example.tfvars terraform.tfvars        # then fill in the alarm emails
 terraform init
-terraform apply -target=module.ecr -target=module.cicd.aws_ssm_parameter.app_image_tag
-# push backend/ to $(terraform output -raw ecr_repo_url):latest (see learnings/infra.md)
+# 1. Registries, the image-tag parameter and the certificate first
+terraform apply -target=module.ecr -target=module.ecr_call -target=module.cicd.aws_ssm_parameter.app_image_tag \
+  -target=module.alb.aws_acm_certificate.api
+# 2. Publish the two validation CNAMEs at Hostinger: terraform output cert_validation_records
+# 3. Push the images (built for x86: docker buildx build --platform linux/amd64 ... --push)
+#      backend/       -> $(terraform output -raw ecr_repo_url):latest
+#      webrtc-spike/  -> $(terraform output -raw call_ecr_repo_url):latest
+# 4. Everything else (waits until ACM sees the validation records), then point api-hc / call-hc at alb_dns
 terraform apply
 ```
 
-Costs (af-south-1 list): fck-nat `t4g.nano` (~\$3/mo), ALB (~\$19/mo), 2x `t3.micro` (~\$19/mo), RDS
+Costs (af-south-1 list): fck-nat `t4g.nano` (~\$3/mo), ALB (~\$19/mo), 3x `t3.micro` (2 API + 1 call, ~\$28/mo), RDS
 `db.t4g.micro` + 20 GB (~\$16/mo), ECR storage pennies, CloudWatch, Secrets Manager (\$0.40/mo for the RDS secret).
 Public IPv4s bill at \$0.005/hr each.
 
@@ -124,8 +146,9 @@ terraform destroy
 - Single `fck-nat` instance in `af-south-1a`, no HA. If it or its AZ fails, egress breaks until recovery.
 - RDS is single-AZ with no final snapshot and no deletion protection (lab settings, see `modules/database`). The
   brief's 99.7% uptime target would need `multi_az = true` (~2x DB cost).
-- No HTTPS until `api_hostname` is set (S5). Until then the API is plain HTTP on the ALB's DNS name: fine for
-  health checks, **not** for patient data (synthetic or not).
+- DNS for `api-hc` / `call-hc` lives at Hostinger, outside Terraform (see DNS above).
+- The call server is a single instance with in-memory rooms: no HA, by design (D-023). Deploy a new call image with
+  `terraform apply -replace='module.call[0].aws_instance.call'`.
 - One instance role is shared by the app and the fck-nat instance. Lab 6 (L6-A1) replaces it with a dedicated,
   least-privilege `healthconnect-service` role.
 - Instance role has broad ECR read; narrow to the specific repo ARN in L6-A1.
