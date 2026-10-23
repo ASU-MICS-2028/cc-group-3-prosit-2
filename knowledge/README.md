@@ -14,6 +14,9 @@ anyone else's setup to get going.
 | File | Read it when |
 |---|---|
 | [`../PLAN.md`](../PLAN.md) | You want to know what to do next, who owns it, and what it's waiting on |
+| [`course.md`](./course.md) | You need the syllabus: week-by-week topics, grading, late-work rules, books |
+| [`lectures.md`](./lectures.md) | You're revising, or need to justify a design with what the lectures taught (Weeks 1–4 so far) |
+| [`course-reference.md`](./course-reference.md) | You need a term defined, or the tutorial and prerequisites in short (Linux, networking, databases, commands) |
 | [`brief.md`](./brief.md) | You need to know what HealthConnect is meant to be |
 | [`labs.md`](./labs.md) | You're working on a lab: requirements, deliverables, rubric, gotchas |
 | [`prosit-1.md`](./prosit-1.md) | You want to reuse something from AgroConnect (Prosit 1) |
@@ -32,7 +35,7 @@ anyone else's setup to get going.
 - **Grading (course):** quizzes 15%, labs and projects 25%, midterm 15%, participation 5%, final exam 20% + final project 20%.
 - **Late work:** at most 85% after 1 day, 75% after 2, 60% after 3, 0 after that.
 - **AI use** is allowed in this course but must be declared: log it in [`../docs/ai-tools-usage.md`](../docs/ai-tools-usage.md).
-- **Plan** (roles, scope, tasks in order with owners and blockers): [`../PLAN.md`](../PLAN.md); what's pending now is in the root README. The repo is the single source of truth (D-009).
+- **Plan** (roles, scope, tasks in order with owners and blockers): [`../PLAN.md`](../PLAN.md); the root README shows only the current stage and who is on each task. The repo is the single source of truth (D-009).
 
 ## Session summaries (`sessions/`)
 

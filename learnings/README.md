@@ -27,3 +27,4 @@ simply as you can.
 | [`database.md`](./database.md) | Elise | FHIR-shaped schema, consent and audit rules in the database, how to test it (L6-C1, L6-C2, L7-A3) |
 | [`infra.md`](./infra.md) | Eugene | The AWS setup in `infra/`: network, load balancer, two app servers, private database, alarms; how to check it and run migrations (S4, L5-A, L5-B1) |
 | [`patient-record-service.md`](./patient-record-service.md) | Joseph | The API in `backend/`: health checks, how to run it, settings it needs on AWS |
+| [`repo-and-tooling.md`](./repo-and-tooling.md) | Joseph | How assistants get their instructions (`AGENTS.md`), what CI checks, how to test both, the stacked-PR trap |

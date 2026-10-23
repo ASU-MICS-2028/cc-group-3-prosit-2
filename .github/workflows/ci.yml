@@ -31,3 +31,45 @@ jobs:
 
       - name: Validate
         run: terraform validate
+
+  backend:
+    name: backend tests + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  schema:
+    name: database schema tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      # Writes to a temp file so CI never touches the recorded Lab 6 evidence.
+      - name: Apply every migration and run the deny/allow checks
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: test
+        run: db/tests/run_tests.sh "$RUNNER_TEMP/schema_tests.txt"
