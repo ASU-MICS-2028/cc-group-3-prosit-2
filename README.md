@@ -37,10 +37,9 @@ _Last updated: 2026-10-22_
 
 | Owner | Task (ID in PLAN.md) | Status | Unblocks |
 |---|---|---|---|
-| Joseph | S2 Turn on branch protection for `main` | 🟢 Ready | — |
 | Joseph | S3 Ask the facilitator the open questions | 🟢 Ready | L5-D, F1 |
-| Joseph | S10 Scaffold `patient-record-service` | 🟢 Ready | L5-B2, L6-D1 |
 | Joseph | L5-C2 Data residency: law per country | 🟢 Ready | L5-C3 |
+| Joseph | L6-D1 Audit logging in the service (transaction helper first) | 🟢 Ready | L6-D2 |
 | Eugene | S5 HealthConnect subdomain + ACM certificate | 🟢 Ready | L6-B1 |
 | Eugene | L5-A VPC screenshot · L5-B1 RDS screenshot + outside-connection test | 🔄 In progress | L5-B2, L6-A1 |
 | Eugene | L5-D AgroConnect decommissioning note + spend | 🟢 Ready | L5-R4 |
