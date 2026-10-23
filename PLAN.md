@@ -69,70 +69,71 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | S1 | Repo set up: README, CONTRIBUTING, CODEOWNERS, docs, learnings, knowledge, AGENTS.md | Joseph | — | ✅ Done | Pushed to `main` |
 | S2 | Turn on branch protection for `main` (settings in CONTRIBUTING) | Joseph | — | ✅ Done | Direct pushes to `main` are refused (on since 2026-10-20: 1 approval, code-owner review, applies to admins too) |
 | S3 | Ask the facilitator: Lab 5 on HealthConnect OK? Real due dates? Must AgroConnect's API stay live? Prosit 2 final format? Are the syllabus's weekly 500-word homework reports (L5-W, L6-W, L7-W) and the Week 8 milestone required? | Joseph | — | 🟢 Ready | Answers recorded in `docs/decisions.md` / `knowledge/` |
-| S4 | Copy Terraform modules into `infra/`: new state key, VPC `10.30.0.0/16`, `Project=healthconnect` tags, `terraform validate` in CI | Eugene | — | 🟢 Ready | CI passes on a PR |
-| S5 | HealthConnect subdomain + ACM certificate | Eugene | S4 | ⛔ Blocked | Certificate issued |
-| S6 | Prosit 2 cost tracker (Resource Inventory + Weekly Log) + budget alarm | Eugene | — | 🟢 Ready | Alarm email confirmed |
-| S7 | Rotate the Prosit 1 Lab 4 DB password (or delete that database) | Eugene | — | 🟢 Ready | Old password no longer works |
+| S4 | Copy Terraform modules into `infra/`: new state key, VPC `10.30.0.0/16`, `Project=healthconnect` tags, `terraform validate` in CI | Eugene | — | ✅ Done | Applied to `af-south-1` on 22 Oct (PR #6); `terraform validate` in CI |
+| S5 | HealthConnect subdomain + ACM certificate | Eugene | S4 | 🟢 Ready | Certificate issued |
+| S6 | Prosit 2 cost tracker (Resource Inventory + Weekly Log) + budget alarm | Eugene | — | 🔄 In progress (budget alarm applied) | Alarm email confirmed |
+| S7 | Rotate the Prosit 1 Lab 4 DB password (or delete that database) | Eugene | — | ✅ Done | Moot: the Lab 4 database no longer exists (checked 22 Oct) |
 | S8 | Shared vocabulary in `knowledge/`: user roles (CHV, nurse, specialist, GHS official, admin) and data resources (Patient, Observation, Consent, AuditEvent) | Elise | — | 🟢 Ready | Merged |
 | S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready | Builds and runs offline locally |
 | S10 | Scaffold `patient-record-service` in `backend/`: Express/TypeScript, `/health` (returns instance id), `/ready` (checks DB), Dockerfile | Joseph | — | ✅ Done | Container runs locally ([learnings](./learnings/patient-record-service.md)) |
 
-## Phase 1: Lab 5 (on HealthConnect)
+## Phase 1: Lab 5 (on HealthConnect) ✅ submitted 22 Oct
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L5-A | VPC applied (2 public, 2 private-app, 2 private-data subnets, 2 AZs, IGW, fck-nat) + route-table proof | Eugene | S4 | ⛔ Blocked | `evidence/lab5/outputs_A_routes.txt` + VPC screenshot |
-| L5-B1 | RDS in data subnets, not public, port 5432 open only to the app security group | Eugene | L5-A | ⛔ Blocked | Console screenshot; connection from outside fails |
-| L5-B2 | 2 instances of the service behind the ALB; failover demo (stop one, 10/10 requests still succeed) | Eugene | L5-B1, S10 | ⛔ Blocked | Target-health screenshots + both script outputs |
-| L5-C1 | Data residency: sharding design + diagram (country key, one DB per country, only anonymised aggregates cross borders) | Elise | — | 🟢 Ready | Draft in `docs/data-residency.md` |
-| L5-C2 | Data residency: law per country (Ghana Act 843 + Kenya or Nigeria), one concrete control each, "needs legal review" list | Joseph | — | 🟢 Ready | Section added to `docs/data-residency.md`, clauses verified |
-| L5-C3 | One-page residency PDF | Elise | L5-C1, L5-C2 | ⛔ Blocked | PDF in `evidence/lab5/` |
-| L5-D | AgroConnect decommissioning: inventory, scale down, snapshot/stop RDS (note the 7-day restart), log spend | Eugene (Joseph reviews) | S3 | ⛔ Blocked | Checklist + spend figure in `evidence/lab5/` |
-| L5-R1 | Consolidated architecture diagram (client → ALB → app → data → external APIs, subnet boundaries marked) | Perfect | — (finalise after L5-B2) | 🟢 Ready | PNG + draw.io in `docs/` |
-| L5-R2 | PWA offline demo evidence (screenshots or short recording) | Perfect | S9 | ⛔ Blocked | Files in `evidence/lab5/` |
-| L5-R3 | AgroConnect retrospective: one honest sentence each | Everyone | — | 🟢 Ready | Sentences in the "Lab 5" Google Doc tabs |
-| L5-R4 | Lab 5 report (300 words) + package PDF | Joseph | L5-A, L5-B2, L5-C3, L5-D, L5-R1, L5-R2, L5-R3 | ⛔ Blocked | Submitted on Canvas |
-| L5-H1 | Homework: egress audit + NAT cost comparison | Eugene | L5-B2 | ⚪ Optional | Note in `learnings/` |
-| L5-H2 | Homework: CDN page-load before/after on Slow 3G | Perfect | S9 | ⚪ Optional | Numbers in the report |
-| L5-H3 | Homework: second-country DB + one query that would need federation | Elise | L5-B1 | ⚪ Optional | Query + note in `learnings/` |
+| L5-A | VPC applied (2 public, 2 private-app, 2 private-data subnets, 2 AZs, IGW, fck-nat) + route-table proof | Eugene | S4 | ✅ Done (submitted 22 Oct) | `evidence/lab5/outputs_A_routes.txt` + VPC screenshot |
+| L5-B1 | RDS in data subnets, not public, port 5432 open only to the app security group | Eugene | L5-A | ✅ Done (submitted 22 Oct) | Console screenshot; connection from outside fails |
+| L5-B2 | 2 instances of the service behind the ALB; failover demo (stop one, 10/10 requests still succeed) | Eugene | L5-B1, S10 | ✅ Done (submitted 22 Oct) | Target-health screenshots + both script outputs |
+| L5-C1 | Data residency: sharding design + diagram (country key, one DB per country, only anonymised aggregates cross borders) | Elise | — | ✅ Done (covered by Joseph, submitted 22 Oct) | Draft in `docs/data-residency.md` |
+| L5-C2 | Data residency: law per country (Ghana Act 843 + Kenya or Nigeria), one concrete control each, "needs legal review" list | Joseph | — | ✅ Done (submitted 22 Oct) | Section added to `docs/data-residency.md`, clauses verified |
+| L5-C3 | One-page residency PDF | Elise | L5-C1, L5-C2 | ✅ Done (covered by Joseph, submitted 22 Oct) | PDF in `evidence/lab5/` |
+| L5-D | AgroConnect decommissioning: everything was destroyed with `terraform destroy` on 2026-10-15 (74 resources, no DB snapshot); write the checklist note and log the spend | Eugene (Joseph reviews) | — | ✅ Done (submitted 22 Oct) | Checklist + spend figure in `evidence/lab5/` |
+| L5-R1 | Consolidated architecture diagram (client → ALB → app → data → external APIs, subnet boundaries marked) | Perfect | — (finalise after L5-B2) | ✅ Done (covered by Joseph, submitted 22 Oct) | PNG + draw.io in `docs/` |
+| L5-R2 | PWA offline demo evidence (screenshots or short recording) | Perfect | S9 | ✅ Done (covered by Joseph, submitted 22 Oct) | Files in `evidence/lab5/` |
+| L5-R3 | AgroConnect retrospective: one honest sentence each | Everyone | — | ✅ Done (covered by Joseph, submitted 22 Oct) | Sentences in the "Lab 5" Google Doc tabs |
+| L5-R4 | Lab 5 report (300 words) + package PDF | Joseph | L5-A, L5-B2, L5-C3, L5-D, L5-R1, L5-R2, L5-R3 | ✅ Done (submitted 22 Oct) | Submitted on Canvas |
+| L5-H1 | Homework: egress audit + NAT cost comparison | Eugene | L5-B2 | ⚪ Skipped | Note in `learnings/` |
+| L5-H2 | Homework: CDN page-load before/after on Slow 3G | Perfect | S9 | ⚪ Skipped | Numbers in the report |
+| L5-H3 | Homework: second-country DB + one query that would need federation | Elise | L5-B1 | ⚪ Skipped | Query + note in `learnings/` |
 | L5-W | Syllabus homework: "Propose network architecture" (500 words) | Eugene | L5-B2 | ❓ Confirm | Submitted, if required |
 
 ### Lab 5 deliverables checklist
 
-**Submit:** one PDF (300-word report + retrospective + diagram + all screenshots below, with links) on Canvas. Due: "before the Week 6 lecture" per the handout; real date via S3.
+**Submitted 22 Oct** (`evidence/lab5/CC GROUP 3 Highlanders Lab 5 Report.pdf`). One PDF (300-word report + retrospective + diagram + all screenshots below, with links) on Canvas. Due: "before the Week 6 lecture" per the handout; real date via S3.
 
 | ✓ | What the lab asks for | Evidence file (`evidence/lab5/`) | From task | Who captures it |
 |---|---|---|---|---|
-| ☐ | **A.** VPC with at least 2 subnets (console resource map) | `A-vpc-resource-map.png` | L5-A | Eugene |
-| ☐ | **A.** Route tables: public subnet → internet gateway; data subnet has **no** internet gateway route | `outputs_A_routes.txt` + `A-route-tables.png` | L5-A | Eugene |
-| ☐ | **B.** Database in the private subnet: "Publicly accessible: No", data subnets, security group | `B-rds-private.png` | L5-B1 | Eugene |
-| ☐ | **B.** Load balancer target health: **both instances healthy** | `B-targets-both-healthy.png` | L5-B2 | Eugene |
-| ☐ | **B.** `test_load_balancer.sh` output **before** stopping an instance (both instance ids appear) | `outputs_B_lb_before.txt` | L5-B2 | Eugene |
-| ☐ | **B.** Target health after stopping one: **one unhealthy/removed** | `B-targets-after-failover.png` | L5-B2 | Eugene |
-| ☐ | **B.** `test_load_balancer.sh` output **after**: 10/10 succeed on the survivor | `outputs_B_lb_after.txt` | L5-B2 | Eugene |
-| ☐ | **C.** One-page data residency design (diagram + text) | `lab5-data-residency.pdf` | L5-C3 | Elise |
-| ☐ | **D.** Decommissioning checklist: what's still running for AgroConnect and why | `D-decommissioning.md` + `D-resource-inventory.png` | L5-D | Eugene |
-| ☐ | **D.** Month-to-date spend (billing console or cost tracker) | `D-spend.png` | L5-D | Eugene |
-| ☐ | **Package:** consolidated architecture diagram, public/private boundaries marked | `docs/architecture.png` | L5-R1 | Perfect |
-| ☐ | **Package:** working PWA, including the offline demo (airplane mode) | `R-pwa-online.png`, `R-pwa-offline.png` | L5-R2 | Perfect |
-| ☐ | **Package:** container registry (ECR repository with the image) | `R-ecr.png` | L5-B2 | Eugene |
-| ☐ | **Package:** running load-balanced service (`curl https://…/health`) | covered by `outputs_B_lb_*.txt` | L5-B2 | Eugene |
-| ☐ | **Report:** 300 words on the network setup and what changed from Prosit 1 | Lab 5 Google Doc → PDF | L5-R4 | Joseph |
-| ☐ | **Report:** one honest retrospective paragraph | Lab 5 Google Doc | L5-R3 → L5-R4 | Everyone → Joseph |
-| ☐ | *Optional:* CDN page-load before/after on Slow 3G, egress audit, NAT cost note | `H-cdn.png`, `learnings/` | L5-H1/H2/H3 | Eugene, Perfect, Elise |
+| ✅ | **A.** VPC with at least 2 subnets (console resource map) | `A-vpc-resource-map.png` | L5-A | Eugene |
+| ✅ | **A.** Route tables: public subnet → internet gateway; data subnet has **no** internet gateway route | `outputs_A_routes.txt` + `A-route-tables.png` | L5-A | Eugene |
+| ✅ | **B.** Database in the private subnet: "Publicly accessible: No", data subnets, security group | `B-rds-private.png` | L5-B1 | Eugene |
+| ✅ | **B.** Load balancer target health: **both instances healthy** | `B-targets-both-healthy.png` | L5-B2 | Eugene |
+| ✅ | **B.** `test_load_balancer.sh` output **before** stopping an instance (both instance ids appear) | `outputs_B_lb_before.txt` | L5-B2 | Eugene |
+| ✅ | **B.** Target health after stopping one: **one unhealthy/removed** | `B-targets-after-failover.png` | L5-B2 | Eugene |
+| ✅ | **B.** `test_load_balancer.sh` output **after**: 10/10 succeed on the survivor | `outputs_B_lb_after.txt` | L5-B2 | Eugene |
+| ✅ | **C.** One-page data residency design (diagram + text) | `lab5-data-residency.pdf` | L5-C3 | Elise |
+| ✅ | **D.** Decommissioning checklist: what's still running for AgroConnect and why | `D-decommissioning.md` + `D-resource-inventory.png` | L5-D | Eugene |
+| ✅ | **D.** Month-to-date spend (billing console or cost tracker) | `D-spend.png` | L5-D | Eugene |
+| ✅ | **Package:** consolidated architecture diagram, public/private boundaries marked | `docs/architecture.png` | L5-R1 | Perfect |
+| ✅ | **Package:** working PWA, including the offline demo (airplane mode) | `R-pwa-online.png`, `R-pwa-offline.png` | L5-R2 | Perfect |
+| ✅ | **Package:** container registry (ECR repository with the image) | `R-ecr.png` | L5-B2 | Eugene |
+| ✅ | **Package:** running load-balanced service (`curl https://…/health`) | covered by `outputs_B_lb_*.txt` | L5-B2 | Eugene |
+| ✅ | **Report:** 300 words on the network setup and what changed from Prosit 1 | Lab 5 Google Doc → PDF | L5-R4 | Joseph |
+| ✅ | **Report:** one honest retrospective paragraph | Lab 5 Google Doc | L5-R3 → L5-R4 | Everyone → Joseph |
+| ⚪ skipped | *Optional:* CDN page-load before/after on Slow 3G, egress audit, NAT cost note | `H-cdn.png`, `learnings/` | L5-H1/H2/H3 | Eugene, Perfect, Elise |
 
-## Phase 2: Lab 6
+## Phase 2: Lab 6 (due Saturday 25 October)
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
 | L6-C1 | FHIR-aligned schema migrations: UUID ids, LOINC code + UCUM unit on observations, consent required before writes, append-only `access_log` | Elise | — | ✅ Done | `db/migrations/*.sql` applies cleanly to an empty Postgres (`db/tests/run_tests.sh`: 25 deny, 14 allow, 0 problems) |
 | L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | 🔄 In progress (Elise): written; waiting on D-018 and LOINC code check | `docs/fhir-mapping.md` |
-| L6-A1 | `healthconnect-service` IAM role + least-privilege policy (only its own secret, bucket, logs, ECR) | Eugene | L5-B1 | ⛔ Blocked | Policy JSON in `infra/` + `evidence/lab6/` |
+| L6-A1 | `healthconnect-service` IAM role + least-privilege policy (only its own secret, bucket, logs, ECR) | Eugene | L5-B1 | 🟢 Ready | Policy JSON in `infra/` + `evidence/lab6/` |
 | L6-A2 | Run allow/deny checks (allowed: our secret; denied: delete DB, AgroConnect's secret) + "what it protects against" paragraph | Perfect | L6-A1 | ⛔ Blocked | `evidence/lab6/outputs_A_least_privilege.txt` + learnings note |
 | L6-B1 | Encryption build: customer-managed KMS key, S3 policy denying non-HTTPS, HSTS header, `rds.force_ssl` on | Eugene | L5-B1, S5 | ⛔ Blocked | Applied via Terraform |
 | L6-B2 | Encryption verification evidence: RDS at rest, DB connection uses SSL, HTTP→HTTPS redirect, S3 encrypted + not public | Elise | L6-B1 | ⛔ Blocked | Screenshots + outputs in `evidence/lab6/` |
 | L6-D1 | Audit logging in the service: identity from the session (not a header), data + audit write in one transaction, 404 still logged, denied attempts logged | Joseph | S10, L6-C1 | 🟢 Ready (needs `withTransaction` first; see Elise's PR #2 review) | Tests pass locally |
 | L6-D2 | Deploy the service and capture audit evidence (POST as a CHV, GET as a doctor, last 5 log rows, failed DELETE on the log) | Joseph | L6-D1, L5-B2 | ⛔ Blocked | `evidence/lab6/outputs_D_audit.txt` |
+| L6-X | Find out why about half the requests failed during the Lab 5 failover test (timeouts and 504s even 30 s after the stopped target left rotation; cross-zone load balancing is on). Check deregistration and stopped-vs-unhealthy behaviour, then re-test | Eugene | — | 🟢 Ready | Cause explained in `learnings/infra.md`; a re-run with 10/10 succeeding |
 | L6-R | Lab 6 report (300 words) + package (PDF, policy, schema, screenshots) | Joseph | L6-A2, L6-B2, L6-C2, L6-D2 | ⛔ Blocked | Submitted on Canvas |
 | L6-H1 | Homework: FHIR managed-service sandbox + 150-word comparison (check whether it exists in `af-south-1`) | Eugene | — | ⚪ Optional | Note in `learnings/` |
 | L6-H2 | Homework: secrets rotation drill, timed | Eugene + Joseph | L6-D2 | ⚪ Optional | Time recorded in `learnings/` |
@@ -142,7 +143,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 
 ### Lab 6 deliverables checklist
 
-**Submit:** PDF report + IAM policy file + schema file + screenshots from Parts A–D, on Canvas. Due: "before the Week 7 lecture" per the handout; real date via S3.
+**Submit:** PDF report + IAM policy file + schema file + screenshots from Parts A–D, on Canvas. **Due: 25 October.**
 
 | ✓ | What the lab asks for | Evidence file (`evidence/lab6/`) | From task | Who captures it |
 |---|---|---|---|---|
@@ -169,7 +170,7 @@ Design for A/B is decision D-010 (one SNS topic fanning out to two SQS queues).
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L7-A1 | Infra: SNS topic `appointment-events` → 2 SQS queues (`reminders`, `specialist-notify`), each with a dead-letter queue; 2 Lambda functions with their own scoped roles, each triggered by its queue; the service role may only `sns:Publish` to that topic | Eugene | S4 | ⛔ Blocked | `terraform apply` done; the trigger shows on each function in the console |
+| L7-A1 | Infra: SNS topic `appointment-events` → 2 SQS queues (`reminders`, `specialist-notify`), each with a dead-letter queue; 2 Lambda functions with their own scoped roles, each triggered by its queue; the service role may only `sns:Publish` to that topic | Eugene | S4 | 🟢 Ready | `terraform apply` done; the trigger shows on each function in the console |
 | L7-A2 | The two function handlers (Python, as in the handout): reminder (logs "reminder for <phone> at <time>"; real SMS through the Prosit 1 provider is optional) and specialist-notify; both log the `appointmentId` | Joseph | — | 🟢 Ready | Code in `functions/` + a local test with a sample event |
 | L7-A3 | `appointments` table migration (UUID id, patient, specialist, `starts_at`/`ends_at`, status) | Elise | L6-C1 | ✅ Done | In `db/migrations/001_initial_schema.sql`; Postgres blocks double-booking (D-017) |
 | L7-A4 | `POST /appointments` in `patient-record-service`: save the appointment (UUID id, `starts_at`; a double-booking clash → 409, per D-017), then publish `appointment.created` to the topic | Joseph | S10, L7-A3 | 🟢 Ready | Tests pass; returns 201 |
@@ -212,7 +213,7 @@ able to explain every part, which is what the `learnings/` notes are for.
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L8-A1 | Current HealthConnect architecture diagram (client → API → data → security layer → event/serverless layer), plus the AgroConnect diagram from Lab 5, ready to show | Perfect | L5-R1 | ⛔ Blocked | `docs/architecture-healthconnect.png` + draw.io file |
+| L8-A1 | Current HealthConnect architecture diagram (client → API → data → security layer → event/serverless layer), plus the AgroConnect diagram from Lab 5, ready to show | Perfect | L5-R1 | 🟢 Ready (start from `evidence/lab5/fig_architecture.png`; add the event/serverless layer) | `docs/architecture-healthconnect.png` + draw.io file |
 | L8-A2 | 5-minute walkthrough script: the diagram, one decision we're proud of, one known weakness | Joseph | L8-A1 | ⛔ Blocked | Script in `docs/peer-review.md`; rehearsed once |
 | L8-A3 | Our answers to the four questions, each lead for their area: where it breaks at 10× load · the weakest security link · what happens if the network drops mid-consultation or the DB is unreachable · likely open questions | Everyone (Joseph collates) | L8-A1 | ⛔ Blocked | Answers in `docs/peer-review.md` |
 | L8-B1 | In class: present, answer, then review the partner team with the same four questions; everyone takes notes | Everyone | Lab 8 session | ⛔ Blocked | Notes in `docs/peer-review.md` |

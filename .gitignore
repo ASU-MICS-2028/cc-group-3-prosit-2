@@ -6,6 +6,8 @@ team_credentials/
 # course materials — don't publish
 week*.docx
 week*.pptx
+Prosit*.docx
+Prosit*.pptx
 
 # terraform
 infra/.terraform/

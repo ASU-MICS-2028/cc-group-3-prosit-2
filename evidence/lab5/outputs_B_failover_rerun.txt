@@ -1,0 +1,62 @@
+### Lab 5 failover demo, 2026-10-22T23:29Z, load balancer: http://healthconnect-dev-alb-123985859.eu-north-1.elb.amazonaws.com/health
+
+=== BEFORE: target health (expect 2 healthy) ===
+--------------------------------------------
+|           DescribeTargetHealth           |
++----------------------+-----------+-------+
+|  i-011bf90e5f8cb3560 |  healthy  |  None |
+|  i-06b37f784320ecb43 |  healthy  |  None |
++----------------------+-----------+-------+
+
+=== BEFORE: 10 requests through the load balancer (expect two different instance ids) ===
+1: {"status":"ok","service":"patient-record-service","instance":"i-011bf90e5f8cb3560"} HTTP 200
+2: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+3: {"status":"ok","service":"patient-record-service","instance":"i-011bf90e5f8cb3560"} HTTP 200
+4: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+5: {"status":"ok","service":"patient-record-service","instance":"i-011bf90e5f8cb3560"} HTTP 200
+6: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+7: {"status":"ok","service":"patient-record-service","instance":"i-011bf90e5f8cb3560"} HTTP 200
+8: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+9: {"status":"ok","service":"patient-record-service","instance":"i-011bf90e5f8cb3560"} HTTP 200
+10: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+=> 10/10 succeeded
+
+=== Pausing auto scaling self-healing on healthconnect-dev-asg (so it doesn't replace the stopped instance) ===
+=== Stopping i-011bf90e5f8cb3560 ===
+i-011bf90e5f8cb3560	stopping
+Waiting for the load balancer to take it out (up to ~3 minutes)...
+  23:29:53 i-011bf90e5f8cb3560: healthy
+  23:29:59 i-011bf90e5f8cb3560: healthy
+  23:30:05 i-011bf90e5f8cb3560: unused
+
+=== AFTER (30 s after it left rotation): target health (expect one healthy, one unhealthy/unused) ===
+-----------------------------------------------------------
+|                  DescribeTargetHealth                   |
++----------------------+----------+-----------------------+
+|  i-011bf90e5f8cb3560 |  unused  |  Target.InvalidState  |
+|  i-06b37f784320ecb43 |  healthy |  None                 |
++----------------------+----------+-----------------------+
+
+=== AFTER: 10 requests (expect 10/10, all from the surviving instance) ===
+1: <html>
+<head><title>504 Gateway Time-out</title></head>
+<body>
+<center><h1>504 Gateway Time-out</h1></center>
+</body>
+</html>
+ HTTP 504
+2: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+3: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+4: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+5: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+6: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+7: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+8: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+9: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+10: {"status":"ok","service":"patient-record-service","instance":"i-06b37f784320ecb43"} HTTP 200
+=> 9/10 succeeded
+
+=== Restoring: starting i-011bf90e5f8cb3560 and resuming auto scaling ===
+i-011bf90e5f8cb3560	pending
+Restored. The instance re-registers healthy in ~1-2 minutes (the app container restarts on boot).
+### done

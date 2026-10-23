@@ -15,7 +15,7 @@ optional, but they help with the "innovation" and "autonomous learning" parts of
 
 ---
 
-## Lab 5: VPC, load balancer and data residency
+## Lab 5: VPC, load balancer and data residency (✅ submitted 22 Oct 2026)
 
 Written as the AgroConnect (Prosit 1) wrap-up. **We do it on HealthConnect** (decision D-001).
 
@@ -41,7 +41,9 @@ load-balanced service, database); one honest retrospective paragraph. Single PDF
 
 ---
 
-## Lab 6: IAM, encryption, FHIR schema, audit logging
+## Lab 6: IAM, encryption, FHIR schema, audit logging (due Saturday 25 Oct 2026)
+
+**Real deadlines differ from the syllabus:** Lab 5 was due 22 Oct at 23:59 and Lab 6 is due 25 Oct. Check Canvas for Labs 7 and 8.
 
 The first HealthConnect lab. HealthConnect must be a **separate codebase** from AgroConnect.
 

@@ -1,0 +1,127 @@
+### Lab 5 evidence (part 1), captured 2026-10-22T23:10Z in eu-north-1
+
+=== PART A: the VPC and its subnets ===
+--------------------------------------------------------------------
+|                           DescribeVpcs                           |
++------------------------+---------------+-------------------------+
+|  vpc-0e24c5e730bb87d54 |  10.30.0.0/16 |  healthconnect-dev-vpc  |
++------------------------+---------------+-------------------------+
+------------------------------------------------------------------------------------
+|                                  DescribeSubnets                                 |
++----------------------------------------+----------------+--------------+---------+
+|  healthconnect-dev-public-eu-north-1a  |  10.30.1.0/24  |  eu-north-1a |  True   |
+|  healthconnect-dev-private-eu-north-1a |  10.30.11.0/24 |  eu-north-1a |  False  |
+|  healthconnect-dev-private-eu-north-1b |  10.30.12.0/24 |  eu-north-1b |  False  |
+|  healthconnect-dev-public-eu-north-1b  |  10.30.2.0/24  |  eu-north-1b |  True   |
+|  healthconnect-dev-data-eu-north-1a    |  10.30.21.0/24 |  eu-north-1a |  False  |
+|  healthconnect-dev-data-eu-north-1b    |  10.30.22.0/24 |  eu-north-1b |  False  |
++----------------------------------------+----------------+--------------+---------+
+
+=== PART A: route tables (public -> igw; private app -> NAT instance ENI; data -> local ONLY) ===
+--- healthconnect-dev-rt-public
+-----------------------------------------------------
+|                DescribeRouteTables                |
++---------------+-------------------------+---------+
+|  10.30.0.0/16 |  local                  |  active |
+|  0.0.0.0/0    |  igw-0ea7d4e130ccd43e6  |  active |
++---------------+-------------------------+---------+
+--- healthconnect-dev-rt-private
+-------------------------------------
+|        DescribeRouteTables        |
++--------------+---------+----------+
+|  10.30.0.0/16|  local  |  active  |
+|  0.0.0.0/0   |  -      |  active  |
++--------------+---------+----------+
+--- healthconnect-dev-rt-data
+-------------------------------------
+|        DescribeRouteTables        |
++--------------+---------+----------+
+|  10.30.0.0/16|  local  |  active  |
++--------------+---------+----------+
+
+=== PART B: the database is private (PubliclyAccessible=False, data subnets only) ===
+-------------------------------------------------------------
+|                    DescribeDBInstances                    |
++---------------------+-------------------------------------+
+|  Encrypted          |  True                               |
+|  Engine             |  postgres16.15                      |
+|  Id                 |  healthconnect-dev-postgres         |
+|  PubliclyAccessible |  False                              |
+|  SecurityGroups     |  sg-08e9f35757ea36f4f               |
+|  Status             |  available                          |
+|  SubnetGroup        |  healthconnect-dev-db-subnet-group  |
++---------------------+-------------------------------------+
+subnet-014014d8ea3d78dca	healthconnect-dev-data-eu-north-1b	10.30.22.0/24
+subnet-04ee664a914d64901	healthconnect-dev-data-eu-north-1a	10.30.21.0/24
+--- DB security group: who may connect on 5432 (expect: only the app security group)
+-----------------------------------------------
+|           DescribeSecurityGroups            |
++------------+------------------------+-------+
+|  FromCidrs |  FromSecurityGroups    | Port  |
++------------+------------------------+-------+
+|            |  sg-0b587fdc8b7ae3aad  |  5432 |
++------------+------------------------+-------+
+healthconnect-dev-app-sg	sg-0b587fdc8b7ae3aad
+
+=== PART B: load balancer, target group, both targets ===
+------------------------------------------------------------------------------------------------------------------------
+|                                                 DescribeLoadBalancers                                                |
++-----------------------+----------------------------------------------------------------+------------------+----------+
+|  healthconnect-dev-alb|  healthconnect-dev-alb-123985859.eu-north-1.elb.amazonaws.com  |  internet-facing |  active  |
++-----------------------+----------------------------------------------------------------+------------------+----------+
+----------------------------------------------------
+|               DescribeTargetGroups               |
++-------------+----------+-----------+-------------+
+| HealthPath  | Healthy  | Interval  |  Unhealthy  |
++-------------+----------+-----------+-------------+
+|  /health    |  2       |  15       |  5          |
++-------------+----------+-----------+-------------+
+-------------------------------------
+|       DescribeTargetHealth        |
++----------------------+------------+
+|  i-011bf90e5f8cb3560 |  healthy   |
+|  i-0acc28958595b7cde |  draining  |
+|  i-06b37f784320ecb43 |  healthy   |
+|  i-01278ea6c57c2cf19 |  draining  |
++----------------------+------------+
+
+=== Container registry (ECR) ===
+--------------------------------------------------------------
+|                       DescribeImages                       |
++----------+------------------------------------+------------+
+|  untagged|  2026-10-22T22:37:42.178000+00:00  |  1525      |
+|  untagged|  2026-10-22T22:37:41.489000+00:00  |  65231829  |
+|  latest  |  2026-10-22T22:37:42.758000+00:00  |  65231829  |
++----------+------------------------------------+------------+
+
+=== PART D: what is still running (all of it is HealthConnect; AgroConnect was destroyed 2026-10-15) ===
+-------------------------------------------------------------------------
+|                           DescribeInstances                           |
++------------------------+-----------------------+-----------+----------+
+|  healthconnect-dev-app |  i-011bf90e5f8cb3560  |  t3.micro |  running |
+|  healthconnect-dev-app |  i-01278ea6c57c2cf19  |  t3.micro |  running |
+|  healthconnect-dev-app |  i-0acc28958595b7cde  |  t3.micro |  running |
+|  healthconnect-dev-app |  i-06b37f784320ecb43  |  t3.micro |  running |
++------------------------+-----------------------+-----------+----------+
+-------------------------------------------------------------
+|                    DescribeDBInstances                    |
++-----------------------------+----------------+------------+
+|  healthconnect-dev-postgres |  db.t4g.micro  |  available |
++-----------------------------+----------------+------------+
+nat-050904abbfc04b674
+--- Any AgroConnect leftovers? (expect only the shared Terraform state bucket)
+2026-10-12 12:58:42 test-bucket-agroconnect
+
+=== PART D: month-to-date spend ===
+
+aws: [ERROR]: '>' not supported between instances of 'str' and 'float'
+(Cost Explorer not allowed for this user: take the Billing/Budgets screenshot instead)
+---------------------------
+|     GetCostAndUsage     |
++----------------+--------+
+|     Amount     | Unit   |
++----------------+--------+
+|  -0.0000000622 |  USD   |
++----------------+--------+
+
+### done

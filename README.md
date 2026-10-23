@@ -33,17 +33,17 @@ If a teammate has to ask you how your part works, the note was not simple enough
 Task IDs link to the full detail in [`PLAN.md`](./PLAN.md): blockers, "done when", and each lab's screenshot checklist.
 **Whenever a task changes state, update this section in the same PR.**
 
-_Last updated: 2026-10-21_
+_Last updated: 2026-10-23 · Lab 5 ✅ submitted 22 Oct · **Lab 6 due Saturday 25 October**_
 
 | Who | Now | Next (waiting on) |
 |---|---|---|
-| **Joseph** | S3 Ask the facilitator the open questions · L5-C2 Data residency: law per country (also confirm the Act 843 sections Elise flagged) · **L6-D1 Audit logging: `withTransaction` helper first** · L7-A2 The two Lambda handlers · L7-A4 `POST /appointments` | L6-D2 Audit evidence (Eugene's L5-B2) · L7-A5 End-to-end event run (Eugene's L7-A1) · L8-A2 Peer-review walkthrough (Perfect's L8-A1) · Lab reports L5-R4, L6-R, L7-R (each lab's checklist) |
-| **Eugene** | **S4 Copy Terraform into `infra/` (first: most of Labs 5–7 waits on it)** · S6 Cost tracker + budget alarm · S7 Rotate the Prosit 1 Lab 4 DB password | S5 Certificate, L5-A VPC, L7-A1 SNS/SQS/Lambda (S4) → L5-B1 RDS → L5-B2 Failover demo, L6-A1 IAM role, L6-B1 Encryption · L5-D AgroConnect decommissioning (S3) |
-| **Elise** | **Review + approve [PR #2](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/2)** (your review is addressed) · L6-C2 FHIR mapping (🔄 waiting on D-018 + LOINC check) · L5-C1 Sharding design · S8 Shared vocabulary · *optional:* L6-H3 RBAC table | L5-C3 Residency PDF (L5-C1 + Joseph's L5-C2) · L6-B2 Encryption evidence (Eugene's L6-B1) · L8-B3 Written peer review (Lab 8 session) · *optional:* L7-H2 Idempotency (L7-A5) |
-| **Perfect** | **Review [PR #3](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/3)** (after #2 merges) · **L7-C1 WebRTC signaling + client over HTTPS** · S9 Fork the PWA · L5-R1 Architecture diagram | L7-C2 → C3, C4 Call tests + stats (L7-C1) · L5-R2 PWA offline evidence (S9) · L6-A2 Allow/deny checks (Eugene's L6-A1) · L8-A1 Diagrams for peer review (L5-R1) → L8-B2 Revision |
-| **Everyone** | **Confirm or reject D-018** (Elise's proposed fourth purpose, in `docs/decisions.md`) · L5-R3 One retrospective sentence each · L6-H4 Lambda reading · L8-X Teach-back of your `learnings/` notes (midterm prep) | L8-A3 Answers to the four review questions, L8-B1 Lab 8 session (in class) |
+| **Joseph** | **L6-D1 Audit logging (`withTransaction` first)** · S3 Facilitator questions (Lab 7/8 due dates, Lab 5 on HealthConnect) · L7-A2 Lambda handlers · L7-A4 `POST /appointments` | L6-D2 Audit evidence (L6-D1) · **L6-R Lab 6 report, due 25 Oct** (A2, B2, C2, D2) · L7-A5 Event run (Eugene's L7-A1) · L8-A2 Walkthrough (Perfect's L8-A1) |
+| **Eugene** | **L6-A1 Least-privilege IAM role (Lab 6, due 25 Oct)** · **S5 Certificate (unblocks L6-B1)** · L6-X Why failover dropped requests · L7-A1 SNS/SQS/Lambda · S6 Cost tracker | L6-B1 Encryption build (S5) · *optional:* L6-H1 FHIR sandbox comparison |
+| **Elise** | **L6-C2 FHIR mapping + data minimisation (Lab 6, due 25 Oct; waiting on D-018 + LOINC check)** · S8 Shared vocabulary · *optional:* L6-H3 RBAC table | L6-B2 Encryption evidence (Eugene's L6-B1) · L8-B3 Written peer review (Lab 8 session) · *optional:* L7-H2 Idempotency |
+| **Perfect** | **L7-C1 WebRTC signaling + client over HTTPS** · L8-A1 Peer-review diagrams (start from `evidence/lab5/fig1-architecture.png`) · S9 Fork the PWA | **L6-A2 Allow/deny checks (Eugene's L6-A1; Lab 6, due 25 Oct)** · L7-C2 → C3, C4 Call tests + stats · L8-B2 Revision |
+| **Everyone** | **Confirm or reject D-018** (Elise's L6-C2 waits on it) · L6-H4 Lambda reading · L8-X Teach-back of your `learnings/` notes | L8-A3 Answers to the four review questions, L8-B1 Lab 8 session (in class) |
 
-**Critical path:** Eugene's S4 unblocks the most work (Labs 5, 6 and 7 A/B all wait on it), so it goes first. Elise's schema (L6-C1) is ✅ done.
+**Critical path for Lab 6 (due 25 Oct):** Eugene's L6-A1 → Perfect's L6-A2 · Eugene's S5 → L6-B1 → Elise's L6-B2 · Joseph's L6-D1 → L6-D2 · Elise's L6-C2 → then Joseph writes L6-R. Lab 7 work (L7-A2, L7-C1) runs alongside.
 
 **Lab submissions:** each lab is evidence (screenshots + outputs) + a ~300-word report. Every screenshot, its file name and who takes it are in each lab's **Deliverables checklist** in [`PLAN.md`](./PLAN.md). Capture them while you do the task.
 
