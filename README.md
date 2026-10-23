@@ -49,30 +49,5 @@ _Last updated: 2026-10-23 · Lab 5 ✅ submitted 22 Oct · **Lab 6 due Saturday 
 
 ---
 
-## Repository layout
-
-Folders are created when their first real content lands.
-
-| Path | What goes here | Owner |
-|---|---|---|
-| `PLAN.md` | **The ordered task list:** owner, blockers and status of every task | Joseph (everyone updates their own rows) |
-| `infra/` | Terraform for AWS `af-south-1`: VPC, ALB, ASG, RDS, S3, IAM, KMS | Eugene |
-| `backend/` | `patient-record-service`: Node/TypeScript API, audit logging | Joseph |
-| `db/migrations/` | SQL schema (FHIR-aligned) | Elise |
-| `frontend/` | CHV offline PWA (forked from the AgroConnect PWA) | Perfect |
-| `docs/` | Formal documentation and **decisions** ([`decisions.md`](./docs/decisions.md)): FHIR mapping, data residency, AI disclosure | Joseph (editor) |
-| `learnings/` | **What each of us did and learned**, in plain words, so nobody has to redo it to understand it ([how](./learnings/README.md)) | Each owner |
-| `knowledge/` | **Project context** for teammates and coding assistants: the brief, the labs, Prosit 1, where materials live, summarised work sessions ([start here](./knowledge/README.md)) | Everyone |
-| `AGENTS.md` / `CLAUDE.md` | Instructions for coding assistants (any tool) working in this repo | Joseph |
-| `evidence/labN/` | Lab evidence: terminal outputs and screenshots ([conventions](./evidence/README.md)) | Whoever ran it |
-
----
-
-## Ground rules
-
-- **Synthetic data only.** No real patient information goes anywhere.
-- **No secrets in the repo or in Drive.** Use AWS Secrets Manager and instance roles.
-- **Every resource you create goes into the cost tracker the same day.**
-- **AI use is declared** in [`docs/ai-tools-usage.md`](./docs/ai-tools-usage.md).
-
-How to contribute (branches, PRs, reviews): [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+Everything else: [`PLAN.md`](./PLAN.md) (all stages, done and to come) · [`CONTRIBUTING.md`](./CONTRIBUTING.md) (how we work, repo map) · [`AGENTS.md`](./AGENTS.md) (for coding assistants).
+**This table shows only the current stage.** When a task changes state, update it here and in `PLAN.md` in the same PR. When the stage is submitted, replace the whole table with the next stage.

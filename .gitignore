@@ -16,6 +16,7 @@ infra/*.tfstate.*
 infra/tfplan
 infra/.terraform.lock.hcl
 infra/*.tfvars
+infra/*_override.tf
 !infra/example.tfvars
 
 # node

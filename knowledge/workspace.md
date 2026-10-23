@@ -21,8 +21,8 @@ Everything the team uses, and where to find it without anyone's laptop.
 | What | Notes |
 |---|---|
 | Prosit 2 brief (`Prosit 2.docx`), launch deck (`Prosit 2 Launch.pptx`), lab handouts `week05_lab_Students.docx` to `week08_lab_Students.docx` | Also on Canvas. Summaries: [`brief.md`](./brief.md), [`labs.md`](./labs.md) |
-| Course description (syllabus) | Also on Canvas. Key facts in [`README.md`](./README.md) |
-| Lectures (weeks 1–4), glossary, prerequisites primer, tutorial | Canvas |
+| Course description (syllabus) | Also on Canvas. Summary: [`course.md`](./course.md) |
+| Lectures (weeks 1–4), glossary, prerequisites primer, tutorial | Canvas. Summaries: [`lectures.md`](./lectures.md), [`course-reference.md`](./course-reference.md) |
 | Research papers folder | Cloud scheduling / VM allocation / energy papers downloaded for the course |
 | Coding-assistant session history | Summarised in [`sessions/`](./sessions/), never committed raw |
 
