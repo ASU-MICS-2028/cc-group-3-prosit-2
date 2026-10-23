@@ -35,14 +35,13 @@ arrives through a pull request.
 | `frontend/` | Perfect Avugla (`@PeaElorm`) | Joseph |
 | everything else (plan, docs, learnings, knowledge) | Joseph Etse (`@josetseph`) | anyone on the team |
 
-Nobody can approve their own PR, which is why every path has a backup.
+CODEOWNERS still auto-requests the right reviewers, but any one teammate's approval is enough to merge. Nobody can approve their own PR.
 
 ## Branch protection for `main`
 
 This is set in GitHub (**Settings → Branches**), not in the repo:
 
-- Require a pull request before merging, with at least 1 approval
-- Require review from Code Owners
+- Require a pull request before merging, with **1 approval from any teammate** (code-owner approval is no longer required: it was blocking merges, 2026-10-23)
 - Do not allow bypassing the above
 
 ## Commit messages

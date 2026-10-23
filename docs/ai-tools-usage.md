@@ -16,6 +16,7 @@
 | 2026-10-21 | Elise Kennedy-Angbo | Claude Code (Anthropic) | Applying the L6-C1 change set; learning Docker to run the schema tests in a Postgres container; updating `PLAN.md` and the README | Elise ran the git and Docker commands herself; tests re-run on Postgres 16 (25 deny, 14 allow, 0 problems) |
 | 2026-10-15 to 2026-10-22 | Eugene Sewor | Claude Code (Anthropic) | Tearing down AgroConnect (`terraform destroy`); copying and adapting the Prosit 1 Terraform into `infra/` (S4); applying it; checking HealthLake region support; drafting `learnings/infra.md`, D-019 and the plan updates | Eugene reviewed the plan before apply; verified live: both targets healthy, 10/10 `/health` requests across two instances, `/ready` reaches RDS; route tables captured in `evidence/lab5/outputs_A_routes.txt` |
 | 2026-10-20 | Joseph Etse | Claude Code (Anthropic) | Writing `PLAN.md`; enabling branch protection; scaffolding `patient-record-service` (health checks, tests, Dockerfile) from Prosit 1 patterns; its learnings note | Tests run (4 passed), build run, container run locally against Postgres; Joseph reviewed the code |
+| 2026-10-22 to 2026-10-23 | Joseph Etse | Claude Code (Anthropic) | Lab 5: re-applying the team Terraform in a second AWS account, evidence scripts, drafting the report text and two diagrams, assembling the Word report, teardown; PLAN/README updates | Joseph took every console screenshot and ran the failover script himself; results reported as observed (5/10 after failover); report reviewed before submission |
 
 ## Sign-off
 

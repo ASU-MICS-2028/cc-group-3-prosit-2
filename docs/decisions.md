@@ -68,6 +68,13 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** One place to look; it changes in the same PR as the work it tracks.
 - **Gave up:** editing the plan in a Google Doc. Changes now go through PRs.
 
+## D-010: Appointment events fan out through SNS to one SQS queue per consumer
+
+- **Date:** 2026-10-20 · **Status:** Proposed (Eugene to confirm in L7-A1)
+- **Decision:** `POST /appointments` publishes `appointment.created` to one SNS topic. The topic delivers a copy to two SQS queues (`reminders`, `specialist-notify`). Each queue triggers its own Lambda function and has its own dead-letter queue.
+- **Why:** Lab 7 needs two independent functions to both react to one event. Two functions reading one SQS queue would compete, so each message would reach only one of them. SNS → SQS gives every consumer its own copy, and the queues keep messages safe if a function is down. Adding a third consumer later is just one more queue.
+- **Gave up:** the handout's simpler single queue. EventBridge (one bus, two rules) would also work, but SNS → SQS is the more common pattern and keeps a queue (with retries and a DLQ) in front of each function.
+
 ---
 
 > **D-011 to D-018** come from Elise's data-layer work (L6-C1, L6-C2). Each one changes how a teammate's part must behave, so they live here.
