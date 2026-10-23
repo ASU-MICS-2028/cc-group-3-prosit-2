@@ -25,4 +25,5 @@ simply as you can.
 | Note | Owner | What it covers |
 |---|---|---|
 | [`database.md`](./database.md) | Elise | FHIR-shaped schema, consent and audit rules in the database, how to test it (L6-C1, L6-C2, L7-A3) |
+| [`infra.md`](./infra.md) | Eugene | The AWS setup in `infra/`: network, load balancer, two app servers, private database, alarms; how to check it and run migrations (S4, L5-A, L5-B1) |
 | — | — | Add a row when you add a note |

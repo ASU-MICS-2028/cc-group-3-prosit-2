@@ -33,7 +33,7 @@ If a teammate has to ask you how your part works, the note was not simple enough
 what can be worked on **right now** (nothing blocking it) or is in progress.
 **Whenever you change a task in PLAN.md, update this table in the same PR.**
 
-_Last updated: 2026-10-21_
+_Last updated: 2026-10-22_
 
 | Owner | Task (ID in PLAN.md) | Status | Unblocks |
 |---|---|---|---|
@@ -41,8 +41,10 @@ _Last updated: 2026-10-21_
 | Joseph | S3 Ask the facilitator the open questions | 🟢 Ready | L5-D, F1 |
 | Joseph | S10 Scaffold `patient-record-service` | 🟢 Ready | L5-B2, L6-D1 |
 | Joseph | L5-C2 Data residency: law per country | 🟢 Ready | L5-C3 |
-| Eugene | S4 Copy Terraform modules into `infra/` | 🟢 Ready | S5, L5-A → most of Labs 5 and 6 |
-| Eugene | S6 Cost tracker + budget alarm | 🟢 Ready | — |
+| Eugene | S5 HealthConnect subdomain + ACM certificate | 🟢 Ready | L6-B1 |
+| Eugene | L5-A VPC screenshot · L5-B1 RDS screenshot + outside-connection test | 🔄 In progress | L5-B2, L6-A1 |
+| Eugene | L5-D AgroConnect decommissioning note + spend | 🟢 Ready | L5-R4 |
+| Eugene | S6 Cost tracker (budget alarm done) | 🔄 In progress | — |
 | Eugene | S7 Rotate the Prosit 1 Lab 4 DB password | 🟢 Ready | — |
 | Eugene | L7-P1 Check `af-south-1` service support for Lab 7 | 🟢 Ready | — |
 | Elise | S8 Shared vocabulary | 🟢 Ready | — |
@@ -53,7 +55,7 @@ _Last updated: 2026-10-21_
 | Perfect | L5-R1 Consolidated architecture diagram (draft) | 🟢 Ready | L5-R4 |
 | Everyone | L5-R3 One retrospective sentence each · L6-H4 Lambda reading | 🟢 Ready | L5-R4 |
 
-**Critical path:** S4 → L5-A → L5-B1 → L5-B2 → most of Lab 6. Eugene's S4 unblocks the most work, so it goes first.
+**Critical path:** L5-B1 → L5-B2 → most of Lab 6. S4 is done: the API runs on two servers behind the load balancer. L5-B2's failover demo now waits only on S10 (PR #2) merging.
 
 ---
 

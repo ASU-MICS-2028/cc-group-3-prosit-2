@@ -1,0 +1,31 @@
+# Lab 5 Part A: route tables of the HealthConnect VPC (healthconnect-dev-vpc, 10.30.0.0/16)
+# Captured 2026-10-22T09:31Z with:
+#   aws ec2 describe-route-tables --region af-south-1 --filters Name=tag:Name,Values=healthconnect-dev-rt-<public|private|data>
+# Expect: public -> igw-*, private (app) -> fck-nat ENI, data -> local only (no 0.0.0.0/0).
+
+== healthconnect-dev-rt-public
+-----------------------------------------------------
+|                DescribeRouteTables                |
++---------------+-------------------------+---------+
+|  10.30.0.0/16 |  local                  |  active |
+|  0.0.0.0/0    |  igw-03cc4cd848cfab955  |  active |
++---------------+-------------------------+---------+
+   subnets: subnet-0a7113dfd59c638f3	subnet-00de6af2305b1c442
+
+== healthconnect-dev-rt-private
+-----------------------------------------------------
+|                DescribeRouteTables                |
++---------------+-------------------------+---------+
+|  10.30.0.0/16 |  local                  |  active |
+|  0.0.0.0/0    |  eni-06a763513ecb7322b  |  active |
++---------------+-------------------------+---------+
+   subnets: subnet-07e169a196ec611a6	subnet-08c8089c0eccf91c6
+
+== healthconnect-dev-rt-data
+-------------------------------------
+|        DescribeRouteTables        |
++--------------+---------+----------+
+|  10.30.0.0/16|  local  |  active  |
++--------------+---------+----------+
+   subnets: subnet-0693fbfc6c739bb71	subnet-06b11f923845cb039
+
