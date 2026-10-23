@@ -1,10 +1,10 @@
-# Decisions
+# Architecture Decision Records (team-wide)
 
-Every decision that shapes HealthConnect, newest at the bottom. One entry each: what we decided,
-why, and what we gave up. If you change a decision, add a new entry that replaces the old one;
-don't edit history.
+Every decision that shapes HealthConnect, one ADR each, newest at the bottom: what we decided, why, and what we gave
+up. Format, template and rules: [`README.md`](./README.md). Never edit an accepted decision; add a new ADR that
+replaces it.
 
-Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facilitator), **Replaced** (see the entry that replaces it).
+Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facilitator), **Replaced** (see the ADR that replaces it).
 
 ---
 
@@ -156,3 +156,20 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** The labs grade our own schema, audit log and security controls, which a managed service would hide. HealthLake is not offered in `af-south-1` (checked 2026-10-22: no endpoint there; it answers in `eu-west-1`, `eu-west-2`, `us-east-1`), so it would sit in another region from the rest of the system. Building on Postgres first keeps the core in one region and lets HealthLake be added once, near the end, without paying for it for weeks.
 - **Gave up:** a real FHIR server from day one. Our schema is FHIR-*shaped*, not a FHIR API; the gaps are in `docs/fhir-mapping.md`.
 - **Watch:** HealthLake data stores may bill for as long as they exist, not per request. Check the pricing page and create the data store only close to demo day, then delete it.
+
+## D-020: The README shows only the current stage
+
+- **Date:** 2026-10-23 · **Status:** Accepted
+- **Affects:** everyone: whoever changes a task's state updates the README table in the same PR; whoever submits a stage replaces the table with the next stage
+- **Decision:** `README.md` holds one table: the current stage's tasks, who has each, status and blocker. Done stages and later stages live only in `PLAN.md`. The rules and repo map moved to `CONTRIBUTING.md` and `AGENTS.md`. Refines D-009 (the repo is still the single source of truth).
+- **Why:** The README had grown to every person's "now" and "next" across four labs. A glance should answer "what stage are we at, and who's on what?" and nothing else.
+- **Gave up:** seeing upcoming work on the front page; it's one click away in `PLAN.md`.
+
+## D-021: One approval from any teammate merges a PR
+
+- **Date:** 2026-10-23 · **Status:** Accepted
+- **Affects:** everyone reviewing PRs
+- **Decision:** Branch protection on `main` keeps "1 approval required" but no longer requires the approval to come from the path's code owner. `CODEOWNERS` still requests the right reviewers automatically.
+- **Why:** Nobody can approve their own PR, so a code-owner rule made each PR wait on one specific person; PRs #2 and #3 sat approved-but-blocked while Lab 5's deadline closed in.
+- **Gave up:** a guarantee that the area's owner has seen every change to it. Reviewers should still ping the owner for changes in their folder.
+

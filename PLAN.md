@@ -8,7 +8,7 @@ with one owner, the tasks that block it, and a status. This file is the source o
 
 - **Pick up** a task only when everything in "Blocked by" is ✅ Done. Set it to 🔄 In progress, with your name.
 - **Finish** a task: set it to ✅ Done, then check which tasks it was blocking and flip them from ⛔ Blocked to 🟢 Ready.
-- **In the same PR, update the "Pending now" table in [`README.md`](./README.md)**, so the README always shows what's pending and who has it.
+- **In the same PR, update [`README.md`](./README.md)**, which shows **only the current stage**: its tasks, who has each, status. When a stage is submitted, replace the README table with the next stage's tasks.
 - "Done" means the evidence is in `evidence/` and the learnings note is written (see [`CONTRIBUTING.md`](./CONTRIBUTING.md)).
 - New task? Add a row in the right place, with a new ID, an owner and its blockers.
 
@@ -76,6 +76,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | S8 | Shared vocabulary in `knowledge/`: user roles (CHV, nurse, specialist, GHS official, admin) and data resources (Patient, Observation, Consent, AuditEvent) | Elise | — | 🟢 Ready | Merged |
 | S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready | Builds and runs offline locally |
 | S10 | Scaffold `patient-record-service` in `backend/`: Express/TypeScript, `/health` (returns instance id), `/ready` (checks DB), Dockerfile | Joseph | — | ✅ Done | Container runs locally ([learnings](./learnings/patient-record-service.md)) |
+| S11 | Agent files for every assistant (`AGENTS.md` root + per area, `CLAUDE.md`), CI for API and schema tests, PR template, README = current stage only, ADR index | Joseph | — | ✅ Done | Tested from root, `backend/`, `db/`, `infra/` ([learnings](./learnings/repo-and-tooling.md)) |
 
 ## Phase 1: Lab 5 (on HealthConnect) ✅ submitted 22 Oct
 
