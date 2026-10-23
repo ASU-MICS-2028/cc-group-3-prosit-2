@@ -74,7 +74,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | S6 | Prosit 2 cost tracker (Resource Inventory + Weekly Log) + budget alarm | Eugene | — | 🔄 In progress (budget alarm applied) | Alarm email confirmed |
 | S7 | Rotate the Prosit 1 Lab 4 DB password (or delete that database) | Eugene | — | ✅ Done | Moot: the Lab 4 database no longer exists (checked 22 Oct) |
 | S8 | Shared vocabulary in `knowledge/`: user roles (CHV, nurse, specialist, GHS official, admin) and data resources (Patient, Observation, Consent, AuditEvent) | Elise | — | 🟢 Ready | Merged |
-| S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready | Builds and runs offline locally |
+| S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready (`frontend/` not created yet; the Lab 5 offline evidence came from the AgroConnect PWA) | Builds and runs offline locally |
 | S10 | Scaffold `patient-record-service` in `backend/`: Express/TypeScript, `/health` (returns instance id), `/ready` (checks DB), Dockerfile | Joseph | — | ✅ Done | Container runs locally ([learnings](./learnings/patient-record-service.md)) |
 | S11 | Agent files for every assistant (`AGENTS.md` root + per area, `CLAUDE.md`), CI for API and schema tests, PR template, README = current stage only, ADR index | Joseph | — | ✅ Done | Tested from root, `backend/`, `db/`, `infra/` ([learnings](./learnings/repo-and-tooling.md)) |
 
@@ -176,7 +176,7 @@ Design for A/B is decision D-010 (one SNS topic fanning out to two SQS queues).
 | L7-A3 | `appointments` table migration (UUID id, patient, specialist, `starts_at`/`ends_at`, status) | Elise | L6-C1 | ✅ Done | In `db/migrations/001_initial_schema.sql`; Postgres blocks double-booking (D-017) |
 | L7-A4 | `POST /appointments` in `patient-record-service`: save the appointment (UUID id, `starts_at`; a double-booking clash → 409, per D-017), then publish `appointment.created` to the topic | Joseph | S10, L7-A3 | 🟢 Ready | Tests pass; returns 201 |
 | L7-A5 | End-to-end run: create one appointment → **both** functions fire from that one event; capture evidence A and B | Joseph | L7-A1, L7-A2, L7-A4 | ⛔ Blocked | Checklist rows A and B ticked |
-| L7-C1 | Signaling server + browser client from the handout's starter code, served over **HTTPS/WSS** (phones only allow the camera on secure pages), e.g. through a Cloudflare tunnel or our domain | Perfect | — | 🟢 Ready | Opens on a phone; camera works |
+| L7-C1 | Signaling server + browser client from the handout's starter code, served over **HTTPS/WSS** (phones only allow the camera on secure pages), e.g. through a Cloudflare tunnel or our domain | Perfect | — | 🔄 In progress (Perfect) | Opens on a phone; camera works. Code in `webrtc-spike/` (TypeScript + React) builds and passes tests; HTTPS tunnel + phone test still to do ([learnings](./learnings/lab7-webrtc.md)) |
 | L7-C2 | Call on the **same network**: both video feeds connect | Perfect + one teammate | L7-C1 | ⛔ Blocked | Screenshot C1 |
 | L7-C3 | Call across **two different networks** (campus Wi-Fi vs a phone hotspot); record whether it connected directly or needed a relay (TURN), from `chrome://webrtc-internals` | Perfect + one teammate | L7-C2 | ⛔ Blocked | Screenshot C2 + note of the candidate type |
 | L7-C4 | Real call stats (packet loss, jitter, round-trip time) on the same network vs Slow 3G throttling, with the numbers written down | Perfect | L7-C2 | ⛔ Blocked | Screenshot C3 + numbers in `learnings/lab7-webrtc.md` |
