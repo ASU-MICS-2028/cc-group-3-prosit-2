@@ -16,7 +16,7 @@ Everything is in `webrtc-spike/`, written in TypeScript (strict mode, like `back
 3. `src/client/hooks/useCall.ts`: the React hook that asks for the camera, joins the room, sets up the call, reads stats every second, and releases the camera when you leave.
 4. `src/client/lib/stats.ts`: turns the browser's raw stats into the numbers Lab 7 asks for (packet loss %, jitter, round-trip time, and whether the path is direct or relayed).
 5. `src/client/components/` and `App.tsx`: the page (two video tiles, a stats panel, join/leave).
-6. 8 automated tests (room rules, message checking, stats maths).
+6. 8 automated tests (room rules, message checking, stats maths); 10 since the heartbeat was added.
 
 ## 3. Why we did it this way
 
@@ -27,7 +27,7 @@ The handout's starter code is not in the repo, so I wrote the same shape: a Node
 ```bash
 cd webrtc-spike
 npm install
-npm run typecheck && npm test      # 8 tests pass
+npm run typecheck && npm test      # 10 tests pass
 npm run build && npm start         # page + signaling on http://localhost:3000
 ```
 
@@ -38,6 +38,12 @@ For a phone or another network you need HTTPS in front (phones refuse the camera
 ```bash
 cloudflared tunnel --url http://localhost:3000   # prints an https://....trycloudflare.com address
 ```
+
+**Or skip the tunnel: it's hosted** (added by Eugene, 2026-10-23, D-023). Open
+**`https://call-hc.agroconnect.space`** on two phones or laptops, same room name, Join on both. It's the same code,
+built with `webrtc-spike/Dockerfile` and run on one AWS server behind our load balancer, with a real certificate, so
+phones allow the camera. Signaling checks against it (rooms, `wss://`, staying connected while idle) passed:
+`evidence/lab7/outputs_C_signaling_hosted.txt`. Its infrastructure side is explained in `learnings/infra.md`.
 
 Evidence goes in `evidence/lab7/` (file names are in PLAN.md).
 
@@ -51,7 +57,12 @@ Evidence goes in `evidence/lab7/` (file names are in PLAN.md).
 ## 6. What will bite us
 
 - The camera needs `https://` (or `localhost`).
-- Quick-tunnel addresses change every time you restart the tunnel.
+- Quick-tunnel addresses change every time you restart the tunnel. (The hosted address above doesn't.)
+- **Idle connections:** load balancers and tunnels close a connection that's silent for ~60 s, and the signaling
+  socket is silent while someone waits for the other person. The server now pings every socket every 25 s and closes
+  any that stop answering (added by Eugene, tested in `src/server/heartbeat.test.ts`; 10 tests now).
+- **The hosted page runs the image that was pushed, not the latest commit.** After changing the code, ask Eugene (or
+  follow `learnings/infra.md`) to rebuild and redeploy it.
 - `.npmrc` sets `legacy-peer-deps=true` because Vite 8 and `tsx` disagree about the esbuild version; without it `npm install` crashes.
 - Without TURN, calls between some mobile carriers will probably fail. That is expected and reportable.
 
@@ -66,6 +77,7 @@ Evidence goes in `evidence/lab7/` (file names are in PLAN.md).
 | Jitter | How uneven packet arrival times are (high jitter = choppy) |
 | Packet loss | Share of video data that never arrived |
 | RTT | Round-trip time: how long a message takes to go and come back |
+| Heartbeat | A tiny "are you there?" message every 25 s that keeps an idle connection from being cut |
 
 ## 8. Lines ready for the report
 

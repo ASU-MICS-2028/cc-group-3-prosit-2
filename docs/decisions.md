@@ -173,3 +173,19 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** Nobody can approve their own PR, so a code-owner rule made each PR wait on one specific person; PRs #2 and #3 sat approved-but-blocked while Lab 5's deadline closed in.
 - **Gave up:** a guarantee that the area's owner has seen every change to it. Reviewers should still ping the owner for changes in their folder.
 
+
+## D-022: HealthConnect's public names are subdomains of `agroconnect.space`
+
+- **Date:** 2026-10-23 · **Status:** Accepted (Eugene, owner of S5)
+- **Affects:** Everyone who calls the API or opens the call page: use `https://api-hc.agroconnect.space` and `https://call-hc.agroconnect.space`, not the load balancer's AWS name. Elise's L6-B2 checks HTTPS on these names.
+- **Decision:** One ACM certificate covers `api-hc.agroconnect.space` (the API) and `call-hc.agroconnect.space` (the Lab 7 call page). DNS is at Hostinger, outside Terraform: two CNAMEs to the load balancer and two certificate-validation CNAMEs. The load balancer serves TLS 1.3 on `:443` and redirects `:80` to it.
+- **Why:** HTTPS needs a domain (S5 blocked L6-B1 and phones refuse the camera without it). `agroconnect.space` is already the team's, already at Hostinger, and paid until October 2027, so this costs nothing and takes minutes.
+- **Gave up:** a HealthConnect-branded domain (would cost money and a purchase). The name says "agroconnect"; the `-hc` suffix keeps it apart from Prosit 1's old `api` and `app` records, which now point at deleted resources and can be removed.
+
+## D-023: The Lab 7 call page runs on one dedicated server behind the shared load balancer
+
+- **Date:** 2026-10-23 · **Status:** Proposed (Eugene; Perfect to confirm, it's their code)
+- **Affects:** Perfect (L7-C1 to C4): test with `https://call-hc.agroconnect.space` instead of a tunnel. `webrtc-spike/` gains a `Dockerfile` and a 25-second signaling heartbeat.
+- **Decision:** `webrtc-spike/` is built into its own image (ECR `healthconnect-dev-call`) and runs on **one** `t3.micro` in a private subnet, with its own IAM role (pull its image, write its logs, SSM; nothing else). The load balancer forwards requests for `call-hc.agroconnect.space` to it (a host-header rule), and the WebSocket (`wss://…/ws`) goes through the same way. The signaling server pings each socket every 25 seconds. Torn down after Lab 7.
+- **Why:** The signaling server keeps rooms in memory, so both people in a call must reach the **same** process; behind the API's two servers they could land on different ones and never meet. A load balancer closes any connection silent for 60 seconds, and a caller waiting in a room is silent, so without the ping the doctor would join an empty room. A fixed `https://` address works on any phone, without a laptop running a tunnel whose address changes on every restart.
+- **Gave up:** about $9/month while it runs; a single point of failure (if the server dies, calls stop until it's replaced). Rooms in a shared store (e.g. Redis) would allow more servers but are more than a lab spike needs.

@@ -31,6 +31,7 @@ anyone else's setup to get going.
 - **Sessions:** lecture Monday 1:15–2:45 pm; lab Thursday 8:00–11:15 am (Patrick Nutor Hall 115).
 - **Team:** Group 3, Highlanders. Joseph Etse (PM/API), Eugene Sewor (Cloud/DevOps), Elise Kennedy-Angbo (Data), Perfect Avugla (Frontend).
 - **Cloud:** AWS, region `af-south-1` (Cape Town). The launch deck gives $400 of credits per team for Prosit 2.
+- **Live addresses:** API `https://api-hc.agroconnect.space` (try `/health`, `/ready`) · Lab 7 call page `https://call-hc.agroconnect.space` (D-022, D-023). How they're built: [`../learnings/infra.md`](../learnings/infra.md).
 - **Prosit 2 runs about 4 weeks:** Labs 6, 7, the Week 8 midterm/milestone, and Lab 9 (CI/CD) are expected to feed it. We are also doing Lab 5 on HealthConnect (decision D-001).
 - **Grading (course):** quizzes 15%, labs and projects 25%, midterm 15%, participation 5%, final exam 20% + final project 20%.
 - **Late work:** at most 85% after 1 day, 75% after 2, 60% after 3, 0 after that.
