@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "HealthConnectDataAccess",
+      "Effect": "Allow",
+      "Action": ["rds-data:ExecuteStatement", "rds-data:BatchExecuteStatement"],
+      "Resource": "arn:aws:rds:us-east-1:315224414532:cluster:healthconnect-db"
+    },
+    {
+      "Sid": "HealthConnectSecretAccess",
+      "Effect": "Allow",
+      "Action": ["secretsmanager:GetSecretValue"],
+      "Resource": "arn:aws:secretsmanager:us-east-1:315224414532:secret:healthconnect-db-credentials-*"
+    }
+  ]
+}

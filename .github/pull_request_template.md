@@ -12,7 +12,7 @@
 - [ ] It works, its failure paths were tried, and lab evidence is in `evidence/labN/` (names from the checklist in `PLAN.md`)
 - [ ] `learnings/` note updated, in plain words (what, why, how to check, what's missing, gotchas)
 - [ ] Any decision is an ADR in `docs/` ([format](../docs/README.md))
-- [ ] `PLAN.md` row updated (and the tasks it unblocks), **and** the README table shows the current stage correctly
+- [ ] `PLAN.md` row updated (and the tasks it unblocks), **and** the README lists what's open now correctly
 - [ ] No secrets, keys, passwords or real patient data in the diff (the repo is public)
 - [ ] New cloud resources are in the cost tracker
 - [ ] AI use noted in `docs/ai-tools-usage.md`; session summarised in `knowledge/sessions/` if an assistant helped
