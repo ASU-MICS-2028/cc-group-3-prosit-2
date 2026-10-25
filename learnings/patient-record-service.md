@@ -1,85 +1,108 @@
-# patient-record-service (the HealthConnect API), first version (S10)
+# patient-record-service (the HealthConnect API)
 
-**Owner:** Joseph · **Last updated:** 2026-10-20 · **Status:** working (health checks only; no patient routes yet)
+**Owner:** Joseph · **Last updated:** 2026-10-25 · **Status:** working locally and in CI (not yet deployed with these routes)
 
 ## 1. In one sentence
 
-A small web server, in `backend/`, that will become HealthConnect's API for patient records. Right now it only answers two
-"are you alive?" questions, which is exactly what the load balancer (Lab 5) needs.
+The web server in `backend/` that health workers' apps talk to: it checks who is calling, books appointments, shows
+patient records, and writes down every access, while the database's own rules make sure nothing slips through.
 
-## 2. What I did, step by step
+## 2. What it does now
 
-1. Built a Node.js + TypeScript + Express server, copying the structure of the Prosit 1 API (same config, logging and database code, minus everything farm-specific).
-2. Added two endpoints:
-   - `GET /health`: always answers `{"status":"ok", "instance":"<which machine>"}` while the process is running. The load balancer calls it every few seconds to decide if this machine is healthy. The `instance` field shows **which** machine answered, which is what the Lab 5 failover demo needs.
-   - `GET /ready`: also checks the database with `SELECT 1`. It answers 200 if the database is reachable, 503 if not.
-3. Wrote 4 automated tests (`backend/test/health.test.ts`): `/health` names the instance; `/ready` is 200 with a working DB and 503 with a broken one; unknown paths give a JSON 404.
-4. Wrote a `Dockerfile` that builds a small production image. It includes the AWS certificate bundle, so the connection to the RDS database is encrypted **and** checks it's really talking to RDS.
+| Endpoint | Who may call it | What it does |
+|---|---|---|
+| `GET /health` | anyone (the load balancer) | "Am I running?" and which server answered. Never touches the database |
+| `GET /ready` | anyone | Also checks the database answers |
+| `POST /appointments` | signed-in CHV, nurse, doctor, specialist, admin | Books an appointment, then announces it (Lab 7) |
+| `GET /patients/:id` | signed-in CHV, nurse, doctor, specialist, admin | Shows one patient, and records the read (Lab 6) |
 
-## 3. Why we did it this way
+Built in five steps (25 Oct), each tested before the next:
 
-- **Copied from Prosit 1, not written from scratch:** that code is already tested and running in production. Lab 6 says to reuse patterns, not the codebase (D-002).
-- **The instance name comes from the `INSTANCE_ID` environment variable**, which the EC2 start-up script already sets in Prosit 1's Terraform. If it isn't set (e.g., on a laptop), the machine's hostname is used instead.
-- **`/health` doesn't touch the database:** if the DB has a hiccup, we don't want the load balancer to kill every app instance at once. `/ready` is the one that checks the DB.
+1. **`withTransaction(user, work)`** (`src/db.ts`). Every write happens inside one database transaction that first
+   tells the database who is acting (`app.user_id`). Elise's schema refuses any write without that, and stamps the
+   user on every row. If anything inside fails, everything is undone.
+2. **Knowing who's calling** (`src/auth.ts`). A request must carry `Authorization: Bearer <token>`: a token we sign
+   (a JWT) that names a practitioner. We check the signature, the expiry, and that the practitioner exists and is
+   **active**, on every request. We never trust a header like `x-user-id`, which anyone can fake (ADR D-026).
+3. **`POST /appointments`** (`src/routes/appointments.ts`). Saves the appointment and its audit row together, as the
+   signed-in user. Then publishes `appointment.created` to SNS. The patient's phone goes in that message **only if
+   they consented to reminders** (D-014).
+4. **The two Lambda functions** (`functions/`): the reminder and the specialist notice, each triggered by its own queue.
+5. **`GET /patients/:id`** (`src/routes/patients.ts`). Every attempt is logged: found, unknown, malformed id, wrong
+   role, or not signed in.
+
+## 3. Why it works this way
+
+- **The database is the last line of defence.** Even if the API had a bug, Postgres would still refuse a write with no
+  user, a double-booking, or a deleted log row. The API's job is to turn those refusals into clear answers.
+- **Ids come from the phone**, because CHVs work offline and resend when the connection returns. Sending the same
+  booking twice gives back the same appointment (200), not a duplicate.
+- **Events are sent after the save, not before**, so nobody is told about an appointment that was rolled back.
+- **Fail closed:** with no signing key configured, the server still starts (so `/health` keeps the load balancer
+  happy), but every protected request is refused.
+- **Sign-in tokens, not a login screen yet** (D-026). The PWA's login comes later; for now `npm run token` makes a token.
 
 ## 4. How to check it works
 
-Tests and build (needs Node 24+):
-
 ```bash
-cd backend
-npm install
-npm test        # expect: 4 passed
-npm run build   # expect: no errors, a dist/ folder
+cd backend && npm install
+docker run -d --name hc-test-pg -e POSTGRES_PASSWORD=test -p 55432:5432 postgres:16
+TEST_DATABASE_URL=postgres://postgres:test@localhost:55432/postgres npm test   # expect: 34 passed
+cd ../functions && python3 -m unittest -v                                       # expect: 10 OK
 ```
 
-Run the real container against a throwaway local Postgres (needs Docker running):
+Without `TEST_DATABASE_URL` the database tests are skipped (and say so). In CI they're required: CI fails if they'd be skipped.
+
+Try it by hand (API running locally with `JWT_SECRET` set):
 
 ```bash
-cd backend
-docker build -t patient-record-service:local .
-docker network create hc-dev
-docker run -d --rm --name hc-pg --network hc-dev -e POSTGRES_PASSWORD=localonly -e POSTGRES_DB=healthconnect postgres:16-alpine
-docker run -d --rm --name hc-api --network hc-dev -p 8000:8000 -e INSTANCE_ID=i-local-demo \
-  -e DATABASE_URL=postgres://postgres:localonly@hc-pg:5432/healthconnect patient-record-service:local
-curl localhost:8000/health   # {"status":"ok","service":"patient-record-service","instance":"i-local-demo"}
-curl localhost:8000/ready    # {"status":"ready","instance":"i-local-demo"}
-docker stop hc-pg            # now /ready answers 503 "unavailable", /health stays 200
-docker stop hc-api; docker network rm hc-dev
+TOKEN=$(JWT_SECRET=<same secret> npm run -s token -- <practitioner uuid>)
+curl -s -X POST localhost:8000/appointments -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+  -d '{"id":"<new uuid>","patient_id":"<uuid>","specialist_id":"<uuid>","starts_at":"2026-11-02T10:00:00Z"}'
+# 201 {..., "event":"published"} · same again → 200 · same slot, same specialist → 409 double_booked
 ```
 
-Verified on 2026-10-20 with exactly these commands.
+**What the tests try** (the key ones were also checked by breaking the code on purpose and watching them fail):
+a missing, unknown or inactive user; forged, expired, wrong-key and unsigned tokens; rollback on error; one request's
+user never leaking into the next; double-booking; the same booking sent twice; an id reused for a different booking;
+SNS being down; no reminder consent; bad input naming the field; malformed JSON; the audit log can't be deleted; and
+that the API and the Lambda functions agree on the event's fields (`functions/fixtures/appointment-created.json`).
 
 ## 5. What is NOT done, or is faked
 
-- No patient endpoints, no login, no audit log yet. Those are L6-D1.
-- **No transaction helper yet, and every write will need one.** Elise's schema (`db/migrations/`) refuses any write unless the
-  same transaction first runs `SELECT set_config('app.user_id', <who>, true)`. `pool.query()` may send each statement
-  on a different connection, losing that setting. So L6-D1 starts by adding `withTransaction(actorId, fn)` to `db.ts`:
-  one connection, `BEGIN` → set the user → the writes + the `access_log` row → `COMMIT`. (From Elise's review of PR #2.)
-- The service doesn't run the migrations itself yet. For now, apply them with Elise's `db/tests/run_tests.sh` setup.
-- Not deployed to AWS yet. That's L5-B2, after Eugene's VPC and database.
-- No CI job runs these tests yet. `.github/` is Eugene's; a "backend tests" job is worth adding alongside S4.
+- **Not deployed yet.** The AWS servers run the older image. Deploying needs the settings in section 6.
+- **No login screen.** Tokens come from `npm run token`.
+- **If SNS is down, the event is lost**: the booking is kept and the caller is told (`"event":"not_published"`), but
+  nothing retries it. The proper fix is an "outbox" table. This is the open resilience question for the Lab 7 report.
+- **No "create patient" or "record a reading" endpoints yet**, so test patients are added with SQL.
 
 ## 6. What will bite us
 
-- **Settings it needs on AWS** (Eugene, for L5-B2): `DB_HOST` (RDS endpoint), `DB_SECRET_ARN` (the RDS secret), `DB_NAME` (default `healthconnect`), `INSTANCE_ID`, `PORT` (default 8000). `DB_CA_FILE` is already set inside the image. Locally, `DATABASE_URL` replaces the first three.
-- **The service refuses to start without database settings.** That's deliberate: better a clear error at boot than mystery 500s later.
-- **On EC2 the container needs the instance's IAM role** to read the DB secret. That only works if the metadata hop limit is 2, which Prosit 1's launch template already sets. Keep that line when copying the compute module.
-- The ALB health check path must be `/health`, port 8000.
+- **Settings it needs on AWS:** `DB_HOST`, `DB_SECRET_ARN`, `DB_NAME`, `INSTANCE_ID` (as before), plus:
+  - `JWT_SECRET_ARN`: a Secrets Manager secret holding `{"secret": "<at least 32 random characters>"}`. Without it, every protected route answers 401.
+  - `APPOINTMENT_TOPIC_ARN`: the SNS topic from Lab 7 (L7-A1). Without it, bookings save but no event goes out.
+  - The server's IAM role must allow `secretsmanager:GetSecretValue` on that secret and `sns:Publish` on that topic, and nothing more.
+- **Lambda functions** (`functions/`): handlers `reminder_function.handler` and `specialist_notify_function.handler`,
+  Python 3.12. Zip each with `events.py` beside it. They read SNS→SQS messages with or without "raw message delivery".
+  A bad message raises, so SQS retries it and then moves it to the dead-letter queue; keep the batch size at 1, or one bad
+  message makes its whole batch retry.
+- **Events can arrive twice** (a retried request, or SQS redelivery). The functions must tolerate duplicates (Elise's L7-H2).
+- **The image pins the af-south-1 RDS certificate bundle**; it won't reach a database in another region.
 
 ## 7. Terms used
 
 | Term | Plain meaning |
 |---|---|
-| Endpoint | A URL the server answers, e.g. `/health` |
-| Load balancer (ALB) | The AWS front door that spreads requests across our machines and stops sending to any machine whose `/health` fails |
-| Liveness / readiness | "Is the program running?" vs "Can it actually do its job (reach the DB)?" |
-| Container / Docker image | The app packaged with everything it needs, so it runs the same on a laptop and on EC2 |
-| RDS CA bundle | AWS's certificates; checking against them proves we're talking to the real database over an encrypted connection |
+| Transaction | A group of database changes that all happen, or none do |
+| JWT (token) | A small signed note saying "this is practitioner X, valid until Y"; we can check we signed it |
+| Fail closed | When something is missing, refuse rather than let people in |
+| Idempotent | Doing the same thing twice has the same effect as doing it once |
+| SNS / SQS | AWS's "announce to many" service, and its "queue for one reader" service |
+| Dead-letter queue | Where SQS puts a message that keeps failing, so it isn't lost |
 
 ## 8. Lines ready for the report
 
-The HealthConnect API is a containerised Node.js/TypeScript service reusing the patterns of our Prosit 1 API. It exposes a
-liveness check (`/health`, which reports which instance answered) for the load balancer, and a readiness check (`/ready`) that
-also verifies the database connection. Database connections use TLS verified against the RDS certificate authority.
+The HealthConnect API identifies every caller from a signed token checked against active practitioners, and runs
+each write in one transaction that tells the database who is acting, so the database's own triggers stamp and audit
+every change. Booking an appointment saves it and its audit record atomically, refuses double-bookings, survives
+offline retries, and then publishes one event that two independent serverless functions consume.
