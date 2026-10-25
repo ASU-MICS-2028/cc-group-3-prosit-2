@@ -189,3 +189,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** `webrtc-spike/` is built into its own image (ECR `healthconnect-dev-call`) and runs on **one** `t3.micro` in a private subnet, with its own IAM role (pull its image, write its logs, SSM; nothing else). The load balancer forwards requests for `call-hc.agroconnect.space` to it (a host-header rule), and the WebSocket (`wss://…/ws`) goes through the same way. The signaling server pings each socket every 25 seconds. Torn down after Lab 7.
 - **Why:** The signaling server keeps rooms in memory, so both people in a call must reach the **same** process; behind the API's two servers they could land on different ones and never meet. A load balancer closes any connection silent for 60 seconds, and a caller waiting in a room is silent, so without the ping the doctor would join an empty room. A fixed `https://` address works on any phone, without a laptop running a tunnel whose address changes on every restart.
 - **Gave up:** about $9/month while it runs; a single point of failure (if the server dies, calls stop until it's replaced). Rooms in a shared store (e.g. Redis) would allow more servers but are more than a lab spike needs.
+
+## D-026: Callers are identified by signed tokens, checked against active practitioners
+
+- **Date:** 2026-10-25 · **Status:** Accepted
+- **Affects:** Perfect (the PWA sends `Authorization: Bearer <token>`), Eugene (a `JWT_SECRET_ARN` secret and IAM permission to read it), everyone testing the API
+- **Decision:** Every protected API route requires a JWT signed with HS256 by our own secret (≥ 32 characters, from Secrets Manager), with issuer `healthconnect`, an expiry, and `sub` = a practitioner's UUID. On each request the API also checks that practitioner exists and is active. Without a configured secret, protected routes refuse everyone (the server still starts, so health checks pass). Until a login screen exists, `npm run token` signs tokens for demos.
+- **Why:** The database stamps and audits every write with the acting user (D-015), so the API must know reliably who is calling. A header such as `x-user-id` can be forged by anyone. One shared secret is enough while one service both signs and checks tokens.
+- **Gave up:** a real login flow (PIN or password, refresh tokens) for now, and asymmetric keys (RS256), which we'd want if other services ever check our tokens.
+
