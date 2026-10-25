@@ -3,8 +3,9 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createApp } from '../src/app.js'
 import type { Db } from '../src/db.js'
 
-const okDb: Db = { query: async () => ({ rows: [{ '?column?': 1 }] }), close: async () => {} }
-const downDb: Db = { query: async () => Promise.reject(new Error('connection refused')), close: async () => {} }
+const unused = async (): Promise<never> => { throw new Error('not used in these tests') }
+const okDb: Db = { query: async () => ({ rows: [{ '?column?': 1 }] }), withTransaction: unused, close: async () => {} }
+const downDb: Db = { query: async () => Promise.reject(new Error('connection refused')), withTransaction: unused, close: async () => {} }
 
 let close: (() => void) | undefined
 afterEach(() => close?.())

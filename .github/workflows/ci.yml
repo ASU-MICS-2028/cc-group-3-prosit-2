@@ -35,6 +35,18 @@ jobs:
   backend:
     name: backend tests + build
     runs-on: ubuntu-latest
+    # The API's database tests run against a real Postgres with every migration applied.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://postgres:test@localhost:5432/postgres
     defaults:
       run:
         working-directory: backend
