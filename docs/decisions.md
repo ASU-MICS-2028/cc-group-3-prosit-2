@@ -159,7 +159,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-020: The README shows only the current stage
 
-- **Date:** 2026-10-23 · **Status:** Accepted
+- **Date:** 2026-10-23 · **Status:** Replaced by D-025
 - **Affects:** everyone: whoever changes a task's state updates the README table in the same PR; whoever submits a stage replaces the table with the next stage
 - **Decision:** `README.md` holds one table: the current stage's tasks, who has each, status and blocker. Done stages and later stages live only in `PLAN.md`. The rules and repo map moved to `CONTRIBUTING.md` and `AGENTS.md`. Refines D-009 (the repo is still the single source of truth).
 - **Why:** The README had grown to every person's "now" and "next" across four labs. A glance should answer "what stage are we at, and who's on what?" and nothing else.
@@ -197,4 +197,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** The Lab 6 steps were run exactly as the handout gives them, in a separate setup in `us-east-1` (team account): an Aurora PostgreSQL cluster `healthconnect-db` (so the handout's RDS Data API policy works), one EC2 server with `healthconnect-service-role`, the handout's schema and audit middleware. The report presents that run beside our own system's stronger design (schema in `db/`, HTTPS and encryption in `infra/`).
 - **Why:** Much of Lab 6 already existed in our codebase in a different shape (UUIDs, enforced consent, database-level audit, RDS rather than Aurora). Reproducing the handout literally in our system would have meant weakening it; a separate run shows every required step without that.
 - **Gave up:** evidence from the production system itself. Three pieces of the real system are still open and tracked: the API's own IAM role (L6-A1b), the customer-managed key / forced database TLS / HTTPS-only bucket (L6-B1b), and audit logging inside the API (L6-D1). The lab environment bills while it runs and must be torn down.
+
+## D-025: The README lists everything open now, and who does it
+
+- **Date:** 2026-10-25 · **Status:** Accepted · **Replaces:** D-020
+- **Affects:** everyone; whoever changes a task's state updates the README in the same PR and removes the row once it's done
+- **Decision:** The README lists every task that is open right now, grouped: today's deadline items, the current stage, items carried over from earlier labs, and preparation for the next session. Finished work never appears there; it lives in `PLAN.md`.
+- **Why:** With Lab 6 wrapping up, Lab 7 starting and Lab 8 a week away, "current stage only" hid work people had to do this week. The point of the README is a quick glance at what's open and who owns it.
+- **Gave up:** a single table; the README is now a few short ones.
 

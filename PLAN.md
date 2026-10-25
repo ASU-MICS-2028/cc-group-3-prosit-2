@@ -8,7 +8,7 @@ with one owner, the tasks that block it, and a status. This file is the source o
 
 - **Pick up** a task only when everything in "Blocked by" is ✅ Done. Set it to 🔄 In progress, with your name.
 - **Finish** a task: set it to ✅ Done, then check which tasks it was blocking and flip them from ⛔ Blocked to 🟢 Ready.
-- **In the same PR, update [`README.md`](./README.md)**, which shows **only the current stage**: its tasks, who has each, status. When a stage is submitted, replace the README table with the next stage's tasks.
+- **In the same PR, update [`README.md`](./README.md)**, which lists **everything open now** and who has it (D-025): add new open items, remove finished ones.
 - "Done" means the evidence is in `evidence/` and the learnings note is written (see [`CONTRIBUTING.md`](./CONTRIBUTING.md)).
 - New task? Add a row in the right place, with a new ID, an owner and its blockers.
 

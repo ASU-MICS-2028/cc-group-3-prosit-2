@@ -19,7 +19,7 @@ If a teammate has to ask you how your part works, the note was not simple enough
 
 | Path | What goes here | Owner |
 |---|---|---|
-| `README.md` | **Only the current stage**: its tasks, who has each, status. Nothing done, nothing later | Whoever changes a task's state |
+| `README.md` | **Everything open now**, and who has each task. Nothing finished (D-025) | Whoever changes a task's state |
 | `PLAN.md` | Every stage and task in order, with owners, blockers, "done when" and each lab's deliverables checklist | Joseph (everyone updates their own rows) |
 | `docs/` | **Architecture Decision Records (ADRs)** and the documents they point to ([index](./docs/README.md)) | Joseph (editor); each decision's author |
 | `learnings/` | **What each of us did and learned**, in the simplest words, so nobody has to redo it to understand it ([how](./learnings/README.md)) | Each owner |
@@ -40,7 +40,7 @@ If a teammate has to ask you how your part works, the note was not simple enough
 
 ## The flow
 
-1. Pick your task from the [README](./README.md) (current stage) or [`PLAN.md`](./PLAN.md). Only start it if everything in "Blocked by" is ✅. Mark it 🔄 In progress.
+1. Pick your task from the [README](./README.md) (everything open now) or [`PLAN.md`](./PLAN.md). Only start it if everything in "Blocked by" is ✅. Mark it 🔄 In progress.
 2. Branch off an up-to-date `main`: `feat/<topic>`, `fix/<topic>`, `chore/<topic>`, `docs/<topic>`, `lab6/<part>`, …
 3. Work **step by step**. After each step, test it, including the ways it can go wrong, not only the happy path (see "How to work" in [`AGENTS.md`](./AGENTS.md)). Capture evidence as you go ([`evidence/README.md`](./evidence/README.md)).
 4. Update, in the same PR: your `learnings/` note · an ADR in `docs/` for any decision · `knowledge/` for new facts · a session summary in `knowledge/sessions/` if you used an assistant · your task row in `PLAN.md` (and flip what it unblocks) · the README table.
@@ -52,7 +52,7 @@ If a teammate has to ask you how your part works, the note was not simple enough
 - [ ] It works, its failure paths were tried, and the evidence (outputs/screenshots) is in `evidence/labN/`
 - [ ] The learnings note explains it **in plain words**: what, why, how to check, what's missing, gotchas
 - [ ] Decisions are ADRs in `docs/`; new project facts are in `knowledge/`
-- [ ] Your task's status is updated in [`PLAN.md`](./PLAN.md) (including the tasks it unblocks), **and** the README shows the current stage correctly
+- [ ] Your task's status is updated in [`PLAN.md`](./PLAN.md) (including the tasks it unblocks), **and** the README lists what's open now correctly
 - [ ] No secrets, passwords, keys or real patient data in the diff
 - [ ] Any new cloud resource is in the cost tracker
 - [ ] AI help, if used, is noted in `docs/ai-tools-usage.md`

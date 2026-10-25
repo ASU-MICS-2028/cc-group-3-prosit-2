@@ -9,7 +9,7 @@ one set of instructions for every tool.
 
 ## Read first, in this order
 
-1. [`README.md`](./README.md): the **current stage** and who owns each of its tasks.
+1. [`README.md`](./README.md): **everything open now** and who owns each task (D-025).
 2. [`PLAN.md`](./PLAN.md): the task you're helping with: owner, "Blocked by", "done when", and the lab's deliverables checklist.
 3. [`docs/README.md`](./docs/README.md) → the ADRs. What's decided is decided; to change it, write a new ADR, never contradict one silently.
 4. The `learnings/` note for the area you're touching.
@@ -38,7 +38,7 @@ If the task isn't in `PLAN.md`, or its "Blocked by" isn't ✅, say so before sta
 
 | Put it in… | When it is… | Written as… |
 |---|---|---|
-| `README.md` | the **current stage only**: tasks, who, status | a single table; replace it when the stage is submitted |
+| `README.md` | **everything open now**: tasks, who, status | short tables; remove a row once it's done (D-025) |
 | `PLAN.md` | any task, done or to come | one row per task: owner, blockers, status, "done when" |
 | `docs/` | a **decision**, or a document a decision relies on | an **ADR** ([format](./docs/README.md)) |
 | `learnings/` | what someone did and learned | the simplest words possible; exact commands; what's broken |
