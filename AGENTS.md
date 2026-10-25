@@ -32,7 +32,7 @@ If the task isn't in `PLAN.md`, or its "Blocked by" isn't ✅, say so before sta
 4. **Capture evidence as you go** (lab work): exact file names from the lab's checklist in `PLAN.md`, rules in [`evidence/README.md`](./evidence/README.md).
 5. **Record what you learned** in `learnings/<area>.md`, in the simplest words possible (template: [`learnings/TEMPLATE.md`](./learnings/TEMPLATE.md)).
 6. **Record decisions as ADRs** in `docs/` (format in [`docs/README.md`](./docs/README.md)).
-7. **Close the loop in the same PR:** the task row in `PLAN.md` (and the tasks it unblocks), the README table, a session summary in `knowledge/sessions/`, and a line in `docs/ai-tools-usage.md`.
+7. **Close the loop in the same PR:** the task row in `PLAN.md` (and the tasks it unblocks), the README (add or remove the row), a session summary in `knowledge/sessions/`, and a line in `docs/ai-tools-usage.md`.
 
 ## Where everything goes
 
