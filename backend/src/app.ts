@@ -7,6 +7,8 @@ import { logger } from './logging.js'
 export interface Ctx {
   db: Db
   instanceId: string
+  /** Signing key for sign-in tokens; null = sign-in not configured, so protected routes refuse everyone. */
+  jwtKey: Uint8Array | null
 }
 
 export function createApp(ctx: Ctx): Express {
