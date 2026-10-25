@@ -5,6 +5,7 @@ import type { Db } from './db.js'
 import type { EventPublisher } from './events.js'
 import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
+import { patientRoutes } from './routes/patients.js'
 
 export interface Ctx {
   db: Db
@@ -40,6 +41,7 @@ export function createApp(ctx: Ctx): Express {
   })
 
   appointmentRoutes(app, ctx)
+  patientRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {

@@ -1,6 +1,7 @@
-import type { RequestHandler } from 'express'
+import type { Request, RequestHandler } from 'express'
 import { SignJWT, jwtVerify } from 'jose'
 import type { Queryable } from './db.js'
+import { logger } from './logging.js'
 
 /**
  * Who is calling. A request carries `Authorization: Bearer <token>`, a JWT signed by us (HS256) whose
@@ -36,25 +37,31 @@ const refuse = (res: Parameters<RequestHandler>[1], message: string) =>
  * `res.locals.actor`. Checking the database on every request means a deactivated account stops
  * working at once, not when its token expires.
  */
-export function requireActor(key: Uint8Array | null, db: Queryable): RequestHandler {
+export function requireActor(key: Uint8Array | null, db: Queryable, onRefused?: (req: Request) => Promise<unknown>): RequestHandler {
   return async (req, res, next) => {
-    if (!key) return refuse(res, 'Sign-in is not configured on this server')
+    // `onRefused` lets a route put the refused attempt on record (access_log) before answering 401.
+    // If recording fails we still refuse: an audit hiccup must never let a caller in.
+    const deny = async (message: string) => {
+      if (onRefused) await onRefused(req).catch((error) => logger.error({ err: error }, 'could not record a refused sign-in'))
+      refuse(res, message)
+    }
+    if (!key) return deny('Sign-in is not configured on this server')
     const header = req.get('authorization') ?? ''
     const token = header.startsWith('Bearer ') ? header.slice(7).trim() : ''
-    if (!token) return refuse(res, 'Sign in first')
+    if (!token) return deny('Sign in first')
 
     let sub: string | undefined
     try {
       ;({ payload: { sub } } = await jwtVerify(token, key, { algorithms: ['HS256'], issuer: ISSUER }))
     } catch {
-      return refuse(res, 'Your session is invalid or has expired. Sign in again')
+      return deny('Your session is invalid or has expired. Sign in again')
     }
-    if (!sub || !UUID.test(sub)) return refuse(res, 'Your session is invalid. Sign in again')
+    if (!sub || !UUID.test(sub)) return deny('Your session is invalid. Sign in again')
 
     try {
       const { rows } = await db.query('SELECT id, role FROM practitioners WHERE id = $1 AND active', [sub])
       const row = rows[0]
-      if (!row) return refuse(res, 'This account is not active')
+      if (!row) return deny('This account is not active')
       res.locals.actor = { id: String(row.id), role: String(row.role) } satisfies Actor
       next()
     } catch (error) {
