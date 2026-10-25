@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import type { AddressInfo } from 'node:net'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '../src/app.js'
@@ -74,6 +75,9 @@ describe.skipIf(!TEST_DATABASE_URL)('POST /appointments', () => {
     expect(await auditRows('success')).toBe(before + 1)
     expect(sent).toHaveLength(1)
     expect(sent[0]).toMatchObject({ type: 'appointment.created', payload: { appointmentId: b.id, patientPhone: '+233200000001' } })
+    // Contract with the Lambda functions: the published message has exactly the fields they are tested against.
+    const contract = JSON.parse(readFileSync(new URL('../../functions/fixtures/appointment-created.json', import.meta.url), 'utf8'))
+    expect(Object.keys({ type: sent[0]!.type, ...sent[0]!.payload }).sort()).toEqual(Object.keys(contract).sort())
   })
 
   it('leaves the phone out of the event when the patient has not consented to reminders', async () => {
