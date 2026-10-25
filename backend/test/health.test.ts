@@ -11,7 +11,7 @@ let close: (() => void) | undefined
 afterEach(() => close?.())
 
 async function start(db: Db) {
-  const server = createApp({ db, instanceId: 'i-test123', jwtKey: null }).listen(0)
+  const server = createApp({ db, instanceId: 'i-test123', jwtKey: null, events: { publish: async () => {} } }).listen(0)
   await new Promise((resolve) => server.once('listening', resolve))
   close = () => server.close()
   const { port } = server.address() as AddressInfo
