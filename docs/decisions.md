@@ -189,3 +189,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** `webrtc-spike/` is built into its own image (ECR `healthconnect-dev-call`) and runs on **one** `t3.micro` in a private subnet, with its own IAM role (pull its image, write its logs, SSM; nothing else). The load balancer forwards requests for `call-hc.agroconnect.space` to it (a host-header rule), and the WebSocket (`wss://…/ws`) goes through the same way. The signaling server pings each socket every 25 seconds. Torn down after Lab 7.
 - **Why:** The signaling server keeps rooms in memory, so both people in a call must reach the **same** process; behind the API's two servers they could land on different ones and never meet. A load balancer closes any connection silent for 60 seconds, and a caller waiting in a room is silent, so without the ping the doctor would join an empty room. A fixed `https://` address works on any phone, without a laptop running a tunnel whose address changes on every restart.
 - **Gave up:** about $9/month while it runs; a single point of failure (if the server dies, calls stop until it's replaced). Rooms in a shared store (e.g. Redis) would allow more servers but are more than a lab spike needs.
+
+## D-024: Lab 6 was demonstrated in a separate, handout-style lab environment
+
+- **Date:** 2026-10-25 · **Status:** Accepted
+- **Affects:** everyone writing reports or defending Lab 6 in Lab 8; Eugene and Joseph (carried-forward tasks L6-A1b, L6-B1b, L6-D1)
+- **Decision:** The Lab 6 steps were run exactly as the handout gives them, in a separate setup in `us-east-1` (team account): an Aurora PostgreSQL cluster `healthconnect-db` (so the handout's RDS Data API policy works), one EC2 server with `healthconnect-service-role`, the handout's schema and audit middleware. The report presents that run beside our own system's stronger design (schema in `db/`, HTTPS and encryption in `infra/`).
+- **Why:** Much of Lab 6 already existed in our codebase in a different shape (UUIDs, enforced consent, database-level audit, RDS rather than Aurora). Reproducing the handout literally in our system would have meant weakening it; a separate run shows every required step without that.
+- **Gave up:** evidence from the production system itself. Three pieces of the real system are still open and tracked: the API's own IAM role (L6-A1b), the customer-managed key / forced database TLS / HTTPS-only bucket (L6-B1b), and audit logging inside the API (L6-D1). The lab environment bills while it runs and must be torn down.
+
