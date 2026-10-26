@@ -1,4 +1,4 @@
-# HealthConnect cloud infrastructure (S4, Lab 5 Parts A and B)
+# HealthConnect cloud infrastructure (S4, S5, Lab 5 A/B, Lab 7 L7-A1 and the call server)
 
 **Owner:** Eugene · **Last updated:** 2026-10-26 · **Status:** working (HTTPS API, Lab 7 call server, Lab 7 event flow)
 
@@ -128,19 +128,59 @@ aws sqs get-queue-attributes --queue-url "$(terraform -chdir=infra output -json 
 
 Recorded run (both functions from one event; bad event in both DLQs): `evidence/lab7/outputs_A1_event_infra.txt`.
 
+Calling a protected API route (what L7-A5 does). There's no login screen yet, so you sign a token yourself with
+the same key the servers use. The token must name a practitioner that exists **and is active** in RDS:
+
+```bash
+cd backend && npm install
+export JWT_SECRET=$(aws secretsmanager get-secret-value --secret-id healthconnect-dev-jwt-secret \
+  --query SecretString --output text | jq -r .secret)       # never paste this anywhere
+TOKEN=$(npm run -s token -- <practitioner uuid> 30m)
+curl -s -X POST https://api-hc.agroconnect.space/appointments \
+  -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' -d '{...}'
+```
+
+How to read the 401s: `"Sign in first"` = no token sent · `"Your session is invalid or has expired"` = wrong key or
+expired · `"This account is not active"` = the key is right but that practitioner isn't in RDS (or isn't active).
+The last one is a useful check that the servers really read the key from Secrets Manager.
+
 Running the database migrations: see "Running database migrations" in [`infra/README.md`](../infra/README.md).
+
+## 4b. How to ship a change (until the Week 9 deploy workflow exists)
+
+Images are built on a laptop and pushed to ECR. Our Macs are ARM; the servers are x86, so always pass
+`--platform linux/amd64` (an ARM image starts and then crashes on the server with "exec format error").
+
+```bash
+export AWS_PROFILE=ashesi-dev
+R=315224414532.dkr.ecr.af-south-1.amazonaws.com
+aws ecr get-login-password --region af-south-1 | docker login -u AWS --password-stdin $R
+SHA=$(git rev-parse --short HEAD)       # build from an up-to-date main
+```
+
+| What changed | Ship it with |
+|---|---|
+| `backend/` (the API) | `docker buildx build --platform linux/amd64 -t $R/healthconnect-dev-backend:latest -t $R/healthconnect-dev-backend:$SHA --push backend`, then `aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'`. No downtime: new servers start before old ones stop (~8 min). |
+| `webrtc-spike/` (call page) | Same build with `healthconnect-dev-call` and `webrtc-spike`, then `terraform -chdir=infra apply -replace='module.call[0].aws_instance.call'` (~4 min down: one server). |
+| `functions/` (Lambda) | `terraform -chdir=infra apply`. Terraform re-zips the files and updates both functions. |
+| `db/migrations/` | `db/migrate.sh` through the SSM tunnel ([`infra/README.md`](../infra/README.md)). |
+| `infra/` | `terraform plan`, read all of it, get the owner's OK, then `apply`. |
+
+After any of these: `curl -s https://api-hc.agroconnect.space/health` a few times (both instance ids should appear).
 
 ## 5. What is NOT done, or is faked
 
 - **Use the names, not the load balancer's AWS address.** The raw `…elb.amazonaws.com` address now redirects to
   HTTPS, and the certificate doesn't cover that name, so browsers and `curl` will reject it.
-- **No automatic deploys.** The image in ECR was built and pushed by hand from Joseph's PR #2 branch. The deploy
-  workflow comes with Week 9 (CI/CD).
+- **No automatic deploys.** Every image is built and pushed by hand (section 4b). The API now runs `main` at
+  `f3ff4ee` (PR #11). Merging a PR does **not** update the servers. The deploy workflow comes with Week 9 (CI/CD).
 - **Migrations are run by hand** through an SSM tunnel; the service doesn't migrate the database on boot. Done once on
   2026-10-22: `001`–`003` applied to RDS (8 tables). On 2026-10-26 they were recorded in Elise's `schema_migrations`
   logbook with `db/migrate.sh --baseline 003`, so from now on `db/migrate.sh` (through the tunnel) applies only new ones.
-- **The instance role is not least-privilege yet.** It's shared with the NAT instance and has broad ECR read.
-  L6-A1 replaces it with a dedicated `healthconnect-service` role.
+- **The API servers' role is only partly least-privilege.** Its secrets, topic, bucket and log permissions name
+  exactly one resource each, but it's still shared with the NAT instance and has AWS's broad ECR read policy. Lab 6's
+  least-privilege role (L6-A1) was built and demonstrated in a separate lab environment (D-024), not here. The Lambda
+  functions and the call server already have roles of their own.
 - **No encryption build yet** (customer-managed KMS key, forced TLS on RDS, HTTPS-only bucket policy): L6-B1, now
   unblocked. The fourth L6-B1 item, the HSTS header (tells browsers "only ever use HTTPS here"), is already sent by
   the API (`strict-transport-security: max-age=31536000; includeSubDomains`, from `helmet` in `backend/`).
@@ -171,12 +211,29 @@ Running the database migrations: see "Running database migrations" in [`infra/RE
   validation records change too (`terraform output cert_validation_records`).
 - **Every `terraform plan` may show the launch template changing.** That's Canonical publishing a newer Ubuntu image;
   only servers launched afterwards use it. Harmless.
-- **Everyone on the alarm list must click "Confirm subscription"** in the AWS email, or alarms never arrive.
+- **Everyone on the alarm list must click "Confirm subscription"** in the AWS email, **within 3 days**. AWS deletes
+  unconfirmed email subscriptions after 3 days, silently: on 26 Oct only Elise's had survived, and the next
+  `terraform apply` re-created the other three and sent new emails.
 - **`terraform destroy` deletes the database with no final snapshot** (lab setting). Fine for synthetic data.
 - **Instances give up pulling the image after about 90 seconds.** If ECR is empty when they boot, they come up
   without the app, fail health checks, and the auto scaling group replaces them until an image exists.
 - **The state bucket is called `agroconnect-tfstate-…`.** That's not a mistake: it's shared with Prosit 1, under a
   different key.
+
+## 6b. Mistakes we made, so you don't
+
+Each one cost time once. Each has a rule now.
+
+| What happened | What we do now |
+|---|---|
+| **An `apply` was stopped half-way** (26 Oct): 9 resources existed in AWS but not in Terraform's state, and the state stayed locked. | Never stop an apply. If one is interrupted: check no `terraform` process is still running, `terraform force-unlock <id>`, then adopt the stragglers with `import` blocks (or delete them by hand) before applying again. Don't just re-run `apply`. |
+| **Unconfirmed alarm emails expired** after 3 days; we'd have missed every alarm. | Confirm the AWS email the day it arrives. |
+| **Deleting the Aurora *instance* didn't delete the *cluster*** (Lab 6 teardown, `us-east-1`, 26 Oct): the instance was deleting while the cluster still showed "available". A cluster stays, and bills for its storage, until it's deleted itself. | Tearing down Aurora takes two deletions: the instance(s), then the cluster. Check with `aws rds describe-db-clusters`. |
+| **Local Docker (OrbStack) crashed in the middle of image builds**, twice, with the Mac's disk 96% full. | Keep 20+ GB free. `docker builder prune -af` clears only the build cache (safe). Build in the foreground, so you see where it fails. |
+| **`main` moved while a PR was open, and we rebased and tried to force-push.** The force-push was (rightly) blocked: it rewrites commits teammates may have pulled. | Bring `main` into your branch with `git merge origin/main`, fix conflicts, push normally. No force-push on shared branches. |
+| **"Peeking" at a dead-letter-queue message counts as receiving it** (its receive count went from 3 to 4). | Peek with `--visibility-timeout 0` so it stays visible, and read counts knowing your own peeks add to them. |
+| **The load balancer cut idle WebSockets after 60 s**, so a waiting caller vanished from the room. Found by asking how the spike behaves behind an ALB, before anyone tested on phones. | Long-lived connections behind an ALB need a heartbeat shorter than 60 s (or a longer idle timeout). |
+| **The first `/health` check through the new HTTPS name came back empty**, right after the DNS records were added. It worked seconds later. | New DNS names take a minute to resolve everywhere. Retry before debugging. |
 
 ## 7. Terms used
 
@@ -202,6 +259,10 @@ Running the database migrations: see "Running database migrations" in [`infra/RE
 | Dead-letter queue (DLQ) | Where a message goes after failing too many times, so it doesn't block the line or get lost |
 | Lambda function | Code AWS runs only when something triggers it (here, a message arriving); billed per millisecond |
 | Heartbeat (ping/pong) | A tiny message sent every 25 s so idle connections aren't cut by the load balancer |
+| Instance refresh | The auto scaling group replacing its servers one by one with fresh ones (new image, new settings) |
+| State lock | A marker that stops two people running `terraform apply` at once; a crashed apply can leave it behind |
+| `import` (Terraform) | Telling Terraform "this thing already exists in AWS, it's yours now", instead of creating it again |
+| Cross-compiling (`--platform linux/amd64`) | Building an image for the servers' x86 chips on an ARM Mac |
 
 ## 8. Lines ready for the report
 
