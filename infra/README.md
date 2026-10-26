@@ -23,7 +23,8 @@ infra/
     ├── storage/         # S3 bucket for patient photos + lifecycle
     ├── observability/   # SNS alarms, CloudWatch dashboard, AWS Budgets
     ├── cicd/            # GitHub Actions OIDC + deploy role
-    └── call/            # Lab 7: one server for webrtc-spike/ behind the ALB (D-023)
+    ├── call/            # Lab 7: one server for webrtc-spike/ behind the ALB (D-023)
+    └── events/          # Lab 7: SNS topic -> SQS queue + DLQ + Lambda per consumer (D-010)
 ```
 
 ## Remote state
@@ -49,6 +50,11 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
 - IAM OIDC provider + role for GitHub Actions (no long-lived keys)
 - Call server (Lab 7, D-023): one `t3.micro` (Amazon Linux 2023) in a private-app subnet running `webrtc-spike/`
   from ECR `healthconnect-dev-call`; own IAM role (ECR read, its log group, SSM). Off when `call_hostname = ""`
+- Events (Lab 7, D-010): SNS topic `healthconnect-dev-appointment-events` → two SQS queues (`reminders`,
+  `specialist-notify`, SSE on, visibility 60 s, 3 tries then a 14-day DLQ) → two Python 3.12 Lambda functions (arm64,
+  zipped from `functions/` at plan time, batch size 1), each with its own role (its queue + its log group only).
+  The API role may `sns:Publish` to that topic only
+- Sign-in token key: Secrets Manager `healthconnect-dev-jwt-secret` (D-026); the API role may read it
 - No PWA hosting yet: added when `frontend/` exists (S9)
 
 ## DNS (at Hostinger, not in Terraform)
@@ -94,6 +100,20 @@ Public IPv4s bill at \$0.005/hr each.
 terraform output
 # api_url, alb_dns, ecr_repo_url, asg_name, gha_role_arn, db_endpoint
 ```
+
+### Sign-in token key (once)
+
+Terraform creates the secret empty, so the value never enters git or state. Put a random value, then refresh the API
+servers so they read it:
+
+```bash
+aws secretsmanager put-secret-value --secret-id healthconnect-dev-jwt-secret \
+  --secret-string "$(jq -n --arg s "$(openssl rand -base64 48)" '{secret: $s}')"
+aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg \
+  --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'
+```
+
+Changing it signs everyone out (old tokens stop verifying).
 
 ### Running database migrations
 
