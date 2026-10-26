@@ -16,7 +16,11 @@ Everything is in `webrtc-spike/`, written in TypeScript (strict mode, like `back
 3. `src/client/hooks/useCall.ts`: the React hook that asks for the camera, joins the room, sets up the call, reads stats every second, and releases the camera when you leave.
 4. `src/client/lib/stats.ts`: turns the browser's raw stats into the numbers Lab 7 asks for (packet loss %, jitter, round-trip time, and whether the path is direct or relayed).
 5. `src/client/components/` and `App.tsx`: the page (two video tiles, a stats panel, join/leave).
-6. 8 automated tests (room rules, message checking, stats maths); 10 since the heartbeat was added.
+6. 16 automated tests (room rules, message checking, stats maths, call codes, heartbeat).
+7. **Screen changes after team feedback (26 Oct):**
+   - **Your own video is mirrored, the other person's is not**, like Zoom and Teams. Mirroring is only how *you* see yourself, done in CSS on your preview tile; the video that is sent is not flipped. Left and right matter in a health call ("the wound is on my left arm"), so the other person must see you as you really are. A "Mirror my video" checkbox turns it off.
+   - **"Room name" is now "Call code"**, empty at the start, with a **Generate code** button (gives e.g. `hc-4821`) and a line explaining it. Capitals and spaces are ignored, so `Clinic 1` and `clinic-1` meet.
+   - **Names:** you type "Your name" and the other tile shows their name instead of "Other person". Each browser puts its name in the offer/answer message it already sends, so the server did not change. Names are checked as untrusted input (text, at most 40 characters). Use a first name or role, never a real patient's name.
 
 ## 3. Why we did it this way
 
@@ -61,6 +65,7 @@ Evidence goes in `evidence/lab7/` (file names are in PLAN.md).
 - **Idle connections:** load balancers and tunnels close a connection that's silent for ~60 s, and the signaling
   socket is silent while someone waits for the other person. The server now pings every socket every 25 s and closes
   any that stop answering (added by Eugene, tested in `src/server/heartbeat.test.ts`; 10 tests now).
+- **The name, call-code and mirror changes are not live until Eugene rebuilds and redeploys the call image.** Until then `call-hc.agroconnect.space` still shows the old "Room name" screen.
 - **The hosted page runs the image that was pushed, not the latest commit.** After changing the code, ask Eugene (or
   follow `learnings/infra.md`) to rebuild and redeploy it.
 - `.npmrc` sets `legacy-peer-deps=true` because Vite 8 and `tsx` disagree about the esbuild version; without it `npm install` crashes.
