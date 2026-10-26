@@ -128,3 +128,8 @@ variable "appointment_topic_arn" {
   type        = string
   description = "SNS topic for appointment events. Passed as APPOINTMENT_TOPIC_ARN; the role may sns:Publish to just this one."
 }
+
+variable "ecr_repository_arn" {
+  type        = string
+  description = "The API image repository; the role may pull from this one only"
+}

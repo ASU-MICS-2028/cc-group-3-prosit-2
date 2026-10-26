@@ -51,9 +51,16 @@ alarms and budget, and the Lab 7 call server) is described as code in `infra/` a
     sign-in tokens, D-026) was created empty by Terraform and filled with a random 64-character value from the
     command line, so it's in neither git nor Terraform state. The API image was rebuilt from `main` (`f3ff4ee`) and
     rolled out with an instance refresh.
+12. **Least privilege in our real system (L6-A1b), 2026-10-26:** the NAT box used to borrow the API servers' role,
+    so it could read the database password and the sign-in key it never needs. It now has its own role that allows
+    only SSM sessions. The API servers' role lost AWS's broad "read every image repository" policy and can now pull
+    only `healthconnect-dev-backend`. Everything else it may do names exactly one resource: the database secret, the
+    sign-in key secret, the appointment topic, its log group, the photo bucket, the image-tag parameter.
 
 ## 3. Why we did it this way
 
+- **One role per job (L6-A1b):** if a box is broken into, the attacker gets that box's permissions. A NAT box that
+  can read the database password turns a network-box break-in into a data breach. Separate roles keep it contained.
 - **Copy, don't rebuild:** Prosit 1's modules already pass Lab 5's network and database requirements and ran in
   production for weeks. Lab 6 asks for a separate codebase, so we copy rather than share.
 - **NAT instance, not a NAT Gateway:** `fck-nat` on a `t4g.nano` costs about \$3/month; AWS's managed NAT Gateway
@@ -128,6 +135,17 @@ aws sqs get-queue-attributes --queue-url "$(terraform -chdir=infra output -json 
 
 Recorded run (both functions from one event; bad event in both DLQs): `evidence/lab7/outputs_A1_event_infra.txt`.
 
+Least privilege (L6-A1b): 10 allow/deny checks with AWS's policy simulator, which evaluates the roles' real policies
+without doing anything:
+
+```bash
+bash evidence/lab6/check_least_privilege.sh     # every line should end in PASS
+# API  ecr:BatchGetImage   call image repo  -> implicitDeny  PASS   (can pull only its own image)
+# NAT  secretsmanager:GetSecretValue  DB password secret -> implicitDeny  PASS
+```
+
+"implicitDeny" means no policy allows it, so AWS refuses. Recorded run: `evidence/lab6/outputs_A1b_least_privilege.txt`.
+
 **Test data on RDS** (synthetic only, D-004; seeded 26 Oct for L7-A5, written as the `system` account and the CHV so the
 audit trail shows who added what):
 
@@ -159,10 +177,9 @@ built with `--platform linux/amd64`.
 - **Migrations are run by hand** through an SSM tunnel; the service doesn't migrate the database on boot. Done once on
   2026-10-22: `001`–`003` applied to RDS (8 tables). On 2026-10-26 they were recorded in Elise's `schema_migrations`
   logbook with `db/migrate.sh --baseline 003`, so from now on `db/migrate.sh` (through the tunnel) applies only new ones.
-- **The API servers' role is only partly least-privilege.** Its secrets, topic, bucket and log permissions name
-  exactly one resource each, but it's still shared with the NAT instance and has AWS's broad ECR read policy. Lab 6's
-  least-privilege role (L6-A1) was built and demonstrated in a separate lab environment (D-024), not here. The Lambda
-  functions and the call server already have roles of their own.
+- **Two permissions can't be narrowed.** `ecr:GetAuthorizationToken` must be allowed on `*` (AWS's rule); it only
+  issues a login, and the pull permissions decide which repository that login can read. And all servers keep AWS's
+  `AmazonSSMManagedInstanceCore` policy, which is what lets us open SSM sessions and tunnels.
 - **No encryption build yet** (customer-managed KMS key, forced TLS on RDS, HTTPS-only bucket policy): L6-B1, now
   unblocked. The fourth L6-B1 item, the HSTS header (tells browsers "only ever use HTTPS here"), is already sent by
   the API (`strict-transport-security: max-age=31536000; includeSubDomains`, from `helmet` in `backend/`).
@@ -233,6 +250,8 @@ built with `--platform linux/amd64`.
 | Dead-letter queue (DLQ) | Where a message goes after failing too many times, so it doesn't block the line or get lost |
 | Lambda function | Code AWS runs only when something triggers it (here, a message arriving); billed per millisecond |
 | Heartbeat (ping/pong) | A tiny message sent every 25 s so idle connections aren't cut by the load balancer |
+| Least privilege | Every role gets only the permissions its job needs, on the specific resources it uses |
+| Policy simulator | An AWS tool that answers "would this role be allowed to do X on Y?" without doing it |
 | Instance refresh | The auto scaling group replacing its servers one by one with fresh ones (new image, new settings) |
 | State lock | A marker that stops two people running `terraform apply` at once; a crashed apply can leave it behind |
 | `import` (Terraform) | Telling Terraform "this thing already exists in AWS, it's yours now", instead of creating it again |

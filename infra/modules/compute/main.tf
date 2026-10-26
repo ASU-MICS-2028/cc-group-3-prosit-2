@@ -1,4 +1,4 @@
-# ---------- EC2 instance role (shared by app ASG + fck-nat) ----------
+# ---------- EC2 instance role: the API servers only (the NAT has its own, L6-A1b) ----------
 data "aws_iam_policy_document" "ec2_assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -19,9 +19,23 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_ecr" {
-  role       = aws_iam_role.ec2.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+# Pull only our own image. GetAuthorizationToken can't be scoped (AWS requires "*"); it only issues a login token,
+# and the pull actions below decide which repository that login can read.
+data "aws_iam_policy_document" "ecr_pull" {
+  statement {
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+  }
+  statement {
+    actions   = ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer", "ecr:BatchCheckLayerAvailability"]
+    resources = [var.ecr_repository_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "ec2_ecr" {
+  name   = "${var.name_prefix}-ec2-ecr-pull"
+  role   = aws_iam_role.ec2.id
+  policy = data.aws_iam_policy_document.ecr_pull.json
 }
 
 # S3 photo bucket access — scoped to the specific bucket by the storage module.
