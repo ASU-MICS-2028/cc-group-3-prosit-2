@@ -4,7 +4,7 @@ ICS 534 Cloud Computing · PROSIT 2 · Joseph Etse · Eugene Sewor · Elise Kenn
 
 ## Everything to do now, and who does it
 
-_Updated 25 Oct 2026. Finished work isn't listed here; it's in [`PLAN.md`](./PLAN.md)._
+_Updated 26 Oct 2026. Calls C1–C3 done (stats in `evidence/lab7/outputs_C_call_stats.md`). Finished work isn't listed here; it's in [`PLAN.md`](./PLAN.md)._
 
 ### Today: finish Lab 6
 
@@ -21,12 +21,9 @@ _Updated 25 Oct 2026. Finished work isn't listed here; it's in [`PLAN.md`](./PLA
 |---|---|---|---|
 | L7-A1 SNS topic → 2 SQS queues → 2 Lambda functions | Eugene | 🟢 Ready | — |
 | L7-A5 One appointment → both functions fire (evidence A, B); API + functions ready, waiting on the AWS wiring | Joseph | ⛔ Blocked | L7-A1 |
-| L7-C1 Phone test of the call on `https://call-hc.agroconnect.space` | Perfect | 🔄 In progress | — |
 | D-023 Confirm hosting the call page on one server | Perfect | 🗳 Confirm | — |
-| L7-C2 Call on the same network (screenshot C1) | Perfect + one teammate | ⛔ Blocked | L7-C1 |
-| L7-C3 Call across two networks (screenshot C2) | Perfect + one teammate | ⛔ Blocked | L7-C2 |
-| L7-C4 Call stats on Slow 3G vs normal (screenshot C3) | Perfect | ⛔ Blocked | L7-C2 |
-| L7-R Lab 7 report: one paragraph each (serverless fit: Eugene · WebRTC and TURN: Perfect · resilience question: Elise), Joseph assembles | Joseph + all | ⛔ Blocked | L7-A5, L7-C3, L7-C4 |
+| L7-C4 Re-run the slow-network test: same Wi-Fi laptop ↔ phone, **only the laptop** throttled with macOS Network Link Conditioner ("3G"), setting visible in the screenshot (DevTools "Slow 3G" doesn't throttle WebRTC) | Perfect (or whoever has the setup) | 🟢 Ready | — |
+| L7-R Lab 7 report: one paragraph each (serverless fit: Eugene · WebRTC and TURN: Perfect · resilience question: Elise), Joseph assembles | Joseph + all | ⛔ Blocked | L7-A5, L7-C4 |
 
 ### Still open from Lab 6, in our real system
 
