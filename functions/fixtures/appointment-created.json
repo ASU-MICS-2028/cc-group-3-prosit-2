@@ -1,0 +1,9 @@
+{
+  "type": "appointment.created",
+  "appointmentId": "6f1c2b9e-3c1d-4f7a-9a0b-1c2d3e4f5a6b",
+  "patientId": "aaaaaaaa-0000-4000-8000-000000000001",
+  "specialistId": "bbbbbbbb-0000-4000-8000-000000000002",
+  "startsAt": "2026-11-02T10:00:00.000Z",
+  "endsAt": "2026-11-02T10:30:00.000Z",
+  "patientPhone": "+233200000001"
+}

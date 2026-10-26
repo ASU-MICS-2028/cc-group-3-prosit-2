@@ -66,6 +66,24 @@ Evidence goes in `evidence/lab7/` (file names are in PLAN.md).
 - `.npmrc` sets `legacy-peer-deps=true` because Vite 8 and `tsx` disagree about the esbuild version; without it `npm install` crashes.
 - Without TURN, calls between some mobile carriers will probably fail. That is expected and reportable.
 
+## 6b. Real call results (added by Joseph, 26 Oct)
+
+Joseph ran the calls on the hosted page: Oyibi (Greater Accra) ↔ Ho (Volta) with Eugene, a call with Perfect, and his
+own laptop ↔ phone on one Wi-Fi. Every reading is in [`evidence/lab7/outputs_C_call_stats.md`](../evidence/lab7/outputs_C_call_stats.md). In short:
+
+- **Every call connected directly** (`srflx`, via the public STUN server). **No TURN relay was needed**, even across two
+  ISPs ~120 km apart. Keep TURN in the production plan anyway: other carriers' NATs may block direct paths.
+- **Same Wi-Fi still went out through the router** (`srflx ↔ prflx`, not `host ↔ host`), because Chrome hides local
+  addresses. So "same network" wasn't much faster.
+- **Under a bad connection WebRTC dropped frames (to 1–2 per second), not packets** (loss stayed ~0 %): adaptive bitrate.
+- **Chrome DevTools "Slow 3G" doesn't throttle WebRTC media**, only web requests. So C4 throttled the whole Mac
+  with macOS's built-in shaper (no install needed):
+  `sudo dnctl pipe 1 config bw 400Kbit/s delay 150 plr 0.01`, then
+  `printf 'dummynet in all pipe 1\ndummynet out all pipe 1\n' | sudo pfctl -f -` and `sudo pfctl -E`.
+  **Undo:** `sudo pfctl -f /etc/pf.conf; sudo pfctl -d; sudo dnctl -q flush`. Check with `ping 1.1.1.1` before and after.
+- **Throttled to ~3G (Joseph ↔ Elise):** round trip 157 → 735–947 ms, jitter 16 → 409–827 ms, video 31 → 5–7 fps then
+  frozen, **call never dropped**. Over 3G, telemedicine should be audio-first.
+
 ## 7. Terms used
 
 | Term | Plain meaning |

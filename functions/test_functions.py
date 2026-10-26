@@ -1,0 +1,86 @@
+"""Tests for both Lambda handlers. Standard library only:  cd functions && python3 -m unittest -v"""
+
+import io
+import json
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+
+import reminder_function
+import specialist_notify_function
+from events import BadMessage, mask
+
+# The contract: the API's backend tests check it publishes exactly these fields.
+EVENT = json.load(open(Path(__file__).parent / "fixtures" / "appointment-created.json"))
+
+
+def sqs(*bodies):
+    return {"Records": [{"messageId": f"m{i}", "body": b if isinstance(b, str) else json.dumps(b)} for i, b in enumerate(bodies)]}
+
+
+def sns_envelope(event):
+    return {"Type": "Notification", "TopicArn": "arn:aws:sns:af-south-1:1:appointment-events", "Message": json.dumps(event)}
+
+
+def run(handler, event):
+    out = io.StringIO()
+    with redirect_stdout(out):
+        result = handler(event, None)
+    return result, [json.loads(line) for line in out.getvalue().splitlines()]
+
+
+class Reminder(unittest.TestCase):
+    def test_logs_a_reminder_with_the_phone_masked(self):
+        result, logs = run(reminder_function.handler, sqs(EVENT))
+        self.assertEqual(result["statusCode"], 200)
+        self.assertEqual(logs[0]["outcome"], "reminder_logged")
+        self.assertEqual(logs[0]["to"], "+233*****0001")
+        self.assertNotIn("+233200000001", json.dumps(logs))  # never the full number
+
+    def test_reads_an_sns_envelope_as_well_as_raw_json(self):
+        _, logs = run(reminder_function.handler, sqs(sns_envelope(EVENT)))
+        self.assertEqual(logs[0]["appointment_id"], EVENT["appointmentId"])
+
+    def test_skips_without_error_when_there_is_no_consent(self):
+        _, logs = run(reminder_function.handler, sqs({**EVENT, "patientPhone": None}))
+        self.assertEqual(logs[0]["outcome"], "skipped")
+
+    def test_ignores_other_event_types(self):
+        _, logs = run(reminder_function.handler, sqs({**EVENT, "type": "appointment.cancelled"}))
+        self.assertEqual(logs[0]["outcome"], "ignored")
+
+    def test_handles_every_record_in_a_batch(self):
+        _, logs = run(reminder_function.handler, sqs(EVENT, {**EVENT, "patientPhone": None}))
+        self.assertEqual([l["outcome"] for l in logs], ["reminder_logged", "skipped"])
+
+    def test_raises_on_malformed_messages_so_they_reach_the_dead_letter_queue(self):
+        for bad in ("not json", "[1, 2]", {**EVENT, "appointmentId": "42"}, {k: v for k, v in EVENT.items() if k != "startsAt"},
+                    {"Type": "Notification", "Message": "{broken"}):
+            with self.subTest(bad=bad), self.assertRaises(BadMessage), redirect_stdout(io.StringIO()):
+                reminder_function.handler(sqs(bad), None)
+
+    def test_an_empty_batch_does_nothing(self):
+        self.assertEqual(run(reminder_function.handler, {"Records": []}), ({"statusCode": 200}, []))
+
+
+class SpecialistNotify(unittest.TestCase):
+    def test_notifies_from_the_same_event_independently(self):
+        _, logs = run(specialist_notify_function.handler, sqs(sns_envelope(EVENT)))
+        self.assertEqual(logs[0]["outcome"], "specialist_notified")
+        self.assertEqual(logs[0]["specialist_id"], EVENT["specialistId"])
+        self.assertNotIn("patientPhone", json.dumps(logs))  # the specialist side has no use for the phone
+
+    def test_raises_on_a_missing_specialist(self):
+        with self.assertRaises(BadMessage), redirect_stdout(io.StringIO()):
+            specialist_notify_function.handler(sqs({**EVENT, "specialistId": None}), None)
+
+
+class Mask(unittest.TestCase):
+    def test_masks_short_and_empty_values_too(self):
+        self.assertEqual(mask("+233200000001"), "+233*****0001")
+        self.assertEqual(mask("12345"), "****")
+        self.assertEqual(mask(None), "****")
+
+
+if __name__ == "__main__":
+    unittest.main()
