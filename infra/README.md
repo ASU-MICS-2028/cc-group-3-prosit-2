@@ -128,11 +128,16 @@ aws ssm start-session --target $IID --document-name AWS-StartPortForwardingSessi
 # in another terminal: password from the RDS secret
 export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id "$(terraform output -raw db_master_user_secret_arn)" \
   --query SecretString --output text | jq -r .password)
-for f in ../db/migrations/*.sql; do psql "host=localhost port=15432 dbname=healthconnect user=healthconnect_admin sslmode=require" -v ON_ERROR_STOP=1 -f $f; done
+export PGHOST=localhost PGPORT=15432 PGDATABASE=healthconnect PGUSER=healthconnect_admin PGSSLMODE=require
+cd .. && db/migrate.sh --dry-run    # check what would run first
+db/migrate.sh                       # applies only what's missing, and records it in schema_migrations
 ```
 
+**Once, before the first new migration:** 001–003 were applied on 2026-10-22, before `db/migrate.sh` existed, so record
+them without re-running them: `db/migrate.sh --baseline 003`. See [`learnings/database.md`](../learnings/database.md).
+
 Needs the Session Manager plugin for the AWS CLI (`brew install --cask session-manager-plugin`).
-Never point `db/tests/run_tests.sh` at this tunnel: it drops and recreates databases (its RDS guard only checks the hostname).
+`db/tests/run_tests.sh` refuses to run through this tunnel (it checks for RDS's `rds_superuser` role), because it drops databases.
 
 ## Rollback
 
