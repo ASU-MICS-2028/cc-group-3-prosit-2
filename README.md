@@ -27,7 +27,6 @@ _Updated 26 Oct 2026. Call tests C1–C4 done (stats in `evidence/lab7/outputs_C
 
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
-| L6-A1b The API's own least-privilege IAM role in Terraform | Eugene | 🟢 Ready | — |
 | L6-B1b Customer-managed KMS key, `rds.force_ssl`, HTTPS-only bucket policy | Eugene | 🟢 Ready | — |
 | L6-X Why the Lab 5 failover dropped requests | Eugene | 🟢 Ready | — |
 | D-018 Vote: add "public-health reporting, anonymised totals only" as a fourth purpose | Everyone | 🗳 Vote needed | — |

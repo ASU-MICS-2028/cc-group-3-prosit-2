@@ -31,8 +31,7 @@ data "aws_ssm_parameter" "ubuntu" {
 data "aws_caller_identity" "current" {}
 
 # ---------- compute (IAM + ASG + launch template + scaling policy) ----------
-# Comes first because `nat` needs the shared instance profile, and `network`
-# needs the NAT ENI id.
+# `network` needs the NAT ENI id.
 module "compute" {
   source = "./modules/compute"
 
@@ -47,6 +46,7 @@ module "compute" {
   alb_arn_suffix          = module.alb.alb_arn_suffix
   target_group_arn_suffix = module.alb.target_group_arn_suffix
   ecr_repository_url      = module.ecr.repository_url
+  ecr_repository_arn      = module.ecr.repository_arn
 
   # Two instances from the start: the Lab 5 failover demo stops one and the other keeps answering.
   min_size         = 2
@@ -68,12 +68,11 @@ module "compute" {
 module "nat" {
   source = "./modules/nat"
 
-  name_prefix           = local.name
-  vpc_id                = module.network.vpc_id
-  vpc_cidr              = module.network.vpc_cidr
-  public_subnet_id      = module.network.public_subnet_ids[0]
-  instance_type         = var.nat_instance_type
-  instance_profile_name = module.compute.instance_profile_name
+  name_prefix      = local.name
+  vpc_id           = module.network.vpc_id
+  vpc_cidr         = module.network.vpc_cidr
+  public_subnet_id = module.network.public_subnet_ids[0]
+  instance_type    = var.nat_instance_type
 }
 
 # ---------- network (VPC + subnets + route tables) ----------

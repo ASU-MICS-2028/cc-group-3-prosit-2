@@ -1,0 +1,19 @@
+# L6-A1b: least-privilege check with the IAM policy simulator, 2026-10-26 13:07 UTC
+# Evaluates each role's real attached policies; nothing is actually read, pulled or deleted.
+
+API  ecr:BatchGetImage              backend image repo           -> allowed       PASS
+API  ecr:BatchGetImage              call image repo              -> implicitDeny  PASS
+API  secretsmanager:GetSecretValue  DB password secret           -> allowed       PASS
+API  secretsmanager:GetSecretValue  JWT key secret               -> allowed       PASS
+API  sns:Publish                    appointment topic            -> allowed       PASS
+API  rds:DeleteDBInstance           the database                 -> implicitDeny  PASS
+NAT  secretsmanager:GetSecretValue  DB password secret           -> implicitDeny  PASS
+NAT  secretsmanager:GetSecretValue  JWT key secret               -> implicitDeny  PASS
+NAT  ecr:BatchGetImage              backend image repo           -> implicitDeny  PASS
+NAT  sns:Publish                    appointment topic            -> implicitDeny  PASS
+
+# Real-world check: an instance refresh (13:07-13:34 UTC) replaced both API servers. The new ones pulled their image
+# with the narrowed ECR permission and went healthy:
+$ for i in $(seq 1 10); do curl -s https://api-hc.agroconnect.space/health; echo; done | sort | uniq -c
+   4 {"status":"ok","service":"patient-record-service","instance":"i-01b7d5016c7440b04"}
+   6 {"status":"ok","service":"patient-record-service","instance":"i-046d4ef6890610256"}

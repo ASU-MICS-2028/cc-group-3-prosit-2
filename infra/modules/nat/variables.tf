@@ -19,8 +19,3 @@ variable "instance_type" {
   type    = string
   default = "t4g.nano"
 }
-
-variable "instance_profile_name" {
-  type        = string
-  description = "Shared EC2 instance profile (so we can SSM-shell into the NAT box)"
-}
