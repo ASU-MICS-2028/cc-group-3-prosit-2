@@ -1,6 +1,6 @@
-# HealthConnect cloud infrastructure (S4, Lab 5 Parts A and B)
+# HealthConnect cloud infrastructure (S4, S5, Lab 5 A/B, Lab 7 L7-A1 and the call server)
 
-**Owner:** Eugene · **Last updated:** 2026-10-23 · **Status:** working (HTTPS on `api-hc.agroconnect.space`; Lab 7 call server on `call-hc.agroconnect.space`)
+**Owner:** Eugene · **Last updated:** 2026-10-26 · **Status:** working (HTTPS API, Lab 7 call server, Lab 7 event flow)
 
 > Write this for a teammate who will never open your code or the AWS console for this part.
 
@@ -40,6 +40,17 @@ alarms and budget, and the Lab 7 call server) is described as code in `infra/` a
 9. **Added a heartbeat to the signaling server** (`webrtc-spike/src/server/app.ts`): it pings every connection every
    25 s. The load balancer closes any connection that is silent for 60 s, and a caller waiting for the doctor is
    silent, so without this the doctor would join an empty room.
+10. **Lab 7 event flow (L7-A1, D-010, `modules/events/`), 2026-10-26:** when the API books an appointment it
+    publishes one `appointment.created` message to the SNS topic `healthconnect-dev-appointment-events`. SNS copies
+    it into two SQS queues, `healthconnect-dev-reminders` and `healthconnect-dev-specialist-notify`. Each queue
+    starts its own Lambda function (Joseph's Python code in `functions/`, zipped by Terraform). If a function fails on
+    a message 3 times, the message moves to that queue's **dead-letter queue** (`…-dlq`) and stays there 14 days.
+    Each function has its own role: it can read only its own queue and write only its own logs.
+11. **API servers wired to it:** they now get `APPOINTMENT_TOPIC_ARN` and `JWT_SECRET_ARN`, and their role may publish
+    to that one topic and read that one secret. The secret (`healthconnect-dev-jwt-secret`, the key that signs
+    sign-in tokens, D-026) was created empty by Terraform and filled with a random 64-character value from the
+    command line, so it's in neither git nor Terraform state. The API image was rebuilt from `main` (`f3ff4ee`) and
+    rolled out with an instance refresh.
 
 ## 3. Why we did it this way
 
@@ -51,6 +62,9 @@ alarms and budget, and the Lab 7 call server) is described as code in `infra/` a
   HealthLake for demo day.
 - **Subdomains of `agroconnect.space` (D-022):** free, already ours, renewed until Oct 2027. A new domain would cost
   money for no lab benefit.
+- **SNS → one SQS queue per function (D-010), not one shared queue:** two functions reading one queue would compete,
+  so each event would reach only one of them. With SNS each gets its own copy, and the queue holds messages if a
+  function is down. **Batch size 1:** a bad message fails alone instead of dragging good ones into its retries.
 - **One call server, not two (D-023):** the signaling server remembers rooms in its own memory. With two servers, the
   patient and the doctor could be sent to different ones and never meet. A shared room store (e.g. Redis) would
   fix that but is too much for a lab spike.
@@ -99,18 +113,46 @@ node ../evidence/lab7/idle.mjs wss://call-hc.agroconnect.space/ws           # PA
 
 Recorded run: `evidence/lab7/outputs_C_signaling_hosted.txt`.
 
+Event flow (publish straight to the topic, no API needed):
+
+```bash
+T=$(terraform -chdir=infra output -raw appointment_topic_arn)
+aws sns publish --topic-arn $T --message "$(cat functions/fixtures/appointment-created.json)"
+aws logs tail /aws/lambda/healthconnect-dev-reminders --since 5m           # "outcome": "reminder_logged"
+aws logs tail /aws/lambda/healthconnect-dev-specialist-notify --since 5m   # "outcome": "specialist_notified"
+# A bad message (try '{"type":"appointment.created","appointmentId":"x"}') fails 3 times, ~1 minute apart,
+# then shows up in the DLQ:
+aws sqs get-queue-attributes --queue-url "$(terraform -chdir=infra output -json event_dlq_urls | jq -r .reminders)" \
+  --attribute-names ApproximateNumberOfMessages
+```
+
+Recorded run (both functions from one event; bad event in both DLQs): `evidence/lab7/outputs_A1_event_infra.txt`.
+
+Calling a protected route on AWS: sign a token as in [`patient-record-service.md`](./patient-record-service.md) §4, with
+the key from Secrets Manager (`aws secretsmanager get-secret-value --secret-id healthconnect-dev-jwt-secret`).
+A token for a practitioner who isn't in RDS gets **"This account is not active"**: that answer proves the servers read
+the right key (a wrong key gets "invalid or has expired").
+
 Running the database migrations: see "Running database migrations" in [`infra/README.md`](../infra/README.md).
+
+**Merging a PR does not update AWS.** Every change is shipped by hand until the Week 9 deploy workflow exists. The
+exact commands for each part (API, call page, Lambda functions, migrations, Terraform) are in "Shipping a change" in
+[`infra/README.md`](../infra/README.md). The one trap: our Macs are ARM and the servers are x86, so images must be
+built with `--platform linux/amd64`.
 
 ## 5. What is NOT done, or is faked
 
 - **Use the names, not the load balancer's AWS address.** The raw `…elb.amazonaws.com` address now redirects to
   HTTPS, and the certificate doesn't cover that name, so browsers and `curl` will reject it.
-- **No automatic deploys.** The image in ECR was built and pushed by hand from Joseph's PR #2 branch. The deploy
-  workflow comes with Week 9 (CI/CD).
+- **No automatic deploys.** Every image is built and pushed by hand (section 4b). The API now runs `main` at
+  `f3ff4ee` (PR #11). Merging a PR does **not** update the servers. The deploy workflow comes with Week 9 (CI/CD).
 - **Migrations are run by hand** through an SSM tunnel; the service doesn't migrate the database on boot. Done once on
-  2026-10-22: `001`–`003` applied to RDS (8 tables). Any new migration must be applied the same way.
-- **The instance role is not least-privilege yet.** It's shared with the NAT instance and has broad ECR read.
-  L6-A1 replaces it with a dedicated `healthconnect-service` role.
+  2026-10-22: `001`–`003` applied to RDS (8 tables). On 2026-10-26 they were recorded in Elise's `schema_migrations`
+  logbook with `db/migrate.sh --baseline 003`, so from now on `db/migrate.sh` (through the tunnel) applies only new ones.
+- **The API servers' role is only partly least-privilege.** Its secrets, topic, bucket and log permissions name
+  exactly one resource each, but it's still shared with the NAT instance and has AWS's broad ECR read policy. Lab 6's
+  least-privilege role (L6-A1) was built and demonstrated in a separate lab environment (D-024), not here. The Lambda
+  functions and the call server already have roles of their own.
 - **No encryption build yet** (customer-managed KMS key, forced TLS on RDS, HTTPS-only bucket policy): L6-B1, now
   unblocked. The fourth L6-B1 item, the HSTS header (tells browsers "only ever use HTTPS here"), is already sent by
   the API (`strict-transport-security: max-age=31536000; includeSubDomains`, from `helmet` in `backend/`).
@@ -125,12 +167,31 @@ Running the database migrations: see "Running database migrations" in [`infra/RE
 - **It costs money while it runs:** about \$70–90/month (ALB ~\$19, three `t3.micro` ~\$28, RDS ~\$16, NAT ~\$3,
   plus public IPs and CloudWatch). The budget alarm emails everyone at \$50 forecast and \$100 actual. **Tear the call
   server down after Lab 7:** set `call_hostname = ""` in `terraform.tfvars` and apply.
+- **The sign-in key is set by hand.** If the secret is ever recreated it comes back **empty**, and every protected
+  API route answers 401 until the value is put again (`infra/README.md`, "Sign-in token key"). Changing it signs
+  everyone out.
+- **Messages in a DLQ just sit there for 14 days.** Nothing alerts on them yet. One test message (`not-a-uuid`) is in
+  each DLQ from the 26 Oct check; leave it for the L7-H1 screenshot, then purge it.
+- **Lambda code changes need a `terraform apply`:** Terraform re-zips `functions/` and updates both functions when the
+  files change.
+- **Never stop a `terraform apply` half-way.** On 26 Oct one was stopped: AWS had already made 9 resources that
+  Terraform didn't know about, and Terraform stayed locked. Re-running it would have failed ("already exists"). The fix:
+  check no apply is still running, `terraform force-unlock`, then `import` the 9 so Terraform owns them again.
+- **Deleting an Aurora database is two steps.** Deleting the *instance* leaves the *cluster*, which keeps billing for
+  storage until it's deleted too. Seen in the Lab 6 teardown in `us-east-1`.
+- **Behind a load balancer, a connection with no traffic for 60 s is cut.** That's why the call server pings every
+  25 s. Anything else that keeps a connection open (e.g. a future live dashboard) needs the same.
+- **Images are built on our laptops, and a full disk breaks the build.** Docker (OrbStack) crashed twice at 96% disk.
+  Keep 20 GB free; `docker builder prune -af` clears only the build cache.
+- **A brand-new DNS name can fail for a minute** while it spreads. Retry before debugging.
 - **DNS is outside Terraform.** If the load balancer is ever destroyed and recreated, its address changes and the
   `api-hc` / `call-hc` records at Hostinger must be updated by hand. If the certificate is recreated, the two `_…`
   validation records change too (`terraform output cert_validation_records`).
 - **Every `terraform plan` may show the launch template changing.** That's Canonical publishing a newer Ubuntu image;
   only servers launched afterwards use it. Harmless.
-- **Everyone on the alarm list must click "Confirm subscription"** in the AWS email, or alarms never arrive.
+- **Everyone on the alarm list must click "Confirm subscription"** in the AWS email, **within 3 days**. AWS deletes
+  unconfirmed email subscriptions after 3 days, silently: on 26 Oct only Elise's had survived, and the next
+  `terraform apply` re-created the other three and sent new emails.
 - **`terraform destroy` deletes the database with no final snapshot** (lab setting). Fine for synthetic data.
 - **Instances give up pulling the image after about 90 seconds.** If ECR is empty when they boot, they come up
   without the app, fail health checks, and the auto scaling group replaces them until an image exists.
@@ -156,7 +217,15 @@ Running the database migrations: see "Running database migrations" in [`infra/RE
 | CNAME record | A DNS entry saying "this name is an alias of that name" (e.g. `api-hc…` → the load balancer) |
 | Host-header rule | A load balancer rule that picks where to send a request by the name the browser asked for |
 | WebSocket (`wss://`) | A connection that stays open so the server can push messages; the call page uses it for signaling |
+| SNS topic | A broadcast channel: everything published to it is copied to every subscriber |
+| SQS queue | A waiting line of messages; a consumer takes one, and deletes it only when it has handled it |
+| Dead-letter queue (DLQ) | Where a message goes after failing too many times, so it doesn't block the line or get lost |
+| Lambda function | Code AWS runs only when something triggers it (here, a message arriving); billed per millisecond |
 | Heartbeat (ping/pong) | A tiny message sent every 25 s so idle connections aren't cut by the load balancer |
+| Instance refresh | The auto scaling group replacing its servers one by one with fresh ones (new image, new settings) |
+| State lock | A marker that stops two people running `terraform apply` at once; a crashed apply can leave it behind |
+| `import` (Terraform) | Telling Terraform "this thing already exists in AWS, it's yours now", instead of creating it again |
+| Cross-compiling (`--platform linux/amd64`) | Building an image for the servers' x86 chips on an ARM Mac |
 
 ## 8. Lines ready for the report
 
@@ -168,3 +237,7 @@ The API is served only over HTTPS (TLS 1.3, ACM certificate for `api-hc.agroconn
 For Lab 7, the call page and its signaling server run on a single dedicated server behind the same load balancer,
 because the server keeps call rooms in memory, and it pings each connection every 25 s so the load balancer's
 60-second idle limit doesn't drop a waiting patient.
+Booking an appointment publishes one event to an SNS topic, which copies it into two SQS queues, each triggering its
+own Lambda function (a reminder and a specialist notification). Neither function knows about the other or the API,
+each has its own least-privilege role, and a message that fails three times is kept in a dead-letter queue instead of
+being lost or retried forever.

@@ -1,0 +1,24 @@
+# Lab 7 L7-A1: event infrastructure check (Eugene), 2026-10-26 09:42 UTC
+# Published straight to the SNS topic (no API yet) at 09:38:14 UTC: one good event (functions/fixtures/appointment-created.json
+# with a fresh appointmentId) and one bad one (appointmentId not a UUID). The full API -> SNS run is Joseph's L7-A5.
+
+## Good event: both functions fired from ONE publish (same appointment_id)
+$ aws logs filter-log-events --log-group-name /aws/lambda/healthconnect-dev-reminders --filter-pattern c62fb6d5-b233-4aee-ab52-41c68c44eefd
+{"function": "reminder", "message_id": "8bcf0856-bbdf-4ae2-859a-d3ef01cbe25d", "appointment_id": "c62fb6d5-b233-4aee-ab52-41c68c44eefd", "outcome": "reminder_logged", "to": "+233*****0001", "starts_at": "2026-11-02T10:00:00.000Z", "message": "Reminder queued for +233*****0001 at 2026-11-02T10:00:00.000Z"}
+
+
+$ aws logs filter-log-events --log-group-name /aws/lambda/healthconnect-dev-specialist-notify --filter-pattern c62fb6d5-b233-4aee-ab52-41c68c44eefd
+{"function": "specialist_notify", "message_id": "99e941e8-c542-4b91-8be6-28eba250130d", "appointment_id": "c62fb6d5-b233-4aee-ab52-41c68c44eefd", "specialist_id": "bbbbbbbb-0000-4000-8000-000000000002", "outcome": "specialist_notified", "starts_at": "2026-11-02T10:00:00.000Z", "message": "Notifying specialist of new appointment #c62fb6d5-b233-4aee-ab52-41c68c44eefd at 2026-11-02T10:00:00.000Z"}
+
+
+## Bad event: raised 3 times per function, then moved to that function's dead-letter queue
+reminders BadMessage errors: 3
+specialist-notify BadMessage errors: 3
+
+healthconnect-dev-reminders: 0 message(s) waiting
+healthconnect-dev-reminders-dlq: 1 message(s) waiting
+healthconnect-dev-specialist-notify: 0 message(s) waiting
+healthconnect-dev-specialist-notify-dlq: 1 message(s) waiting
+
+$ aws sqs receive-message --queue-url .../healthconnect-dev-reminders-dlq --visibility-timeout 0   (peek, not deleted)
+{"type":"appointment.created","appointmentId":"not-a-uuid"}

@@ -21,7 +21,8 @@ export interface UseCall {
   stats: CallStats | null;
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
-  join: (room: string) => Promise<void>;
+  remoteName: string | null;
+  join: (room: string, name: string) => Promise<void>;
   leave: () => void;
 }
 
@@ -30,6 +31,7 @@ export function useCall(): UseCall {
   const [stats, setStats] = useState<CallStats | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [remoteName, setRemoteName] = useState<string | null>(null);
 
   const socketRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -45,6 +47,7 @@ export function useCall(): UseCall {
     socketRef.current = pcRef.current = localRef.current = null;
     setLocalStream(null);
     setRemoteStream(null);
+    setRemoteName(null);
     setStats(null);
   }, []);
 
@@ -52,7 +55,7 @@ export function useCall(): UseCall {
   useEffect(() => leave, [leave]);
 
   const join = useCallback(
-    async (room: string) => {
+    async (room: string, name: string) => {
       setStatus({ kind: "joining" });
       let stream: MediaStream;
       try {
@@ -109,18 +112,20 @@ export function useCall(): UseCall {
               {
                 const pc = makePeer();
                 await pc.setLocalDescription(await pc.createOffer());
-                if (pc.localDescription) send({ type: "offer", sdp: pc.localDescription.toJSON() });
+                if (pc.localDescription) send({ type: "offer", sdp: pc.localDescription.toJSON(), name });
               }
               break;
             case "offer": {
               setStatus({ kind: "connecting" });
+              setRemoteName(msg.name?.trim() || null);
               const pc = makePeer();
               await pc.setRemoteDescription(msg.sdp);
               await pc.setLocalDescription(await pc.createAnswer());
-              if (pc.localDescription) send({ type: "answer", sdp: pc.localDescription.toJSON() });
+              if (pc.localDescription) send({ type: "answer", sdp: pc.localDescription.toJSON(), name });
               break;
             }
             case "answer":
+              setRemoteName(msg.name?.trim() || null);
               await pcRef.current?.setRemoteDescription(msg.sdp);
               break;
             case "candidate":
@@ -139,5 +144,5 @@ export function useCall(): UseCall {
     [leave],
   );
 
-  return { status, stats, localStream, remoteStream, join, leave };
+  return { status, stats, localStream, remoteStream, remoteName, join, leave };
 }

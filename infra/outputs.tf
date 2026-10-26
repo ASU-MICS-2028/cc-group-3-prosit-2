@@ -80,3 +80,24 @@ output "observability_dashboard_url" {
 output "app_log_group_name" {
   value = module.compute.app_log_group_name
 }
+
+output "appointment_topic_arn" {
+  value = module.events.topic_arn
+}
+
+output "event_function_names" {
+  value = module.events.function_names
+}
+
+output "event_log_groups" {
+  value = module.events.log_groups
+}
+
+output "event_dlq_urls" {
+  value = module.events.dlq_urls
+}
+
+output "jwt_secret_arn" {
+  description = "Set its value once: aws secretsmanager put-secret-value (see infra/README.md)"
+  value       = aws_secretsmanager_secret.jwt.arn
+}

@@ -117,3 +117,14 @@ variable "image_tag_param_arn" {
 }
 
 
+
+variable "jwt_secret_arn" {
+  type        = string
+  description = "Secrets Manager ARN of the sign-in token key ({ secret }). Passed as JWT_SECRET_ARN; the role may read just this one."
+  default     = ""
+}
+
+variable "appointment_topic_arn" {
+  type        = string
+  description = "SNS topic for appointment events. Passed as APPOINTMENT_TOPIC_ARN; the role may sns:Publish to just this one."
+}

@@ -25,6 +25,7 @@ simply as you can.
 | Note | Owner | What it covers |
 |---|---|---|
 | [`database.md`](./database.md) | Elise | FHIR-shaped schema, consent and audit rules in the database, how to test it (L6-C1, L6-C2, L7-A3) |
-| [`infra.md`](./infra.md) | Eugene | The AWS setup in `infra/`: network, load balancer, two app servers, private database, alarms; how to check it and run migrations (S4, L5-A, L5-B1) |
+| [`infra.md`](./infra.md) | Eugene | The AWS setup in `infra/`: network, two API servers behind a load balancer, private database, HTTPS on `api-hc`/`call-hc.agroconnect.space`, the Lab 7 call server and event flow (SNS → SQS → Lambda); how to check each, and what bit us (S4, S5, L5-A/B, L7-A1) |
 | [`patient-record-service.md`](./patient-record-service.md) | Joseph | The API in `backend/`: health checks, how to run it, settings it needs on AWS |
+| [`lab7-webrtc.md`](./lab7-webrtc.md) | Perfect | The Lab 7 video call: signaling server, call page, stats, the cross-network and Slow 3G results (L7-C1 to C4) |
 | [`repo-and-tooling.md`](./repo-and-tooling.md) | Joseph | How assistants get their instructions (`AGENTS.md`), what CI checks, how to test both, the stacked-PR trap |
