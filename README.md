@@ -12,7 +12,6 @@ _Updated 26 Oct 2026. Call tests C1–C4 done (stats in `evidence/lab7/outputs_C
 |---|---|---|---|
 | Read the Lab 6 report and send Joseph feedback (`prosit 2/Labs/lab6/` in the team Drive) | Eugene, Elise, Perfect | 🔄 Before 23:00 tonight | — |
 | L6-R Submit the Lab 6 package (PDF + `iam-policy.json` + schema + screenshots) | Joseph | 🔄 By 23:59 tonight | Feedback |
-| Tear down the Lab 6 lab environment (Aurora `healthconnect-db` + EC2 server, us-east-1) | Eugene | 🟢 Right after submission | L6-R |
 | Approve [PR #10](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/10) (Lab 6 done, this README) | Anyone but Joseph | 🟢 Ready | — |
 
 ### Current stage: Lab 7, serverless reminders + a video call (due before the Week 8 exam; confirm the date on Canvas)

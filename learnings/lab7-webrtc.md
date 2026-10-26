@@ -66,8 +66,10 @@ Evidence goes in `evidence/lab7/` (file names are in PLAN.md).
   socket is silent while someone waits for the other person. The server now pings every socket every 25 s and closes
   any that stop answering (added by Eugene, tested in `src/server/heartbeat.test.ts`; 10 tests now).
 - **The name, call-code and mirror changes are not live until Eugene rebuilds and redeploys the call image.** Until then `call-hc.agroconnect.space` still shows the old "Room name" screen.
-- **The hosted page runs the image that was pushed, not the latest commit.** After changing the code, ask Eugene (or
-  follow `learnings/infra.md`) to rebuild and redeploy it.
+- **The hosted page runs the image that was pushed, not the latest commit.** Merging a PR does **not** change the
+  page. After a merge, ask Eugene to redeploy ("Shipping a change" in `infra/README.md`, about 2 minutes of downtime).
+  To see which version is live, compare the page's script name: `curl -s https://call-hc.agroconnect.space/ | grep -o 'index-[^"]*js'`.
+  Live since 26 Oct 12:56 UTC: `main` at `248ea83` (PR #15: mirrored self-view, call code, display names).
 - `.npmrc` sets `legacy-peer-deps=true` because Vite 8 and `tsx` disagree about the esbuild version; without it `npm install` crashes.
 - Without TURN, calls between some mobile carriers will probably fail. That is expected and reportable.
 

@@ -158,7 +158,8 @@ built with `--platform linux/amd64`.
   the API (`strict-transport-security: max-age=31536000; includeSubDomains`, from `helmet` in `backend/`).
 - **The call server has no TURN relay** (on purpose, see `learnings/lab7-webrtc.md`) and no login. Anyone with the
   address and a room name can join. Test rooms only, never patient data.
-- **The call image was built and pushed by hand** (`webrtc-spike/Dockerfile`, tag `latest` + git SHA). To ship a
+- **The call image was built and pushed by hand** (`webrtc-spike/Dockerfile`, tag `latest` + git SHA; live: `248ea83`
+  since 26 Oct, after Perfect's PR #15 didn't show up because nobody had redeployed). To ship a
   change: rebuild, push, then `terraform apply -replace='module.call[0].aws_instance.call'` (about 4 minutes of
   downtime).
 
