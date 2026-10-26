@@ -31,14 +31,14 @@ resource "aws_iam_role_policy" "ec2_media_bucket" {
   policy = var.media_bucket_policy_json
 }
 
-# Secrets Manager read for exactly the app's secrets (today only the RDS-managed master secret). The app
+# Secrets Manager read for exactly the app's secrets (the RDS-managed master secret and the sign-in token key). The app
 # reads them at runtime (cached 5 minutes), so no secret value is ever written into user data or the
 # container environment.
 data "aws_iam_policy_document" "app_secrets_read" {
   statement {
     effect    = "Allow"
     actions   = ["secretsmanager:GetSecretValue"]
-    resources = [var.db_master_user_secret_arn]
+    resources = compact([var.db_master_user_secret_arn, var.jwt_secret_arn])
   }
 }
 
@@ -46,6 +46,21 @@ resource "aws_iam_role_policy" "ec2_app_secrets" {
   name   = "${var.name_prefix}-ec2-app-secrets"
   role   = aws_iam_role.ec2.id
   policy = data.aws_iam_policy_document.app_secrets_read.json
+}
+
+# Publish appointment events to exactly one SNS topic (Lab 7, D-010). Nothing else on SNS.
+data "aws_iam_policy_document" "events_publish" {
+  statement {
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.appointment_topic_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "ec2_events_publish" {
+  name   = "${var.name_prefix}-ec2-events-publish"
+  role   = aws_iam_role.ec2.id
+  policy = data.aws_iam_policy_document.events_publish.json
 }
 
 # ---------- app logs → CloudWatch Logs ----------
@@ -153,6 +168,8 @@ locals {
       -e DB_HOST="${var.db_endpoint}" \
       -e DB_NAME="${var.db_name}" \
       -e DB_SECRET_ARN="${var.db_master_user_secret_arn}" \
+      -e JWT_SECRET_ARN="${var.jwt_secret_arn}" \
+      -e APPOINTMENT_TOPIC_ARN="${var.appointment_topic_arn}" \
       "$IMAGE"
   EOT
 }

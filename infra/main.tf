@@ -1,8 +1,9 @@
 terraform {
   required_version = ">= 1.10" # S3 native state locking (use_lockfile) needs 1.10
   required_providers {
-    aws = { source = "hashicorp/aws", version = "~> 5.70" }
-    tls = { source = "hashicorp/tls", version = "~> 4.0" }
+    aws     = { source = "hashicorp/aws", version = "~> 5.70" }
+    tls     = { source = "hashicorp/tls", version = "~> 4.0" }
+    archive = { source = "hashicorp/archive", version = "~> 2.4" }
   }
 }
 
@@ -56,6 +57,8 @@ module "compute" {
   db_endpoint               = module.database.endpoint
   db_name                   = module.database.db_name
   db_master_user_secret_arn = module.database.master_user_secret_arn
+  jwt_secret_arn            = aws_secretsmanager_secret.jwt.arn
+  appointment_topic_arn     = module.events.topic_arn
   media_bucket_policy_json  = module.storage.app_access_policy_json
   image_tag_param_name      = module.cicd.image_tag_param_name
   image_tag_param_arn       = module.cicd.image_tag_param_arn
@@ -144,6 +147,22 @@ module "call" {
   https_listener_arn    = module.alb.https_listener_arn
   hostname              = var.call_hostname
   ecr_repository_url    = module.ecr_call[0].repository_url
+}
+
+# ---------- events (Lab 7: SNS topic -> one SQS queue + DLQ + Lambda per consumer, D-010) ----------
+module "events" {
+  source        = "./modules/events"
+  name_prefix   = local.name
+  functions_dir = "${path.root}/../functions"
+}
+
+# ---------- sign-in token key (D-026) ----------
+# Terraform owns only the empty container; the value ({"secret": "<32+ random chars>"}) is put out-of-band
+# (infra/README.md), so it never enters git or Terraform state.
+resource "aws_secretsmanager_secret" "jwt" {
+  name                    = "${local.name}-jwt-secret"
+  description             = "API sign-in token key (HS256) - JSON { secret }"
+  recovery_window_in_days = 0
 }
 
 # ---------- cicd (GitHub Actions OIDC + deploy role) ----------
