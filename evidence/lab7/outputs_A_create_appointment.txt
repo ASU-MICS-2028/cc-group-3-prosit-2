@@ -38,3 +38,8 @@ $ POST /appointments {}
 ## Appointment ids for the Lambda log check
 Abena (expect reminder_logged twice, from steps 1 and 3, + specialist_notified twice): 4f530cae-7556-4ebb-8d21-e317d06170b5
 Yaw   (expect skipped + specialist_notified):                                          390e40f9-2677-4551-bb4d-e70247d633d5
+
+## Two more bookings for the report screenshot (A-create-appointment.png), 26 Oct ~22:05 local, both Abena, both 201 + published
+d1026e1a-dae3-4b2b-8920-79633d86db28  starts 2026-11-11T09:00Z  (first try; jq hid the status line)
+9a4f5949-a984-49d7-bd33-fb3abd2aa18d  starts 2026-11-11T10:00Z  (the screenshot)
+Expect each: reminder_logged once + specialist_notified once.
