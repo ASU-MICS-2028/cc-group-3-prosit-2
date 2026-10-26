@@ -31,6 +31,7 @@ _Updated 26 Oct 2026. Call tests C1–C4 done (stats in `evidence/lab7/outputs_C
 | L6-A1b The API's own least-privilege IAM role in Terraform | Eugene | 🟢 Ready | — |
 | L6-B1b Customer-managed KMS key, `rds.force_ssl`, HTTPS-only bucket policy | Eugene | 🟢 Ready | — |
 | L6-X Why the Lab 5 failover dropped requests | Eugene | 🟢 Ready | — |
+| S12 follow-up: record the existing RDS schema in the migration logbook, once, through the tunnel: `db/migrate.sh --baseline 003` (see [learnings/database.md](./learnings/database.md)) | Eugene | 🟢 Ready | — |
 | D-018 Vote: add "public-health reporting, anonymised totals only" as a fourth purpose | Everyone | 🗳 Vote needed | — |
 
 ### Getting ready for Lab 8 (peer review + midterm, Week 8)
