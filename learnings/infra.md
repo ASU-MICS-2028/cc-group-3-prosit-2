@@ -146,6 +146,16 @@ bash evidence/lab6/check_least_privilege.sh     # every line should end in PASS
 
 "implicitDeny" means no policy allows it, so AWS refuses. Recorded run: `evidence/lab6/outputs_A1b_least_privilege.txt`.
 
+**Test data on RDS** (synthetic only, D-004; seeded 26 Oct for L7-A5, written as the `system` account and the CHV so the
+audit trail shows who added what):
+
+| Who | Role | UUID | Notes |
+|---|---|---|---|
+| Ama Test-Mensah | CHV (can book) | `8b7102c5-4ad6-4074-88f0-a04746d7fdee` | Mint test tokens for this id |
+| Dr. Kofi Test-Asante | specialist | `c8bde890-8d3d-4142-9499-61008fe5bd4a` | Use as `specialist_id` |
+| Abena Test-Owusu | patient | `09954463-b029-4bf4-b723-3c5cd4ac49c0` | `+233200000011`, **has** reminder consent: her bookings carry the phone, the reminder is logged |
+| Yaw Test-Boateng | patient | `457f46b5-14b2-4933-acdd-d1cda1bf2c6d` | `+233200000012`, **no** reminder consent: the reminder function logs "skipped" |
+
 Calling a protected route on AWS: sign a token as in [`patient-record-service.md`](./patient-record-service.md) §4, with
 the key from Secrets Manager (`aws secretsmanager get-secret-value --secret-id healthconnect-dev-jwt-secret`).
 A token for a practitioner who isn't in RDS gets **"This account is not active"**: that answer proves the servers read
@@ -175,7 +185,8 @@ built with `--platform linux/amd64`.
   the API (`strict-transport-security: max-age=31536000; includeSubDomains`, from `helmet` in `backend/`).
 - **The call server has no TURN relay** (on purpose, see `learnings/lab7-webrtc.md`) and no login. Anyone with the
   address and a room name can join. Test rooms only, never patient data.
-- **The call image was built and pushed by hand** (`webrtc-spike/Dockerfile`, tag `latest` + git SHA). To ship a
+- **The call image was built and pushed by hand** (`webrtc-spike/Dockerfile`, tag `latest` + git SHA; live: `248ea83`
+  since 26 Oct, after Perfect's PR #15 didn't show up because nobody had redeployed). To ship a
   change: rebuild, push, then `terraform apply -replace='module.call[0].aws_instance.call'` (about 4 minutes of
   downtime).
 
