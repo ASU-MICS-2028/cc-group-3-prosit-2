@@ -1,0 +1,40 @@
+# L7-A5 live bookings, 2026-10-26 21:03 UTC, CHV 8b7102c5 (synthetic data only)
+
+## 1. Abena (consented): expect 201, event published
+$ POST /appointments {"id":"4f530cae-7556-4ebb-8d21-e317d06170b5","patient_id":"09954463-b029-4bf4-b723-3c5cd4ac49c0","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","starts_at":"2026-11-10T09:00:00Z"}
+{"id":"4f530cae-7556-4ebb-8d21-e317d06170b5","patient_id":"09954463-b029-4bf4-b723-3c5cd4ac49c0","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","status":"booked","starts_at":"2026-11-10T09:00:00.000Z","ends_at":"2026-11-10T09:30:00.000Z","event":"published"}
+[HTTP 201]
+
+## 2. Yaw (no consent): expect 201, event published without phone
+$ POST /appointments {"id":"390e40f9-2677-4551-bb4d-e70247d633d5","patient_id":"457f46b5-14b2-4933-acdd-d1cda1bf2c6d","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","starts_at":"2026-11-10T10:00:00Z"}
+{"id":"390e40f9-2677-4551-bb4d-e70247d633d5","patient_id":"457f46b5-14b2-4933-acdd-d1cda1bf2c6d","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","status":"booked","starts_at":"2026-11-10T10:00:00.000Z","ends_at":"2026-11-10T10:30:00.000Z","event":"published"}
+[HTTP 201]
+
+## 3. Same request as 1 again (offline retry): expect 200, same id, nothing new saved; the event IS published again (retry recovers a lost event; duplicates are the consumers' problem, L7-H2)
+$ POST /appointments {"id":"4f530cae-7556-4ebb-8d21-e317d06170b5","patient_id":"09954463-b029-4bf4-b723-3c5cd4ac49c0","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","starts_at":"2026-11-10T09:00:00Z"}
+{"id":"4f530cae-7556-4ebb-8d21-e317d06170b5","patient_id":"09954463-b029-4bf4-b723-3c5cd4ac49c0","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","status":"booked","starts_at":"2026-11-10T09:00:00.000Z","ends_at":"2026-11-10T09:30:00.000Z","event":"published"}
+[HTTP 200]
+
+## 4. New id, same specialist, same slot as 1: expect 409 double_booked
+$ POST /appointments {"id":"aa8873ce-ff99-490d-a032-da22ab195379","patient_id":"457f46b5-14b2-4933-acdd-d1cda1bf2c6d","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","starts_at":"2026-11-10T09:00:00Z"}
+{"error":"double_booked","message":"The specialist already has a booked appointment at that time"}
+[HTTP 409]
+
+## 5. Unknown patient: expect 404
+$ POST /appointments {"id":"14065989-71e0-43c3-a032-a56ac5f44ceb","patient_id":"eabc2049-7eb3-4408-a834-bbef62c8268a","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","starts_at":"2026-11-10T11:00:00Z"}
+{"error":"not_found","field":"patient_id","message":"Unknown patient"}
+[HTTP 404]
+
+## 6. Bad input: expect 400 naming starts_at
+$ POST /appointments {"id":"781824f4-c14e-4f56-aa35-85766fbf7fb8","patient_id":"09954463-b029-4bf4-b723-3c5cd4ac49c0","specialist_id":"c8bde890-8d3d-4142-9499-61008fe5bd4a","starts_at":"next tuesday"}
+{"error":"invalid_request","field":"starts_at","message":"starts_at must be a date-time, e.g. 2026-11-02T10:00:00Z"}
+[HTTP 400]
+
+## 7. No token: expect 401
+$ POST /appointments {}
+{"error":"unauthenticated","message":"Sign in first"}
+[HTTP 401]
+
+## Appointment ids for the Lambda log check
+Abena (expect reminder_logged twice, from steps 1 and 3, + specialist_notified twice): 4f530cae-7556-4ebb-8d21-e317d06170b5
+Yaw   (expect skipped + specialist_notified):                                          390e40f9-2677-4551-bb4d-e70247d633d5

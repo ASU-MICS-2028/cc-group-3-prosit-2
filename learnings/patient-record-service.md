@@ -1,6 +1,6 @@
 # patient-record-service (the HealthConnect API)
 
-**Owner:** Joseph · **Last updated:** 2026-10-25 · **Status:** working locally and in CI (not yet deployed with these routes)
+**Owner:** Joseph · **Last updated:** 2026-10-26 · **Status:** live on `https://api-hc.agroconnect.space`; 7 paths checked there on 26 Oct (`evidence/lab7/outputs_A_create_appointment.txt`)
 
 ## 1. In one sentence
 
@@ -70,7 +70,6 @@ that the API and the Lambda functions agree on the event's fields (`functions/fi
 
 ## 5. What is NOT done, or is faked
 
-- **Not deployed yet.** The AWS servers run the older image. Deploying needs the settings in section 6.
 - **No login screen.** Tokens come from `npm run token`.
 - **If SNS is down, the event is lost**: the booking is kept and the caller is told (`"event":"not_published"`), but
   nothing retries it. The proper fix is an "outbox" table. This is the open resilience question for the Lab 7 report.
@@ -86,7 +85,8 @@ that the API and the Lambda functions agree on the event's fields (`functions/fi
   Python 3.12. Zip each with `events.py` beside it. They read SNS→SQS messages with or without "raw message delivery".
   A bad message raises, so SQS retries it and then moves it to the dead-letter queue; keep the batch size at 1, or one bad
   message makes its whole batch retry.
-- **Events can arrive twice** (a retried request, or SQS redelivery). The functions must tolerate duplicates (Elise's L7-H2).
+- **Events can arrive twice.** Every retried booking publishes the event again, on purpose: that is how a lost event gets
+  recovered. Seen live on 26 Oct (Abena's booking, sent twice, gave two reminders). SQS can also redeliver. The functions must tolerate duplicates (Elise's L7-H2).
 - **The image pins the af-south-1 RDS certificate bundle**; it won't reach a database in another region.
 
 ## 7. Terms used
