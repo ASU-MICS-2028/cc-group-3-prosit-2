@@ -139,6 +139,28 @@ them without re-running them: `db/migrate.sh --baseline 003`. See [`learnings/da
 Needs the Session Manager plugin for the AWS CLI (`brew install --cask session-manager-plugin`).
 `db/tests/run_tests.sh` refuses to run through this tunnel (it checks for RDS's `rds_superuser` role), because it drops databases.
 
+## Shipping a change (until the Week 9 deploy workflow exists)
+
+Images are built on a laptop and pushed to ECR. Our Macs are ARM; the servers are x86, so always pass
+`--platform linux/amd64` (an ARM image starts and then crashes on the server with "exec format error").
+
+```bash
+export AWS_PROFILE=ashesi-dev
+R=315224414532.dkr.ecr.af-south-1.amazonaws.com
+aws ecr get-login-password --region af-south-1 | docker login -u AWS --password-stdin $R
+SHA=$(git rev-parse --short HEAD)       # build from an up-to-date main
+```
+
+| What changed | Ship it with |
+|---|---|
+| `backend/` (the API) | `docker buildx build --platform linux/amd64 -t $R/healthconnect-dev-backend:latest -t $R/healthconnect-dev-backend:$SHA --push backend`, then `aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'`. No downtime: new servers start before old ones stop (~8 min). |
+| `webrtc-spike/` (call page) | Same build with `healthconnect-dev-call` and `webrtc-spike`, then `terraform -chdir=infra apply -replace='module.call[0].aws_instance.call'` (~4 min down: one server). |
+| `functions/` (Lambda) | `terraform -chdir=infra apply`. Terraform re-zips the files and updates both functions. |
+| `db/migrations/` | `db/migrate.sh` through the SSM tunnel ("Running database migrations" above). |
+| `infra/` | `terraform plan`, read all of it, get the owner's OK, then `apply`. |
+
+After any of these: `curl -s https://api-hc.agroconnect.space/health` a few times (both instance ids should appear).
+
 ## Rollback
 
 The deployed image tag lives in SSM at `/healthconnect-dev/app-image-tag`. Instances pull whatever tag it names
