@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Schema test: builds a throwaway database, applies every migration in order,
+# Schema test: builds a throwaway database, applies every migration in order
+# (through db/migrate.sh, so the migration logbook is tested too),
 # runs verify_schema.sql, and checks every step:
 #   * each "SHOULD FAIL" step must raise exactly one ERROR (the guard worked)
 #   * each "SHOULD PASS" step must raise none
@@ -23,6 +24,13 @@ case "${PGHOST:-}" in
   *rds.amazonaws.com*) echo "Refusing to run: PGHOST points at RDS. This script drops databases." >&2; exit 1 ;;
 esac
 
+# The hostname check misses RDS reached through an SSM tunnel (it's "localhost"
+# then), so also ask the server what it is: only RDS has the rds_superuser role.
+if [ "$(psql -X -At -d postgres -c "SELECT 1 FROM pg_roles WHERE rolname = 'rds_superuser'")" = "1" ]; then
+  echo "Refusing to run: this server is Amazon RDS (it has the rds_superuser role), maybe through a tunnel. This script drops databases." >&2
+  exit 1
+fi
+
 psql -X -q -d postgres -c "DROP DATABASE IF EXISTS $DB" -c "CREATE DATABASE $DB" >/dev/null
 
 mkdir -p "$(dirname "$OUT")"
@@ -32,8 +40,8 @@ mkdir -p "$(dirname "$OUT")"
   echo "# Server: $(psql -X -At -d "$DB" -c 'SHOW server_version')"
   echo "# Migrations: $(ls db/migrations/*.sql | xargs -n1 basename | tr '\n' ' ')"
   echo
-  cat db/migrations/*.sql db/tests/verify_schema.sql \
-    | psql -X -q -v ON_ERROR_STOP=0 -d "$DB" 2>&1
+  PGDATABASE="$DB" db/migrate.sh 2>&1 || echo "ERROR: db/migrate.sh failed; the checks below ran on a partial schema."
+  psql -X -q -v ON_ERROR_STOP=0 -d "$DB" -f db/tests/verify_schema.sql 2>&1
 } > "$OUT"
 
 # Walk the output: each step starts with a SHOULD PASS / SHOULD FAIL line.

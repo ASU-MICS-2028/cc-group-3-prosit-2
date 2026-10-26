@@ -63,6 +63,30 @@ PGHOST=localhost PGUSER=postgres PGPASSWORD=test db/tests/run_tests.sh
 Each `SHOULD FAIL` step in the output is followed by the database's refusal message; each `SHOULD PASS` step has none.
 Evidence file: `evidence/lab6/outputs_C_schema_tests.txt`.
 
+The test script refuses to run on RDS, even through a tunnel: it asks the server whether it has the `rds_superuser`
+role, which only RDS has. It used to check only the hostname, which a tunnel (`localhost`) slipped past.
+
+### Applying migrations: `db/migrate.sh`
+
+Never run the `.sql` files by hand. `db/migrate.sh` keeps a logbook table in the database, `schema_migrations`:
+one row per file already applied (name, when, who, and a checksum of the file). Each run applies only the files not
+in the logbook, in order, and stops at the first error.
+
+```bash
+db/migrate.sh --dry-run        # list what would be applied; changes nothing
+db/migrate.sh                  # apply what's missing
+db/migrate.sh --baseline 003   # one-off for RDS: 001-003 ran before the logbook existed, so record them without running them
+```
+
+It connects with the usual `PGHOST`, `PGUSER`, `PGPASSWORD`… variables. It **refuses** when:
+- an applied file was edited or deleted (its checksum no longer matches the logbook): put the change in a new numbered file instead
+- `--baseline` is used on a database that already has a logbook, or that has no `patients` table (001 never ran there)
+
+Tried on local Postgres 16: fresh apply, rerun (applies nothing), a new `004`, an edited `002` (refused), a failing
+migration (stops, not recorded, nothing after it runs), baseline on a populated and on an empty database, dry run,
+and `run_tests.sh` against a fake RDS (refused before dropping anything). `run_tests.sh` builds its test database with
+`migrate.sh`, so CI tests the script on every PR.
+
 To see a patient's full history (as an admin):
 
 ```sql
@@ -72,8 +96,10 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 
 ## 5. What is NOT done, or is faked
 
-- **Not on RDS yet.** Waits for Eugene's database (L5-B1).
-- **LOINC codes not yet checked on loinc.org.** Do this before applying 002 to RDS.
+- **RDS has no logbook yet.** 001-003 were applied there by hand on 2026-10-22, before `migrate.sh` existed. Someone with
+  the SSM tunnel (Eugene) must run `db/migrate.sh --baseline 003` once, before any `004` goes on RDS.
+- **LOINC codes:** all 9 are active and correctly labelled (cross-checked against the HL7 terminology server). Blood glucose
+  has a more exact code for a finger-prick glucometer reading (`14743-9`); adding it is a future `004` migration.
 - **No database roles yet.** Everything runs as one user. The plan is: the app's role can't `ALTER`, can't write `loinc_codes`, can't read `audit_trail`. That's the RBAC table (L6-H3).
 - **No real FHIR server or API.** The tables are FHIR-*shaped*; nothing serves FHIR JSON yet (gap #3 in the gap analysis).
 - **Act 843 section numbers** in the minimisation section need Joseph's clause check (L5-C2).
@@ -87,6 +113,9 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 - **`btree_gist`** must be allowed on RDS (it is by default for RDS PostgreSQL).
 - **`audit_trail` grows forever.** It needs a retention and archiving rule (legal review).
 - **A database superuser can disable triggers.** Nobody should use one day to day.
+- **One rare gap in `migrate.sh`:** each migration file commits by itself, and the logbook row is written a moment later.
+  If the connection drops in between, the change is in but not recorded, and the next run fails with "already exists".
+  Fix: check the change is really there, then add its row to `schema_migrations` by hand.
 
 ## 7. Terms used
 
@@ -101,6 +130,8 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 | Migration | A numbered SQL file that builds or changes the database |
 | `psql` | A program for typing SQL straight into the database, bypassing the API |
 | Idempotent | Safe to repeat: doing it twice has the same effect as once |
+| Checksum (sha256) | A short code computed from a file's exact contents; change one character and the code changes |
+| Baseline | Telling the logbook "these migrations already ran here" without running them again |
 | Act 843 | Ghana's Data Protection Act, 2012: the law our data handling must follow |
 
 ## 8. Lines ready for the report

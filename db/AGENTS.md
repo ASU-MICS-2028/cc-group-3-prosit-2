@@ -11,9 +11,14 @@ Follow the root [`../AGENTS.md`](../AGENTS.md) first; this adds what's specific 
 docker run -d --name hc-pg -e POSTGRES_PASSWORD=test -p 5432:5432 postgres:16
 PGHOST=localhost PGUSER=postgres PGPASSWORD=test db/tests/run_tests.sh     # run from the repo root
 # expected last line: "<n> deny checks, <m> allow checks, 0 problems"
+
+db/migrate.sh --dry-run    # what would be applied (changes nothing)
+db/migrate.sh              # apply the migrations this database hasn't had yet
 ```
 
-The script refuses an RDS hostname, but **not** an SSM tunnel to RDS on `localhost`: never run it through a tunnel.
+`run_tests.sh` refuses RDS by hostname and by asking the server (only RDS has the `rds_superuser` role), so a tunnel on
+`localhost` is refused too. `migrate.sh` records each applied file in the `schema_migrations` table and refuses to run if an
+applied file was edited.
 
 ## Rules
 
@@ -25,4 +30,5 @@ The script refuses an RDS hostname, but **not** an SSM tunnel to RDS on `localho
 
 ## Applying migrations to AWS
 
-By hand through an SSM tunnel: steps in [`../infra/README.md`](../infra/README.md#running-database-migrations). Ask the infra owner first.
+With `db/migrate.sh` through an SSM tunnel: steps in [`../infra/README.md`](../infra/README.md#running-database-migrations).
+Ask the infra owner first. RDS needs `db/migrate.sh --baseline 003` once (001-003 were applied before the logbook existed).
