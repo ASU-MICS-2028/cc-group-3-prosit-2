@@ -1,0 +1,26 @@
+# Lab 7 C4: proof the Mac was throttled to a "3G-like" link (26 Oct 2026, before/around the 08:54-08:55 call screenshots)
+# Built-in macOS traffic shaper (dummynet): 400 kbit/s, +150 ms each way, 1% packet loss, applied to all traffic.
+# Run on Joseph's Mac (on an iPhone hotspot). Pasted from his terminal; the pf "Token" line is a local session id.
+
+$ sudo dnctl pipe 1 config bw 400Kbit/s delay 150 plr 0.01
+$ printf 'dummynet in all pipe 1\ndummynet out all pipe 1\n' | sudo pfctl -f -
+$ sudo pfctl -E
+pf enabled
+
+$ ping -c 5 1.1.1.1                       # THROTTLED
+64 bytes from 1.1.1.1: icmp_seq=0 ttl=55 time=367.855 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=55 time=492.979 ms
+Request timeout for icmp_seq 2
+64 bytes from 1.1.1.1: icmp_seq=3 ttl=55 time=695.906 ms
+5 packets transmitted, 3 packets received, 40.0% packet loss
+round-trip min/avg/max/stddev = 367.855/518.913/695.906/135.176 ms
+
+# undo
+$ sudo pfctl -f /etc/pf.conf
+$ sudo pfctl -d
+pf disabled
+$ sudo dnctl -q flush
+
+$ ping -c 5 1.1.1.1                       # BACK TO NORMAL
+5 packets transmitted, 5 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 32.852/43.330/52.420/7.249 ms

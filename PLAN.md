@@ -8,7 +8,7 @@ with one owner, the tasks that block it, and a status. This file is the source o
 
 - **Pick up** a task only when everything in "Blocked by" is ✅ Done. Set it to 🔄 In progress, with your name.
 - **Finish** a task: set it to ✅ Done, then check which tasks it was blocking and flip them from ⛔ Blocked to 🟢 Ready.
-- **In the same PR, update [`README.md`](./README.md)**, which shows **only the current stage**: its tasks, who has each, status. When a stage is submitted, replace the README table with the next stage's tasks.
+- **In the same PR, update [`README.md`](./README.md)**, which lists **everything open now** and who has it (D-025): add new open items, remove finished ones.
 - "Done" means the evidence is in `evidence/` and the learnings note is written (see [`CONTRIBUTING.md`](./CONTRIBUTING.md)).
 - New task? Add a row in the right place, with a new ID, an owner and its blockers.
 
@@ -123,20 +123,22 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | ✅ | **Report:** one honest retrospective paragraph | Lab 5 Google Doc | L5-R3 → L5-R4 | Everyone → Joseph |
 | ⚪ skipped | *Optional:* CDN page-load before/after on Slow 3G, egress audit, NAT cost note | `H-cdn.png`, `learnings/` | L5-H1/H2/H3 | Eugene, Perfect, Elise |
 
-## Phase 2: Lab 6 (due Saturday 25 October)
+## Phase 2: Lab 6 ✅ report drafted 25 Oct (run in a separate lab environment, see the report §2)
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
 | L6-C1 | FHIR-aligned schema migrations: UUID ids, LOINC code + UCUM unit on observations, consent required before writes, append-only `access_log` | Elise | — | ✅ Done | `db/migrations/*.sql` applies cleanly to an empty Postgres (`db/tests/run_tests.sh`: 25 deny, 14 allow, 0 problems) |
-| L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | 🔄 In progress (Elise): written; waiting on D-018 and LOINC code check | `docs/fhir-mapping.md` |
-| L6-A1 | `healthconnect-service` IAM role + least-privilege policy (only its own secret, bucket, logs, ECR) | Eugene | L5-B1 | 🟢 Ready | Policy JSON in `infra/` + `evidence/lab6/` |
-| L6-A2 | Run allow/deny checks (allowed: our secret; denied: delete DB, AgroConnect's secret) + "what it protects against" paragraph | Perfect | L6-A1 | ⛔ Blocked | `evidence/lab6/outputs_A_least_privilege.txt` + learnings note |
-| L6-B1 | Encryption build: customer-managed KMS key, S3 policy denying non-HTTPS, HSTS header, `rds.force_ssl` on | Eugene | L5-B1, S5 | 🟢 Ready (HSTS already sent by the API via `helmet`) | Applied via Terraform |
-| L6-B2 | Encryption verification evidence: RDS at rest, DB connection uses SSL, HTTP→HTTPS redirect, S3 encrypted + not public | Elise | L6-B1 | ⛔ Blocked | Screenshots + outputs in `evidence/lab6/` |
-| L6-D1 | Audit logging in the service: identity from the session (not a header), data + audit write in one transaction, 404 still logged, denied attempts logged | Joseph | S10, L6-C1 | 🟢 Ready (needs `withTransaction` first; see Elise's PR #2 review) | Tests pass locally |
-| L6-D2 | Deploy the service and capture audit evidence (POST as a CHV, GET as a doctor, last 5 log rows, failed DELETE on the log) | Joseph | L6-D1, L5-B2 | ⛔ Blocked | `evidence/lab6/outputs_D_audit.txt` |
+| L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | ✅ Done (D-018 still needs the team vote) | `docs/fhir-mapping.md` |
+| L6-A1 | `healthconnect-service` IAM role + least-privilege policy (only its own secret, bucket, logs, ECR) | Eugene | L5-B1 | ✅ Done in the lab environment (Eugene, 25 Oct) | `evidence/lab6/iam-policy.json` + Figures 1–5 of the report |
+| L6-A2 | Run allow/deny checks (allowed: our secret; denied: delete DB, AgroConnect's secret) + "what it protects against" paragraph | Eugene (covered for Perfect) | L6-A1 | ✅ Done in the lab environment (Eugene, 25 Oct) | Allow (`SELECT 1`) and deny (`DeleteDBCluster`) in Figure 5 |
+| L6-B1 | Encryption build: customer-managed KMS key, S3 policy denying non-HTTPS, HSTS header, `rds.force_ssl` on | Eugene | L5-B1, S5 | ✅ Done in the lab environment (Eugene, 25 Oct); the HealthConnect build is L6-B1b | Figures 6–12 |
+| L6-B2 | Encryption verification evidence: RDS at rest, DB connection uses SSL, HTTP→HTTPS redirect, S3 encrypted + not public | Eugene (covered for Elise) | L6-B1 | ✅ Done in the lab environment (Eugene, 25 Oct) | Figures 6–12 |
+| L6-D1 | Audit logging in the service: identity from the session (not a header), data + audit write in one transaction, 404 still logged, denied attempts logged | Joseph | S10, L6-C1 | ✅ Done (25 Oct): audited reads and writes in the API | 34 API tests pass ([learnings](./learnings/patient-record-service.md)) |
+| L6-D2 | Deploy the service and capture audit evidence (POST as a CHV, GET as a doctor, last 5 log rows, failed DELETE on the log) | Joseph | L6-D1, L5-B2 | ✅ Done in the lab environment (Eugene, 25 Oct) with the handout middleware | Figures 14–15 |
 | L6-X | Find out why about half the requests failed during the Lab 5 failover test (timeouts and 504s even 30 s after the stopped target left rotation; cross-zone load balancing is on). Check deregistration and stopped-vs-unhealthy behaviour, then re-test | Eugene | — | 🟢 Ready | Cause explained in `learnings/infra.md`; a re-run with 10/10 succeeding |
-| L6-R | Lab 6 report (300 words) + package (PDF, policy, schema, screenshots) | Joseph | L6-A2, L6-B2, L6-C2, L6-D2 | ⛔ Blocked | Submitted on Canvas |
+| L6-A1b | HealthConnect system: the API's **own** IAM role in Terraform (today it shares the NAT server's role and has broad ECR read) | Eugene | — | 🟢 Ready | `terraform plan` shows only the new role; API still healthy |
+| L6-B1b | HealthConnect system: customer-managed KMS key, `rds.force_ssl = 1`, bucket policy denying non-HTTPS (HSTS already sent) | Eugene | — | 🟢 Ready | Applied; checks in `learnings/infra.md` |
+| L6-R | Lab 6 report (300 words) + package (PDF, policy, schema, screenshots) | Joseph | — | 🔄 Report drafted 25 Oct; submit by 23:59 | `prosit 2/Labs/lab6/CC GROUP 3 Highlanders Lab 6 Report.pdf` |
 | L6-H1 | Homework: FHIR managed-service sandbox + 150-word comparison (check whether it exists in `af-south-1`) | Eugene | — | ⚪ Optional | Note in `learnings/` |
 | L6-H2 | Homework: secrets rotation drill, timed | Eugene + Joseph | L6-D2 | ⚪ Optional | Time recorded in `learnings/` |
 | L6-H3 | Homework: RBAC table (CHV / specialist / GHS official × patients / observations / access_log) | Elise | L6-C1 | ⚪ Optional (unblocked) | Table in `docs/` |
@@ -149,20 +151,20 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 
 | ✓ | What the lab asks for | Evidence file (`evidence/lab6/`) | From task | Who captures it |
 |---|---|---|---|---|
-| ☐ | **A.** The least-privilege policy document | `A-policy.json` (copy of the one in `infra/`) | L6-A1 | Eugene |
-| ☐ | **A.** Role attached to the service (instance profile on the EC2 instances, not embedded keys) | `A-role-attached.png` | L6-A1 | Eugene |
-| ☐ | **A.** An **allowed** action succeeding (reading our own secret) | `outputs_A_least_privilege.txt` + `A-allowed.png` | L6-A2 | Perfect |
-| ☐ | **A.** A **forbidden** action denied (`AccessDenied` deleting the DB, reading AgroConnect's secret) | same output file + `A-denied.png` | L6-A2 | Perfect |
-| ☐ | **B.** Database encryption at rest **enabled** (console, with the KMS key) | `B-rds-encryption.png` | L6-B2 | Elise |
-| ☐ | **B.** Bucket encryption + public access block (`get-bucket-encryption`, `get-public-access-block`) | `outputs_B_s3.txt` | L6-B2 | Elise |
-| ☐ | **B.** Plaintext HTTP rejected or redirected (`curl -v http://…` → 301), HTTPS works (`curl -v https://…` → 200) | `outputs_B_tls.txt` | L6-B2 | Elise |
-| ☐ | **B.** *Extra:* DB connection is encrypted (`SHOW rds.force_ssl`, `pg_stat_ssl`) | `outputs_B_db_ssl.txt` | L6-B2 | Elise |
-| ☐ | **C.** The schema file | `db/migrations/*.sql` | L6-C1 | Elise |
-| ☐ | **C.** FHIR mapping write-up + gaps + data minimisation (Act 843) | `docs/fhir-mapping.md` | L6-C2 | Elise |
-| ☐ | **D.** Query result showing populated audit-log entries (a write by a CHV, a read by a doctor) | `outputs_D_audit.txt` + `D-audit-log.png` | L6-D2 | Joseph |
-| ☐ | **D.** *Extra:* deleting from the audit log is refused | `outputs_D_append_only.txt` | L6-D2 | Joseph |
-| ☐ | **Report:** 300 words: IAM and what it protects against · encryption · FHIR decisions and gaps · one ethics/consent point naming the Act 843 principle | Lab 6 Google Doc → PDF | L6-R | Joseph (paragraphs from Perfect, Elise) |
-| ☐ | *Optional:* FHIR sandbox comparison (150 words), rotation-drill time, RBAC table | `learnings/`, `docs/` | L6-H1/H2/H3 | Eugene, Eugene + Joseph, Elise |
+| ✅ | **A.** The least-privilege policy document | `A-policy.json` (copy of the one in `infra/`) | L6-A1 | Eugene |
+| ✅ | **A.** Role attached to the service (instance profile on the EC2 instances, not embedded keys) | `A-role-attached.png` | L6-A1 | Eugene |
+| ✅ | **A.** An **allowed** action succeeding (reading our own secret) | `outputs_A_least_privilege.txt` + `A-allowed.png` | L6-A2 | Perfect |
+| ✅ | **A.** A **forbidden** action denied (`AccessDenied` deleting the DB, reading AgroConnect's secret) | same output file + `A-denied.png` | L6-A2 | Perfect |
+| ✅ | **B.** Database encryption at rest **enabled** (console, with the KMS key) | `B-rds-encryption.png` | L6-B2 | Elise |
+| ✅ | **B.** Bucket encryption + public access block (`get-bucket-encryption`, `get-public-access-block`) | `outputs_B_s3.txt` | L6-B2 | Elise |
+| ✅ | **B.** Plaintext HTTP rejected or redirected (`curl -v http://…` → 301), HTTPS works (`curl -v https://…` → 200) | `outputs_B_tls.txt` | L6-B2 | Elise |
+| ☐ not done | **B.** *Extra:* DB connection is encrypted (`SHOW rds.force_ssl`, `pg_stat_ssl`) | `outputs_B_db_ssl.txt` | L6-B2 | Elise |
+| ✅ | **C.** The schema file | `db/migrations/*.sql` | L6-C1 | Elise |
+| ✅ | **C.** FHIR mapping write-up + gaps + data minimisation (Act 843) | `docs/fhir-mapping.md` | L6-C2 | Elise |
+| ✅ | **D.** Query result showing populated audit-log entries (a write by a CHV, a read by a doctor) | `outputs_D_audit.txt` + `D-audit-log.png` | L6-D2 | Joseph |
+| ✅ | **D.** *Extra:* deleting from the audit log is refused | `outputs_D_append_only.txt` | L6-D2 | Joseph |
+| ✅ | **Report:** 300 words: IAM and what it protects against · encryption · FHIR decisions and gaps · one ethics/consent point naming the Act 843 principle | Lab 6 Google Doc → PDF | L6-R | Joseph (paragraphs from Perfect, Elise) |
+| ⚪ skipped | *Optional:* FHIR sandbox comparison (150 words), rotation-drill time, RBAC table | `learnings/`, `docs/` | L6-H1/H2/H3 | Eugene, Eugene + Joseph, Elise |
 
 ## Phase 3: Lab 7: serverless reminders + a telemedicine video call
 
@@ -173,14 +175,14 @@ Design for A/B is decision D-010 (one SNS topic fanning out to two SQS queues).
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
 | L7-A1 | Infra: SNS topic `appointment-events` → 2 SQS queues (`reminders`, `specialist-notify`), each with a dead-letter queue; 2 Lambda functions with their own scoped roles, each triggered by its queue; the service role may only `sns:Publish` to that topic | Eugene | S4 | 🟢 Ready | `terraform apply` done; the trigger shows on each function in the console |
-| L7-A2 | The two function handlers (Python, as in the handout): reminder (logs "reminder for <phone> at <time>"; real SMS through the Prosit 1 provider is optional) and specialist-notify; both log the `appointmentId` | Joseph | — | 🟢 Ready | Code in `functions/` + a local test with a sample event |
+| L7-A2 | The two function handlers (Python, as in the handout): reminder (logs "reminder for <phone> at <time>"; real SMS through the Prosit 1 provider is optional) and specialist-notify; both log the `appointmentId` | Joseph | — | ✅ Done (25 Oct) | 10 tests pass (`functions/`); handler names in the learnings note |
 | L7-A3 | `appointments` table migration (UUID id, patient, specialist, `starts_at`/`ends_at`, status) | Elise | L6-C1 | ✅ Done | In `db/migrations/001_initial_schema.sql`; Postgres blocks double-booking (D-017) |
-| L7-A4 | `POST /appointments` in `patient-record-service`: save the appointment (UUID id, `starts_at`; a double-booking clash → 409, per D-017), then publish `appointment.created` to the topic | Joseph | S10, L7-A3 | 🟢 Ready | Tests pass; returns 201 |
+| L7-A4 | `POST /appointments` in `patient-record-service`: save the appointment (UUID id, `starts_at`; a double-booking clash → 409, per D-017), then publish `appointment.created` to the topic | Joseph | S10, L7-A3 | ✅ Done (25 Oct) | 201/200/409/404/403/401/400 all tested |
 | L7-A5 | End-to-end run: create one appointment → **both** functions fire from that one event; capture evidence A and B | Joseph | L7-A1, L7-A2, L7-A4 | ⛔ Blocked | Checklist rows A and B ticked |
-| L7-C1 | Signaling server + browser client from the handout's starter code, served over **HTTPS/WSS** (phones only allow the camera on secure pages), e.g. through a Cloudflare tunnel or our domain | Perfect | — | 🔄 In progress (Perfect) | Opens on a phone; camera works. Code in `webrtc-spike/` (TypeScript + React) builds and passes tests. **Hosted at `https://call-hc.agroconnect.space`** (D-023, Eugene; signaling checked: `evidence/lab7/outputs_C_signaling_hosted.txt`); phone + camera test still to do ([learnings](./learnings/lab7-webrtc.md)) |
-| L7-C2 | Call on the **same network**: both video feeds connect | Perfect + one teammate | L7-C1 | ⛔ Blocked | Screenshot C1 |
-| L7-C3 | Call across **two different networks** (campus Wi-Fi vs a phone hotspot); record whether it connected directly or needed a relay (TURN), from `chrome://webrtc-internals` | Perfect + one teammate | L7-C2 | ⛔ Blocked | Screenshot C2 + note of the candidate type |
-| L7-C4 | Real call stats (packet loss, jitter, round-trip time) on the same network vs Slow 3G throttling, with the numbers written down | Perfect | L7-C2 | ⛔ Blocked | Screenshot C3 + numbers in `learnings/lab7-webrtc.md` |
+| L7-C1 | Signaling server + browser client from the handout's starter code, served over **HTTPS/WSS** (phones only allow the camera on secure pages), e.g. through a Cloudflare tunnel or our domain | Perfect | — | ✅ Done (26 Oct): calls work over HTTPS on the hosted page | Opens on a phone; camera works. Code in `webrtc-spike/` (TypeScript + React) builds and passes tests. **Hosted at `https://call-hc.agroconnect.space`** (D-023, Eugene; signaling checked: `evidence/lab7/outputs_C_signaling_hosted.txt`); phone + camera test still to do ([learnings](./learnings/lab7-webrtc.md)) |
+| L7-C2 | Call on the **same network**: both video feeds connect | Perfect + one teammate | L7-C1 | ✅ Done (26 Oct, Joseph): laptop ↔ phone on one Wi-Fi | `evidence/lab7/C2-same-network-*-stats.png` |
+| L7-C3 | Call across **two different networks** (campus Wi-Fi vs a phone hotspot); record whether it connected directly or needed a relay (TURN), from `chrome://webrtc-internals` | Perfect + one teammate | L7-C2 | ✅ Done (26 Oct, Joseph + Eugene): Oyibi ↔ Ho, direct (srflx), no relay | `evidence/lab7/C3-cross-network-*-stats.png` |
+| L7-C4 | Real call stats (packet loss, jitter, round-trip time) on the same network vs Slow 3G throttling, with the numbers written down | Perfect (done by Joseph + Elise) | — | ✅ Done (26 Oct): baseline vs throttled (macOS dummynet, ~3G) | `evidence/lab7/C4-*-stats.png`, `outputs_C4_throttle_check.txt` |
 | L7-R | Lab 7 report (300 words) + package (PDF + code snippets + screenshots A–C) | Joseph (paragraphs: serverless fit, Eugene; WebRTC and TURN, Perfect; resilience question, Elise) | L7-A5, L7-C3, L7-C4 | ⛔ Blocked | Submitted on Canvas **before the Week 8 exam** |
 | L7-H1 | Homework: break the reminder function on a bad message; show it landing in the dead-letter queue | Eugene | L7-A5 | ⚪ Optional | DLQ config + screenshot |
 | L7-H2 | Homework: publish the same event twice; make the reminder send only once (idempotency check) | Elise | L7-A5 | ⚪ Optional | Before/after logs + learnings note |
@@ -197,10 +199,10 @@ Design for A/B is decision D-010 (one SNS topic fanning out to two SQS queues).
 | ☐ | **A.** Event published (service log line, or SNS "messages published" metric) | `A-event-published.png` | L7-A5 | Joseph |
 | ☐ | **A.** Reminder function triggered and the reminder logged/sent (CloudWatch log) | `A-reminder-logs.png` + `outputs_A_reminder_logs.txt` | L7-A5 | Joseph |
 | ☐ | **B.** **Both** functions fired from the same single event (same `appointmentId` in both log groups) | `B-both-functions.png` + `outputs_B_logs.txt` | L7-A5 | Joseph |
-| ☐ | **C1.** Call connected on the same network, both video feeds visible | `C1-same-network.png` | L7-C2 | Perfect |
-| ☐ | **C2.** Connection state across two different networks (direct, or relay needed) | `C2-cross-network.png` | L7-C3 | Perfect |
-| ☐ | **C3.** Real stats (packet loss, jitter, round-trip time) from the Slow 3G test, plus the same-network baseline | `C3-stats-slow3g.png`, `C3-stats-baseline.png` | L7-C4 | Perfect |
-| ☐ | **C.** Written notes on what happened across networks and under throttling, **quoting the numbers** | `learnings/lab7-webrtc.md` | L7-C3, L7-C4 | Perfect |
+| ✅ | **C1.** Call connected on the same network, both video feeds visible | `C1-same-network.png` | L7-C2 | Perfect |
+| ✅ | **C2.** Connection state across two different networks (direct, or relay needed) | `C2-cross-network.png` | L7-C3 | Perfect |
+| ✅ | **C3.** Real stats (packet loss, jitter, round-trip time) from the Slow 3G test, plus the same-network baseline | `C3-stats-slow3g.png`, `C3-stats-baseline.png` | L7-C4 | Perfect |
+| ✅ | **C.** Written notes on what happened across networks and under throttling, **quoting the numbers** | `learnings/lab7-webrtc.md` | L7-C3, L7-C4 | Perfect |
 | ☐ | **Code snippets:** the endpoint, both functions, the signaling server, the client | links to files in the repo | L7-A2, L7-A4, L7-C1 | Joseph, Perfect |
 | ☐ | **Report:** what we moved to serverless and one thing we deliberately didn't (and why) · the cross-network result and what TURN means for architecture and budget · one open resilience question | Lab 7 Google Doc → PDF | L7-R | Joseph |
 | ☐ | *Optional:* dead-letter queue screenshot, duplicate-event test, TURN cost figure | `H-dlq.png`, `learnings/` | L7-H1/H2/H3 | Eugene, Elise, Perfect |
