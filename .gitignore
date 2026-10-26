@@ -30,3 +30,6 @@ dist/
 # AI-tool working directories — not part of the project (see docs/ai-tools-usage.md)
 .claude/
 .commandcode/
+
+# Lambda zips built by terraform (infra/modules/events)
+infra/modules/events/.build/

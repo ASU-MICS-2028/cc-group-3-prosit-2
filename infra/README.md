@@ -23,7 +23,8 @@ infra/
     ├── storage/         # S3 bucket for patient photos + lifecycle
     ├── observability/   # SNS alarms, CloudWatch dashboard, AWS Budgets
     ├── cicd/            # GitHub Actions OIDC + deploy role
-    └── call/            # Lab 7: one server for webrtc-spike/ behind the ALB (D-023)
+    ├── call/            # Lab 7: one server for webrtc-spike/ behind the ALB (D-023)
+    └── events/          # Lab 7: SNS topic -> SQS queue + DLQ + Lambda per consumer (D-010)
 ```
 
 ## Remote state
@@ -49,6 +50,11 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
 - IAM OIDC provider + role for GitHub Actions (no long-lived keys)
 - Call server (Lab 7, D-023): one `t3.micro` (Amazon Linux 2023) in a private-app subnet running `webrtc-spike/`
   from ECR `healthconnect-dev-call`; own IAM role (ECR read, its log group, SSM). Off when `call_hostname = ""`
+- Events (Lab 7, D-010): SNS topic `healthconnect-dev-appointment-events` → two SQS queues (`reminders`,
+  `specialist-notify`, SSE on, visibility 60 s, 3 tries then a 14-day DLQ) → two Python 3.12 Lambda functions (arm64,
+  zipped from `functions/` at plan time, batch size 1), each with its own role (its queue + its log group only).
+  The API role may `sns:Publish` to that topic only
+- Sign-in token key: Secrets Manager `healthconnect-dev-jwt-secret` (D-026); the API role may read it
 - No PWA hosting yet: added when `frontend/` exists (S9)
 
 ## DNS (at Hostinger, not in Terraform)
@@ -95,6 +101,20 @@ terraform output
 # api_url, alb_dns, ecr_repo_url, asg_name, gha_role_arn, db_endpoint
 ```
 
+### Sign-in token key (once)
+
+Terraform creates the secret empty, so the value never enters git or state. Put a random value, then refresh the API
+servers so they read it:
+
+```bash
+aws secretsmanager put-secret-value --secret-id healthconnect-dev-jwt-secret \
+  --secret-string "$(jq -n --arg s "$(openssl rand -base64 48)" '{secret: $s}')"
+aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg \
+  --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'
+```
+
+Changing it signs everyone out (old tokens stop verifying).
+
 ### Running database migrations
 
 The database has no route to or from the internet, and only the app security group may reach port 5432. To run
@@ -108,11 +128,38 @@ aws ssm start-session --target $IID --document-name AWS-StartPortForwardingSessi
 # in another terminal: password from the RDS secret
 export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id "$(terraform output -raw db_master_user_secret_arn)" \
   --query SecretString --output text | jq -r .password)
-for f in ../db/migrations/*.sql; do psql "host=localhost port=15432 dbname=healthconnect user=healthconnect_admin sslmode=require" -v ON_ERROR_STOP=1 -f $f; done
+export PGHOST=localhost PGPORT=15432 PGDATABASE=healthconnect PGUSER=healthconnect_admin PGSSLMODE=require
+cd .. && db/migrate.sh --dry-run    # check what would run first
+db/migrate.sh                       # applies only what's missing, and records it in schema_migrations
 ```
 
+**Once, before the first new migration:** 001–003 were applied on 2026-10-22, before `db/migrate.sh` existed, so record
+them without re-running them: `db/migrate.sh --baseline 003`. See [`learnings/database.md`](../learnings/database.md).
+
 Needs the Session Manager plugin for the AWS CLI (`brew install --cask session-manager-plugin`).
-Never point `db/tests/run_tests.sh` at this tunnel: it drops and recreates databases (its RDS guard only checks the hostname).
+`db/tests/run_tests.sh` refuses to run through this tunnel (it checks for RDS's `rds_superuser` role), because it drops databases.
+
+## Shipping a change (until the Week 9 deploy workflow exists)
+
+Images are built on a laptop and pushed to ECR. Our Macs are ARM; the servers are x86, so always pass
+`--platform linux/amd64` (an ARM image starts and then crashes on the server with "exec format error").
+
+```bash
+export AWS_PROFILE=ashesi-dev
+R=315224414532.dkr.ecr.af-south-1.amazonaws.com
+aws ecr get-login-password --region af-south-1 | docker login -u AWS --password-stdin $R
+SHA=$(git rev-parse --short HEAD)       # build from an up-to-date main
+```
+
+| What changed | Ship it with |
+|---|---|
+| `backend/` (the API) | `docker buildx build --platform linux/amd64 -t $R/healthconnect-dev-backend:latest -t $R/healthconnect-dev-backend:$SHA --push backend`, then `aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'`. No downtime: new servers start before old ones stop (~8 min). |
+| `webrtc-spike/` (call page) | Same build with `healthconnect-dev-call` and `webrtc-spike`, then `terraform -chdir=infra apply -replace='module.call[0].aws_instance.call'` (~4 min down: one server). |
+| `functions/` (Lambda) | `terraform -chdir=infra apply`. Terraform re-zips the files and updates both functions. |
+| `db/migrations/` | `db/migrate.sh` through the SSM tunnel ("Running database migrations" above). |
+| `infra/` | `terraform plan`, read all of it, get the owner's OK, then `apply`. |
+
+After any of these: `curl -s https://api-hc.agroconnect.space/health` a few times (both instance ids should appear).
 
 ## Rollback
 
