@@ -12,7 +12,7 @@ team Drive, `prosit 2/Labs/lab7/screenshots/`; this repo keeps only the stats pa
 | 08:12:37 | C3 cross-network | srflx ↔ srflx | 144 ms | 0.00 % (0/2420) | 88 ms | 14 |
 | 08:13:26 | C3 cross-network | srflx ↔ srflx | 138 ms | 0.03 % (2/6166) | 29 ms | 25 |
 | 08:18:40 | C3 cross-network (bad moment) | srflx ↔ srflx | **373 ms** | 0.02 % (4/21627) | **172 ms** | **2** |
-| 08:29:04 | Joseph ↔ Perfect, room `perseph` (different homes; locations not recorded) | srflx ↔ srflx | 247 ms | 2.04 % (47/2259) | 44 ms | 30 |
+| 08:29:04 | Joseph ↔ Perfect, room `perseph` (networks not recorded) | srflx ↔ srflx | 247 ms | 2.04 % (47/2259) | 44 ms | 30 |
 | 08:32:27 | Joseph ↔ Perfect | srflx ↔ srflx | 63 ms | 1.39 % (274/19375) | 9 ms | 30 |
 | 08:34:45 | C2 same network: Joseph's laptop ↔ his phone, same Wi-Fi, room `test` | srflx ↔ prflx | 157 ms | 0.00 % (0/2222) | 18 ms | 30 |
 | 08:34:54 | C2 same network | srflx ↔ prflx | 78 ms | 0.00 % (0/3707) | 11 ms | 30 |
