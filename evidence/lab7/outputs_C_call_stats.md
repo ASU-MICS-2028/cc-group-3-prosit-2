@@ -17,6 +17,24 @@ team Drive, `prosit 2/Labs/lab7/screenshots/`; this repo keeps only the stats pa
 | 08:34:45 | C2 same network: Joseph's laptop ↔ his phone, same Wi-Fi, room `test` | srflx ↔ prflx | 157 ms | 0.00 % (0/2222) | 18 ms | 30 |
 | 08:34:54 | C2 same network | srflx ↔ prflx | 78 ms | 0.00 % (0/3707) | 11 ms | 30 |
 
+## C4: the same call, unthrottled then throttled to ~3G (Joseph ↔ Elise, room `eliseph`)
+
+Only one thing changed between the rows: Joseph's Mac was throttled with macOS's built-in traffic shaper (dummynet:
+400 kbit/s, +150 ms each way, 1 % loss). Proof it was on: [`outputs_C4_throttle_check.txt`](./outputs_C4_throttle_check.txt)
+(ping 43 ms normal → 519 ms throttled). The throttle setting isn't visible in the call screenshots themselves; the
+terminal output and the jump in every stat are the evidence.
+
+| Time (GMT) | Throttle | Path | Round trip | Video packet loss (since call start) | Jitter | FPS |
+|---|---|---|---|---|---|---|
+| 08:51:13 | off (baseline) | srflx ↔ srflx | 157 ms | 0.89 % (6/669) | 16 ms | 31 |
+| 08:54:51 | **on** | srflx ↔ srflx | 735 ms | 3.21 % (498/15017) | 409 ms | 5 |
+| 08:54:56 | **on** | srflx ↔ srflx | 947 ms | 3.42 % (534/15079) | 773 ms | 7 |
+| 08:55:54 | **on** | srflx ↔ srflx | 758 ms | 7.15 % (1247/16185) | 827 ms | n/a (video froze) |
+
+**Result:** throttling one side to 3G speed multiplied the round trip by ~5 and jitter by ~50, cut video from 31 to
+5–7 frames per second and then froze it, **but the call never dropped**. On a 3G link, a usable telemedicine call
+should be audio-first, with video only when the connection allows.
+
 ## What it shows
 
 - **No relay was needed, even between two homes ~120 km apart on different ISPs.** Every call connected directly:
@@ -31,8 +49,7 @@ team Drive, `prosit 2/Labs/lab7/screenshots/`; this repo keeps only the stats pa
 
 ## What this does NOT show
 
-- **Slow 3G throttling (C4) is unproven.** Chrome DevTools network throttling only slows normal web traffic (page loads,
-  the signaling WebSocket), **not** WebRTC's media stream, and DevTools isn't visible in the screenshots. The two bad
-  moments above were most likely real network dips. To re-run C4 properly: throttle the whole computer with macOS
-  Network Link Conditioner (Apple's "Additional Tools for Xcode", profile "3G"), or put a phone on 3G/2G in its mobile
-  settings, and keep that setting visible in the screenshot.
+- **Chrome DevTools "Slow 3G" would not have worked**: it slows normal web traffic (page loads, the signaling WebSocket),
+  **not** WebRTC's media stream. That's why C4 throttled the whole Mac instead.
+- The two "bad moments" in the Oyibi ↔ Ho call (08:11:58, 08:18:40) were real network dips, not throttling.
+- Audio quality wasn't measured; the page shows video stats only.

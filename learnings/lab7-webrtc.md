@@ -76,8 +76,13 @@ own laptop ↔ phone on one Wi-Fi. Every reading is in [`evidence/lab7/outputs_C
 - **Same Wi-Fi still went out through the router** (`srflx ↔ prflx`, not `host ↔ host`), because Chrome hides local
   addresses. So "same network" wasn't much faster.
 - **Under a bad connection WebRTC dropped frames (to 1–2 per second), not packets** (loss stayed ~0 %): adaptive bitrate.
-- **Chrome DevTools "Slow 3G" doesn't throttle WebRTC media**, only web requests. To test a slow network for real,
-  throttle the whole machine (macOS Network Link Conditioner, "3G") or put a phone on 3G. C4 needs re-running that way.
+- **Chrome DevTools "Slow 3G" doesn't throttle WebRTC media**, only web requests. So C4 throttled the whole Mac
+  with macOS's built-in shaper (no install needed):
+  `sudo dnctl pipe 1 config bw 400Kbit/s delay 150 plr 0.01`, then
+  `printf 'dummynet in all pipe 1\ndummynet out all pipe 1\n' | sudo pfctl -f -` and `sudo pfctl -E`.
+  **Undo:** `sudo pfctl -f /etc/pf.conf; sudo pfctl -d; sudo dnctl -q flush`. Check with `ping 1.1.1.1` before and after.
+- **Throttled to ~3G (Joseph ↔ Elise):** round trip 157 → 735–947 ms, jitter 16 → 409–827 ms, video 31 → 5–7 fps then
+  frozen, **call never dropped**. Over 3G, telemedicine should be audio-first.
 
 ## 7. Terms used
 
