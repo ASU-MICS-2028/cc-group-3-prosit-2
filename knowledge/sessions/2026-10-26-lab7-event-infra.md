@@ -23,6 +23,7 @@ Unblock Joseph's L7-A5 (the Lab 7 report waits only on it): review his PR #11, t
 - `infra/modules/events/` (new): topic, two queues + DLQs, raw-delivery subscriptions, two Lambda functions with their own roles. JWT secret container; API role gets `sns:Publish` (that topic) and `GetSecretValue` (that secret); both settings passed to the API container.
 - AWS: 24 resources (9 of them imported after the interruption); JWT key set (64 random characters, never printed); API image rebuilt from `main` (`f3ff4ee`) and rolled out with an instance refresh.
 - Checked: one published event fired both functions (same `appointmentId`); a bad event failed 3 times then sat in both DLQs; the refreshed API answers 10/10, rejects missing/bad tokens, and verifies a token signed with the real key. Evidence: `evidence/lab7/outputs_A1_event_infra.txt`.
+- RDS: `db/migrate.sh --baseline 003` (Elise's S12 follow-up): `schema_migrations` now lists 001–003; a dry run reports 0 to apply.
 - Docs: `learnings/infra.md`, `infra/README.md` (sign-in key runbook), PLAN (L7-A1 ✅, L7-A5 ready, L7-H1 evidence), README.
 
 ## Open questions / next steps

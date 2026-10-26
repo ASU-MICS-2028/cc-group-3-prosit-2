@@ -137,7 +137,8 @@ Running the database migrations: see "Running database migrations" in [`infra/RE
 - **No automatic deploys.** The image in ECR was built and pushed by hand from Joseph's PR #2 branch. The deploy
   workflow comes with Week 9 (CI/CD).
 - **Migrations are run by hand** through an SSM tunnel; the service doesn't migrate the database on boot. Done once on
-  2026-10-22: `001`–`003` applied to RDS (8 tables). Any new migration must be applied the same way.
+  2026-10-22: `001`–`003` applied to RDS (8 tables). On 2026-10-26 they were recorded in Elise's `schema_migrations`
+  logbook with `db/migrate.sh --baseline 003`, so from now on `db/migrate.sh` (through the tunnel) applies only new ones.
 - **The instance role is not least-privilege yet.** It's shared with the NAT instance and has broad ECR read.
   L6-A1 replaces it with a dedicated `healthconnect-service` role.
 - **No encryption build yet** (customer-managed KMS key, forced TLS on RDS, HTTPS-only bucket policy): L6-B1, now

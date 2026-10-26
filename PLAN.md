@@ -77,7 +77,7 @@ The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./kno
 | S9 | Fork the AgroConnect PWA into `frontend/` as the CHV app shell | Perfect | — | 🟢 Ready (`frontend/` not created yet; the Lab 5 offline evidence came from the AgroConnect PWA) | Builds and runs offline locally |
 | S10 | Scaffold `patient-record-service` in `backend/`: Express/TypeScript, `/health` (returns instance id), `/ready` (checks DB), Dockerfile | Joseph | — | ✅ Done | Container runs locally ([learnings](./learnings/patient-record-service.md)) |
 | S11 | Agent files for every assistant (`AGENTS.md` root + per area, `CLAUDE.md`), CI for API and schema tests, PR template, README = current stage only, ADR index | Joseph | — | ✅ Done | Tested from root, `backend/`, `db/`, `infra/` ([learnings](./learnings/repo-and-tooling.md)) |
-| S12 | Migration safety: `db/migrate.sh` with a `schema_migrations` logbook; `run_tests.sh` refuses RDS through a tunnel too | Elise | — | ✅ Done (RDS still needs `--baseline 003` once: Eugene, through the tunnel) | Every case tested locally ([learnings](./learnings/database.md)); CI runs it |
+| S12 | Migration safety: `db/migrate.sh` with a `schema_migrations` logbook; `run_tests.sh` refuses RDS through a tunnel too | Elise | — | ✅ Done (RDS baselined 26 Oct by Eugene: `schema_migrations` holds 001–003, dry run says 0 to apply) | Every case tested locally ([learnings](./learnings/database.md)); CI runs it |
 
 ## Phase 1: Lab 5 (on HealthConnect) ✅ submitted 22 Oct
 
