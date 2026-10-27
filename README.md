@@ -4,23 +4,20 @@ ICS 534 Cloud Computing · PROSIT 2 · Joseph Etse · Eugene Sewor · Elise Kenn
 
 ## Everything to do now, and who does it
 
-_Updated 26 Oct 2026. Call tests C1–C4 done (stats in `evidence/lab7/outputs_C_call_stats.md`). Finished work isn't listed here; it's in [`PLAN.md`](./PLAN.md)._
-
-### Today: finish Lab 6
-
-| Task | Who | Status | Waiting on |
-|---|---|---|---|
-| Read the Lab 6 report and send Joseph feedback (`prosit 2/Labs/lab6/` in the team Drive) | Eugene, Elise, Perfect | 🔄 Before 23:00 tonight | — |
-| L6-R Submit the Lab 6 package (PDF + `iam-policy.json` + schema + screenshots) | Joseph | 🔄 By 23:59 tonight | Feedback |
-| Approve [PR #10](https://github.com/ASU-MICS-2028/cc-group-3-prosit-2/pull/10) (Lab 6 done, this README) | Anyone but Joseph | 🟢 Ready | — |
+_Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings done (`evidence/lab7/outputs_A_create_appointment.txt`). Finished work isn't listed here; it's in [`PLAN.md`](./PLAN.md)._
 
 ### Current stage: Lab 7, serverless reminders + a video call (due before the Week 8 exam; confirm the date on Canvas)
 
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
-| L7-A5 One appointment → both functions fire (evidence A, B). Live: `POST https://api-hc.agroconnect.space/appointments`; logs in `/aws/lambda/healthconnect-dev-reminders` and `…-specialist-notify` | Joseph | 🟢 Ready | — |
+| L7-A5 Screenshot both functions' logs for Abena's appointment `4f530cae-7556-4ebb-8d21-e317d06170b5` and Yaw's `390e40f9-2677-4551-bb4d-e70247d633d5` (also Abena's `9a4f5949-a984-49d7-bd33-fb3abd2aa18d`, the one in `A-create-appointment.png`) (`/aws/lambda/healthconnect-dev-reminders`, `…-specialist-notify`), plus the topic's "messages published" graph. Save as `A-event-published.png`, `A-reminder-logs.png`, `B-both-functions.png` (+ text copies) in `evidence/lab7/` | Eugene | 🟢 Ready | — |
+| L7-H1 Dead-letter queue screenshot `H-dlq.png` (the data is already in `outputs_A1_event_infra.txt`) | Eugene | 🟢 Ready | — |
+| L7-R paragraph: serverless fit (what we moved to Lambda, and one thing we deliberately didn't, and why), in `learnings/infra.md` | Eugene | 🟢 Ready | — |
+| L7-R paragraph: the cross-network result and what TURN means for cost and architecture, in `learnings/lab7-webrtc.md` | Perfect | 🟢 Ready | — |
+| L7-R paragraph: one open resilience question (e.g. SNS down = event lost; nobody is alerted when a dead-letter queue fills), in `learnings/database.md` | Elise | 🟢 Ready | — |
+| L7-H2 *Optional:* make the reminder send only once per appointment. Live example: Abena's booking was sent twice (an offline retry) and published two events | Elise | 🟢 Ready | — |
 | D-023 Confirm hosting the call page on one server | Perfect | 🗳 Confirm | — |
-| L7-R Lab 7 report: one paragraph each (serverless fit: Eugene · WebRTC and TURN: Perfect · resilience question: Elise), Joseph assembles | Joseph + all | ⛔ Blocked | L7-A5 |
+| L7-R Assemble the Lab 7 report + code snippets (endpoint, both functions, signaling server, client) | Joseph | ⛔ Blocked | The three paragraphs, log screenshots |
 
 ### Still open from Lab 6, in our real system
 

@@ -27,6 +27,7 @@
 | 2026-10-26 | Elise Kennedy-Angbo | Claude Code (Anthropic) | `db/migrate.sh` (migration logbook) and the RDS check in `run_tests.sh`; cross-checking the 9 LOINC codes; updating learnings, `db/AGENTS.md`, `infra/README.md`, PLAN | Elise ran the tests herself in Docker (apply, rerun, edited migration refused, fake RDS refused); 15+ failure cases run locally; `run_tests.sh` still 25 deny / 14 allow / 0 problems |
 | 2026-10-26 | Eugene Sewor | Claude Code (Anthropic) | L6-A1b: a separate SSM-only role for the NAT box and an ECR pull permission scoped to the API's own repository; a policy-simulator check script; learnings update | Eugene approved the plan before apply; 10/10 simulator allow/deny checks pass; an instance refresh proved fresh servers still pull and go healthy; second plan showed no changes |
 | 2026-10-26 | Eugene Sewor | Claude Code (Anthropic) | Diagnosing why PR #15 wasn't visible on the call page; rebuilding and redeploying the call image; README and learnings updates | Compared the live and freshly built page bundles; ran the new image locally before replacing the server; 5/5 hosted signaling checks after the swap |
+| 2026-10-26 | Joseph Etse | Claude Code (Anthropic) | Reviewing PRs #12, #14–#17; the L7-A5 live booking script (`evidence/lab7/a5_run.sh`); README/PLAN/learnings updates | Joseph ran the bookings on the live API (7 paths, all answered as expected); token kept in the gitignored `.env`, checked absent from the output; the retry's second event spotted and written up rather than hidden |
 
 
 ## Sign-off
