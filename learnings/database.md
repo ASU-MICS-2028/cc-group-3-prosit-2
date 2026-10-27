@@ -81,6 +81,8 @@ db/migrate.sh --baseline 003   # one-off for RDS: 001-003 ran before the logbook
 It connects with the usual `PGHOST`, `PGUSER`, `PGPASSWORD`… variables. It **refuses** when:
 - an applied file was edited or deleted (its checksum no longer matches the logbook): put the change in a new numbered file instead
 - `--baseline` is used on a database that already has a logbook, or that has no `patients` table (001 never ran there)
+- the database already has our tables but an empty logbook (migrations were applied before `migrate.sh` existed): it tells
+  you to run `--baseline` first, instead of failing on 001 with a confusing `function "current_actor" already exists`
 
 Tried on local Postgres 16: fresh apply, rerun (applies nothing), a new `004`, an edited `002` (refused), a failing
 migration (stops, not recorded, nothing after it runs), baseline on a populated and on an empty database, dry run,
@@ -116,6 +118,10 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 - **One rare gap in `migrate.sh`:** each migration file commits by itself, and the logbook row is written a moment later.
   If the connection drops in between, the change is in but not recorded, and the next run fails with "already exists".
   Fix: check the change is really there, then add its row to `schema_migrations` by hand.
+- **One person runs migrations at a time.** Two runs at the same moment could both try the same file; the second fails
+  on "already exists" (nothing breaks, but it's confusing). Say in the team chat before running `migrate.sh` on RDS.
+  The proper fix is a Postgres *advisory lock* (a named lock only one connection can hold), but our script runs each file
+  on its own connection, so it would need restructuring first. Not worth it for a four-person team.
 
 ## 7. Terms used
 

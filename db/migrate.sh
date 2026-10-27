@@ -8,6 +8,8 @@
 #   * creates the logbook if it's missing
 #   * refuses to run if an applied file was edited since (fingerprint changed):
 #     applied migrations are never edited; add a new numbered file instead
+#   * refuses to run if the database has our tables but an empty logbook
+#     (it predates this script): run --baseline first
 #   * applies every file not in the logbook, in order, stopping at the first
 #     error, and records each one after it succeeds
 #
@@ -75,6 +77,16 @@ else
     checksum   TEXT NOT NULL
   )" >/dev/null
   RECORDED=""
+fi
+
+# 0. An empty logbook on a database that already has our tables means the
+#    migrations were applied before the logbook existed (our RDS on 22 Oct).
+#    Re-running 001 there fails with a confusing "already exists", so say what to do.
+if [ -z "$RECORDED" ] && [ "$MODE" != baseline ] &&
+   [ "$(psql_q -c "SELECT to_regclass('patients') IS NOT NULL")" = t ]; then
+  echo "Refusing: this database already has the schema but an empty logbook, so it predates db/migrate.sh." >&2
+  echo "Record what's already there first: db/migrate.sh --baseline 003 (the last migration it already has)." >&2
+  exit 1
 fi
 
 # 1. Applied files must be unchanged.
