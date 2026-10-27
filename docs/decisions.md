@@ -184,7 +184,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-023: The Lab 7 call page runs on one dedicated server behind the shared load balancer
 
-- **Date:** 2026-10-23 · **Status:** Proposed (Eugene; Perfect to confirm, it's their code)
+- **Date:** 2026-10-23 · **Status:** Accepted (Perfect confirmed 2026-10-27 after opening the hosted page on a phone: camera works)
 - **Affects:** Perfect (L7-C1 to C4): test with `https://call-hc.agroconnect.space` instead of a tunnel. `webrtc-spike/` gains a `Dockerfile` and a 25-second signaling heartbeat.
 - **Decision:** `webrtc-spike/` is built into its own image (ECR `healthconnect-dev-call`) and runs on **one** `t3.micro` in a private subnet, with its own IAM role (pull its image, write its logs, SSM; nothing else). The load balancer forwards requests for `call-hc.agroconnect.space` to it (a host-header rule), and the WebSocket (`wss://…/ws`) goes through the same way. The signaling server pings each socket every 25 seconds. Torn down after Lab 7.
 - **Why:** The signaling server keeps rooms in memory, so both people in a call must reach the **same** process; behind the API's two servers they could land on different ones and never meet. A load balancer closes any connection silent for 60 seconds, and a caller waiting in a room is silent, so without the ping the doctor would join an empty room. A fixed `https://` address works on any phone, without a laptop running a tunnel whose address changes on every restart.

@@ -106,4 +106,18 @@ own laptop ↔ phone on one Wi-Fi. Every reading is in [`evidence/lab7/outputs_C
 
 ## 8. Lines ready for the report
 
-_To fill in after the tests (L7-C3, L7-C4), with the real numbers._
+**Cross-network result and what TURN means (paragraph for the Lab 7 report, about 140 words):**
+
+> We tested the call across two networks: Joseph in Oyibi and Eugene in Ho, about 120 km apart on different ISPs. Every call connected directly, with no relay: both sides used `srflx` addresses found through a public STUN server. Round trip was 138–192 ms with near-zero packet loss. Video fell to 1–2 frames per second during two network dips while packet loss stayed near 0 %, so the call stayed alive. We did not need TURN, but three calls are not proof that every carrier allows direct paths, so production must keep a TURN relay as a fallback. A relayed call sends all media through our server or a vendor, so it adds bandwidth cost and one more component to run. Worst case, if every call were relayed, the bill is shown below.
+
+Numbers behind it: [`evidence/lab7/outputs_C_call_stats.md`](../evidence/lab7/outputs_C_call_stats.md).
+
+**TURN cost (L7-H3, optional homework): 50 calls a day × 15 minutes, worst case = every call relayed.**
+
+- **Assumption (not measured):** video at about 1 Mbit/s each way. A relayed call carries both directions: 2 × 1 Mbit/s × 900 s = 225 MB per call. At 50 calls a day that is 11.25 GB a day, about **337 GB a month**. At the 400 kbit/s we used to simulate 3G it would be about 135 GB a month. Audio is ignored.
+- **Cloudflare Realtime TURN (managed):** $0.05 per GB, first 1,000 GB a month free. 337 GB is inside the free allowance, so about **$0 a month**.
+- **Twilio Network Traversal (managed):** $0.40 per GB in the US and Europe. 337 GB × $0.40 = about **$135 a month**.
+- **Self-hosted coturn on EC2:** a small server was about $9 a month in D-023, plus AWS data-transfer-out for the 337 GB. **I could not confirm the Cape Town (`af-south-1`) egress rate, so no total is given.** Check the AWS pricing page before quoting one. Also someone has to patch and monitor it.
+- **Sources:** [Cloudflare Realtime pricing](https://developers.cloudflare.com/realtime/turn/faq/), [Twilio Network Traversal pricing](https://www.twilio.com/en-us/stun-turn/pricing). Prices checked 27 Oct 2026 and can change.
+
+What this means: TURN is cheap at our size. The real cost of a relay is the extra moving part, not the money.

@@ -19,7 +19,6 @@ _Updated 26 Oct 2026. Call tests C1–C4 done (stats in `evidence/lab7/outputs_C
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
 | L7-A5 One appointment → both functions fire (evidence A, B). Live: `POST https://api-hc.agroconnect.space/appointments`; logs in `/aws/lambda/healthconnect-dev-reminders` and `…-specialist-notify` | Joseph | 🟢 Ready | — |
-| D-023 Confirm hosting the call page on one server | Perfect | 🗳 Confirm | — |
 | L7-R Lab 7 report: one paragraph each (serverless fit: Eugene · WebRTC and TURN: Perfect · resilience question: Elise), Joseph assembles | Joseph + all | ⛔ Blocked | L7-A5 |
 
 ### Still open from Lab 6, in our real system
