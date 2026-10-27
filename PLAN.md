@@ -217,9 +217,9 @@ able to explain every part, which is what the `learnings/` notes are for.
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| L8-A1 | Current HealthConnect architecture diagram (client → API → data → security layer → event/serverless layer), plus the AgroConnect diagram from Lab 5, ready to show | Perfect | L5-R1 | 🟢 Ready (start from `evidence/lab5/fig_architecture.png`; add the event/serverless layer) | `docs/architecture-healthconnect.png` + draw.io file |
-| L8-A2 | 5-minute walkthrough script: the diagram, one decision we're proud of, one known weakness | Joseph | L8-A1 | ⛔ Blocked | Script in `docs/peer-review.md`; rehearsed once |
-| L8-A3 | Our answers to the four questions, each lead for their area: where it breaks at 10× load · the weakest security link · what happens if the network drops mid-consultation or the DB is unreachable · likely open questions | Everyone (Joseph collates) | L8-A1 | ⛔ Blocked | Answers in `docs/peer-review.md` |
+| L8-A1 | Current HealthConnect architecture diagram (client → API → data → security layer → event/serverless layer), plus the AgroConnect diagram from Lab 5, ready to show | Perfect | L5-R1 | ✅ Done (27 Oct): built from the Terraform as applied; dashed boxes = not built (PWA, TURN) | `docs/architecture-healthconnect.png` + draw.io file |
+| L8-A2 | 5-minute walkthrough script: the diagram, one decision we're proud of, one known weakness | Joseph | L8-A1 | 🟢 Ready | Script in `docs/peer-review.md`; rehearsed once |
+| L8-A3 | Our answers to the four questions, each lead for their area: where it breaks at 10× load · the weakest security link · what happens if the network drops mid-consultation or the DB is unreachable · likely open questions | Everyone (Joseph collates) | L8-A1 | 🟢 Ready | Answers in `docs/peer-review.md` |
 | L8-B1 | In class: present, answer, then review the partner team with the same four questions; everyone takes notes | Everyone | Lab 8 session | ⛔ Blocked | Notes in `docs/peer-review.md` |
 | L8-B2 | Round 3 revision: the "before" diagram with the gap circled, and the "after" diagram with the change highlighted and a one-line caption | Perfect | L8-B1 | ⛔ Blocked | Screenshots B1 and B2 |
 | L8-B3 | Written peer review of the partner team (200 words): one strength, one risk (using the four questions), one question for their final grading; names the team reviewed | Elise (from everyone's notes) | L8-B1 | ⛔ Blocked | PDF submitted by the end of Week 8 |
