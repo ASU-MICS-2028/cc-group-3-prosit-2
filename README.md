@@ -29,7 +29,8 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
-| L8-A1 HealthConnect architecture diagram incl. the event/serverless layer (start from `evidence/lab5/fig1-architecture.png`) | Perfect | 🟢 Ready | — |
+| L8-A2 5-minute walkthrough script, using `docs/architecture-healthconnect.png` (one decision we're proud of, one known weakness) | Joseph | 🟢 Ready | — |
+| L8-A3 Your answers to the four review questions (10× load · weakest security link · network or DB drop · open questions) | Everyone, Joseph collates | 🟢 Ready | — |
 | S8 Shared vocabulary (user roles, data resources) in `knowledge/` | Elise | 🟢 Ready | — |
 | L8-X Teach-back: walk the others through your `learnings/` note | Everyone | 🟢 Ready | — |
 
