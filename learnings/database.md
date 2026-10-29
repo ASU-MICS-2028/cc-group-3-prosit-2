@@ -35,6 +35,14 @@ The database stores patients, their vital signs, their consent, health workers a
    - A specialist can't be double-booked.
 4. **Wrote a test** (`db/tests/verify_schema.sql`, run by `db/tests/run_tests.sh`) that tries every rule with one write that should work and one that should be refused: **25 refused, 14 allowed, 0 problems**.
 5. **Wrote the FHIR mapping, gap analysis and data minimisation** in [`docs/fhir-mapping.md`](../docs/fhir-mapping.md) (L6-C2).
+6. **One reminder per appointment (L7-H2, decision [D-027](../docs/decisions.md)).** The same `appointment.created` event
+   can arrive twice: an offline phone retries, and the API publishes again on a retry. On 26 Oct Abena got two
+   reminders. Now the reminder function (`functions/reminder_function.py`) first *claims* the appointment id in a small
+   DynamoDB table, `healthconnect-dev-reminders-sent` (`functions/sent_log.py`), with a write that only succeeds if
+   the id isn't there yet. Already there: it logs `duplicate_skipped` and sends nothing. Sending fails: it removes the
+   claim and raises, so SQS retries. Entries delete themselves after 30 days.
+   Why DynamoDB and not our Postgres: the functions run outside the private network, and the lab wants them
+   independent of the main database. Why not SQS's own deduplication: it only remembers for 5 minutes.
 
 ## 3. Why we did it this way
 
@@ -96,10 +104,24 @@ SELECT occurred_at, table_name, action, changed_fields, old_values, new_values, 
 FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 ```
 
+### Checking the one-reminder rule (L7-H2)
+
+```bash
+cd functions && python3 -m unittest -v     # 18 tests; the ReminderSentOnce ones are L7-H2
+```
+
+They use a fake DynamoDB, so they need no AWS. They cover: a repeat in the same batch and in a later one (skipped),
+two different appointments (both sent), no consent (nothing claimed), a failed send (claim released, the retry sends),
+DynamoDB failing (raises, so SQS retries), `SENT_TABLE` missing (refuses), and the 30-day expiry. With the claim check
+switched off, the duplicate tests fail, so they really test it. Live check once Eugene has applied it: book the same
+appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconnect-dev-reminders`.
+
 ## 5. What is NOT done, or is faked
 
-- **RDS has no logbook yet.** 001-003 were applied there by hand on 2026-10-22, before `migrate.sh` existed. Someone with
-  the SSM tunnel (Eugene) must run `db/migrate.sh --baseline 003` once, before any `004` goes on RDS.
+- **RDS logbook:** Eugene ran `db/migrate.sh --baseline 003` on RDS on 26 Oct, so `schema_migrations` there holds 001–003.
+- **L7-H2 is not live yet.** The table and permissions are in Terraform (`infra/modules/events`) but not applied:
+  Eugene applies them. Until then the deployed reminder function is the old one. No "after" evidence yet.
+- **The specialist-notify function still has no duplicate check.** A repeated event notifies the specialist twice.
 - **LOINC codes:** all 9 are active and correctly labelled (cross-checked against the HL7 terminology server). Blood glucose
   has a more exact code for a finger-prick glucometer reading (`14743-9`); adding it is a future `004` migration.
 - **No database roles yet.** Everything runs as one user. The plan is: the app's role can't `ALTER`, can't write `loinc_codes`, can't read `audit_trail`. That's the RBAC table (L6-H3).
@@ -118,6 +140,11 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 - **One rare gap in `migrate.sh`:** each migration file commits by itself, and the logbook row is written a moment later.
   If the connection drops in between, the change is in but not recorded, and the next run fails with "already exists".
   Fix: check the change is really there, then add its row to `schema_migrations` by hand.
+- **A reminder can be skipped in one rare case (L7-H2).** If the function dies after claiming an appointment but
+  before sending (e.g. it times out), SQS's retry sees the claim and skips it. We chose at most one reminder over
+  sometimes two. To fix it later: store a "sending" status with a time, and let a retry take over an old one.
+- **Deploying the new reminder function without the table breaks reminders.** Without `SENT_TABLE` it refuses every
+  message (so they end in the dead-letter queue) rather than risk duplicates. Terraform creates both together.
 - **One person runs migrations at a time.** Two runs at the same moment could both try the same file; the second fails
   on "already exists" (nothing breaks, but it's confusing). Say in the team chat before running `migrate.sh` on RDS.
   The proper fix is a Postgres *advisory lock* (a named lock only one connection can hold), but our script runs each file
@@ -138,6 +165,11 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 | Idempotent | Safe to repeat: doing it twice has the same effect as once |
 | Checksum (sha256) | A short code computed from a file's exact contents; change one character and the code changes |
 | Baseline | Telling the logbook "these migrations already ran here" without running them again |
+| Outbox table | A table where an event is saved in the same transaction as the data it's about, so neither exists without the other; a separate relay sends it later |
+| At-least-once delivery | Every message arrives, but some may arrive twice; the receiver must spot and skip the repeats |
+| DynamoDB | AWS's serverless key–value database: you store items by a key and pay per request, with no server to run |
+| Conditional write | A write that only happens if a condition holds ("only if this id isn't there yet"); the database checks and writes in one step, so two at once can't both succeed |
+| TTL (time to live) | A date on an item after which DynamoDB deletes it by itself |
 | Act 843 | Ghana's Data Protection Act, 2012: the law our data handling must follow |
 
 ## 8. Lines ready for the report
@@ -145,3 +177,10 @@ FROM audit_trail WHERE patient_id = '<patient uuid>' ORDER BY id;
 - Our schema is shaped like FHIR R4: patients, observations, consents, practitioners, appointments and audit events each map to a FHIR resource, and readings carry LOINC codes with UCUM units.
 - The database itself enforces consent, valid codes, correct-don't-delete and a full audit trail, so the rules hold for the API, `psql` and scripts alike; 25 forbidden writes were refused in testing.
 - What still blocks real interoperability: no business identifier to match the same person across systems, validation against our own code list rather than the full LOINC catalogue, and no FHIR API yet.
+
+**Open resilience question (paragraph for the Lab 7 report, about 85 words):**
+
+> Is a reminder lost if publishing fails? The API saves the appointment, then publishes `appointment.created` to SNS. If SNS is unreachable, or the server crashes between the two steps, the booking exists but no reminder or specialist alert goes out, and only a log line records it. An outbox table would fix this: save the event in the same transaction as the appointment, and let a small relay publish unsent rows until SNS accepts them. Delivery becomes at-least-once, so consumers must skip duplicates (L7-H2).
+
+Where it happens: `backend/src/routes/appointments.ts` publishes after `COMMIT` and answers `"event": "not_published"` if SNS
+fails, but nothing retries it. Not built: no `outbox` table yet.

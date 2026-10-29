@@ -33,3 +33,6 @@ dist/
 
 # Lambda zips built by terraform (infra/modules/events)
 infra/modules/events/.build/
+
+# Python's compiled cache (functions/)
+__pycache__/

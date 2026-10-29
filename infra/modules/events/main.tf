@@ -79,6 +79,30 @@ resource "aws_sns_topic_subscription" "queue" {
   depends_on           = [aws_sqs_queue_policy.main]
 }
 
+# ---------- L7-H2 (D-027): one reminder per appointment ----------
+# The same event can arrive twice (an offline retry, or SQS redelivering after a timeout). The reminder function
+# claims each appointment id here with a conditional write before sending, and skips ids already claimed.
+# Pay per request: a few writes a day cost fractions of a cent. Entries delete themselves after 30 days (TTL).
+resource "aws_dynamodb_table" "reminders_sent" {
+  name         = "${var.name_prefix}-reminders-sent"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "appointment_id"
+
+  attribute {
+    name = "appointment_id"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "expires_at"
+    enabled        = true
+  }
+
+  server_side_encryption {
+    enabled = true # AWS-managed KMS key
+  }
+}
+
 # ---------- one function per consumer, each with its own role ----------
 data "archive_file" "function" {
   for_each    = local.consumers
@@ -92,6 +116,10 @@ data "archive_file" "function" {
   source {
     content  = file("${var.functions_dir}/events.py")
     filename = "events.py"
+  }
+  source {
+    content  = file("${var.functions_dir}/sent_log.py") # used by the reminder function only; harmless in the other zip
+    filename = "sent_log.py"
   }
 }
 
@@ -118,7 +146,7 @@ resource "aws_cloudwatch_log_group" "function" {
 }
 
 # Least privilege: read and delete from its own queue, write its own logs. It can't publish, can't see the other
-# queue, can't touch the database.
+# queue, can't touch the database. Only the reminder function may claim and release ids in reminders-sent.
 data "aws_iam_policy_document" "function" {
   for_each = local.consumers
   statement {
@@ -133,6 +161,13 @@ data "aws_iam_policy_document" "function" {
   statement {
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
     resources = ["${aws_cloudwatch_log_group.function[each.key].arn}:*"]
+  }
+  dynamic "statement" {
+    for_each = each.key == "reminders" ? [1] : []
+    content {
+      actions   = ["dynamodb:PutItem", "dynamodb:DeleteItem"]
+      resources = [aws_dynamodb_table.reminders_sent.arn]
+    }
   }
 }
 
@@ -158,6 +193,13 @@ resource "aws_lambda_function" "function" {
   logging_config {
     log_format = "Text"
     log_group  = aws_cloudwatch_log_group.function[each.key].name
+  }
+
+  dynamic "environment" {
+    for_each = each.key == "reminders" ? [1] : []
+    content {
+      variables = { SENT_TABLE = aws_dynamodb_table.reminders_sent.name }
+    }
   }
 
   depends_on = [aws_iam_role_policy.function]
