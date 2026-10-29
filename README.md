@@ -10,7 +10,6 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
-| L7-H2 *Optional:* make the reminder send only once per appointment (D-027): code, tests and Terraform merged | Elise | 🔄 In progress | Eugene applies the DynamoDB table, then Elise captures the "after" logs |
 | L7-R Assemble the Lab 7 report + code snippets (endpoint, both functions, signaling server, client) | Joseph | 🟢 Ready (all three paragraphs in) | — (screenshots in `evidence/lab7/`) |
 
 ### Still open from Lab 6, in our real system

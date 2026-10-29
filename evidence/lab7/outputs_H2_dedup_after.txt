@@ -1,0 +1,20 @@
+# L7-H2 "after": the same appointment.created event published twice, reminder sent once (D-027)
+# 2026-10-29, af-south-1, after `terraform apply -target=module.events` created healthconnect-dev-reminders-sent
+# Synthetic event only (fake appointment id, synthetic phone +233200000011, seeded specialist). No database rows.
+
+$ aws sns publish --topic-arn <healthconnect-dev-appointment-events> --message '{"type":"appointment.created","appointmentId":"6c68931d-e1d0-48bb-90b1-84287071210f","specialistId":"c8bde890-8d3d-4142-9499-61008fe5bd4a","patientPhone":"+233200000011","startsAt":"2026-11-12T09:00:00.000Z"}'
+1bf40fe5-0a37-55ee-ad94-6cb8ad8b67f2
+$ (same message again, 5 s later)
+b57e0737-575c-5a13-9a52-646af09e1cbe
+
+== /aws/lambda/healthconnect-dev-reminders (filter "6c68931d")
+{"function": "reminder", "message_id": "516d6b0c-5cef-4c48-9b90-904e8d23ce1c", "appointment_id": "6c68931d-e1d0-48bb-90b1-84287071210f", "outcome": "reminder_logged", "to": "+233*****0011", "starts_at": "2026-11-12T09:00:00.000Z", "message": "Reminder queued for +233*****0011 at 2026-11-12T09:00:00.000Z"}
+{"function": "reminder", "message_id": "da5ab603-0651-4167-a7ca-30a6c88cee13", "appointment_id": "6c68931d-e1d0-48bb-90b1-84287071210f", "outcome": "duplicate_skipped", "reason": "a reminder for this appointment was already sent"}
+
+== /aws/lambda/healthconnect-dev-specialist-notify (filter "6c68931d"): no dedup here by design (D-027 covers the reminder only)
+{"function": "specialist_notify", "message_id": "1fab4c96-bedd-4886-aa70-2c86066ccee2", "appointment_id": "6c68931d-e1d0-48bb-90b1-84287071210f", "specialist_id": "c8bde890-8d3d-4142-9499-61008fe5bd4a", "outcome": "specialist_notified", "starts_at": "2026-11-12T09:00:00.000Z", "message": "Notifying specialist of new appointment #6c68931d-e1d0-48bb-90b1-84287071210f at 2026-11-12T09:00:00.000Z"}
+{"function": "specialist_notify", "message_id": "ac654cb1-0b5a-4dad-84af-eeb12d071a06", "appointment_id": "6c68931d-e1d0-48bb-90b1-84287071210f", "specialist_id": "c8bde890-8d3d-4142-9499-61008fe5bd4a", "outcome": "specialist_notified", "starts_at": "2026-11-12T09:00:00.000Z", "message": "Notifying specialist of new appointment #6c68931d-e1d0-48bb-90b1-84287071210f at 2026-11-12T09:00:00.000Z"}
+
+$ aws dynamodb get-item --table-name healthconnect-dev-reminders-sent --key '{"appointment_id":{"S":"6c68931d-e1d0-48bb-90b1-84287071210f"}}'
+{"Item": {"appointment_id": {"S": "6c68931d-e1d0-48bb-90b1-84287071210f"}, "claimed_at": {"N": "1793303937"}, "expires_at": {"N": "1795895937"}}}
+# one row; expires_at - claimed_at = 2592000 s = 30 days (TTL deletes it then)
