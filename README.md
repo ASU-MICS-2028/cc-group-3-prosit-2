@@ -10,7 +10,7 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
-| L7-A5 Screenshot both functions' logs for Abena's appointment `4f530cae-7556-4ebb-8d21-e317d06170b5` and Yaw's `390e40f9-2677-4551-bb4d-e70247d633d5` (also Abena's `9a4f5949-a984-49d7-bd33-fb3abd2aa18d`, the one in `A-create-appointment.png`) (`/aws/lambda/healthconnect-dev-reminders`, `…-specialist-notify`), plus the topic's "messages published" graph. Save as `A-event-published.png`, `A-reminder-logs.png`, `B-both-functions.png` (+ text copies) in `evidence/lab7/` | Eugene | 🟢 Ready | — |
+| L7-A5 Screenshot both functions' logs for Abena's appointment `4f530cae-7556-4ebb-8d21-e317d06170b5` and Yaw's `390e40f9-2677-4551-bb4d-e70247d633d5` (also Abena's `9a4f5949-a984-49d7-bd33-fb3abd2aa18d`, the one in `A-create-appointment.png`) (`/aws/lambda/healthconnect-dev-reminders`, `…-specialist-notify`), plus the topic's "messages published" graph. Save as `A-event-published.png`, `B-both-functions.png` (`A-reminder-logs.png` ✅ 29 Oct) (+ text copies) in `evidence/lab7/` | Eugene | 🟢 Ready | — |
 | L7-H1 Dead-letter queue screenshot `H-dlq.png` (the data is already in `outputs_A1_event_infra.txt`) | Eugene | 🟢 Ready | — |
 | L7-H2 *Optional:* make the reminder send only once per appointment (D-027): code, tests and Terraform merged | Elise | 🔄 In progress | Eugene applies the DynamoDB table, then Elise captures the "after" logs |
 | L7-R Assemble the Lab 7 report + code snippets (endpoint, both functions, signaling server, client) | Joseph | 🟢 Ready (all three paragraphs in) | Eugene's 4 console screenshots, for the package |
