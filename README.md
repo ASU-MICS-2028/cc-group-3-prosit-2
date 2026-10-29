@@ -13,7 +13,6 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 | L7-A5 Screenshot both functions' logs for Abena's appointment `4f530cae-7556-4ebb-8d21-e317d06170b5` and Yaw's `390e40f9-2677-4551-bb4d-e70247d633d5` (also Abena's `9a4f5949-a984-49d7-bd33-fb3abd2aa18d`, the one in `A-create-appointment.png`) (`/aws/lambda/healthconnect-dev-reminders`, `…-specialist-notify`), plus the topic's "messages published" graph. Save as `A-event-published.png`, `A-reminder-logs.png`, `B-both-functions.png` (+ text copies) in `evidence/lab7/` | Eugene | 🟢 Ready | — |
 | L7-H1 Dead-letter queue screenshot `H-dlq.png` (the data is already in `outputs_A1_event_infra.txt`) | Eugene | 🟢 Ready | — |
 | L7-R paragraph: serverless fit (what we moved to Lambda, and one thing we deliberately didn't, and why), in `learnings/infra.md` | Eugene | 🟢 Ready | — |
-| L7-R paragraph: one open resilience question (e.g. SNS down = event lost; nobody is alerted when a dead-letter queue fills), in `learnings/database.md` | Elise | 🟢 Ready | — |
 | L7-H2 *Optional:* make the reminder send only once per appointment (D-027): code, tests and Terraform in review | Elise | 🔄 In progress | Eugene applies the DynamoDB table, then Elise captures the "after" logs |
 | L7-R Assemble the Lab 7 report + code snippets (endpoint, both functions, signaling server, client) | Joseph | ⛔ Blocked | The three paragraphs, log screenshots |
 

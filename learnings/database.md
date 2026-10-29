@@ -165,6 +165,8 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 | Idempotent | Safe to repeat: doing it twice has the same effect as once |
 | Checksum (sha256) | A short code computed from a file's exact contents; change one character and the code changes |
 | Baseline | Telling the logbook "these migrations already ran here" without running them again |
+| Outbox table | A table where an event is saved in the same transaction as the data it's about, so neither exists without the other; a separate relay sends it later |
+| At-least-once delivery | Every message arrives, but some may arrive twice; the receiver must spot and skip the repeats |
 | DynamoDB | AWS's serverless key–value database: you store items by a key and pay per request, with no server to run |
 | Conditional write | A write that only happens if a condition holds ("only if this id isn't there yet"); the database checks and writes in one step, so two at once can't both succeed |
 | TTL (time to live) | A date on an item after which DynamoDB deletes it by itself |
@@ -175,3 +177,10 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 - Our schema is shaped like FHIR R4: patients, observations, consents, practitioners, appointments and audit events each map to a FHIR resource, and readings carry LOINC codes with UCUM units.
 - The database itself enforces consent, valid codes, correct-don't-delete and a full audit trail, so the rules hold for the API, `psql` and scripts alike; 25 forbidden writes were refused in testing.
 - What still blocks real interoperability: no business identifier to match the same person across systems, validation against our own code list rather than the full LOINC catalogue, and no FHIR API yet.
+
+**Open resilience question (paragraph for the Lab 7 report, about 85 words):**
+
+> Is a reminder lost if publishing fails? The API saves the appointment, then publishes `appointment.created` to SNS. If SNS is unreachable, or the server crashes between the two steps, the booking exists but no reminder or specialist alert goes out, and only a log line records it. An outbox table would fix this: save the event in the same transaction as the appointment, and let a small relay publish unsent rows until SNS accepts them. Delivery becomes at-least-once, so consumers must skip duplicates (L7-H2).
+
+Where it happens: `backend/src/routes/appointments.ts` publishes after `COMMIT` and answers `"event": "not_published"` if SNS
+fails, but nothing retries it. Not built: no `outbox` table yet.
