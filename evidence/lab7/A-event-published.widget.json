@@ -1,0 +1,49 @@
+{
+    "title": "healthconnect-dev-appointment-events (af-south-1): one event published, two copies delivered",
+    "view": "timeSeries",
+    "yAxis": {
+        "left": {
+            "min": 0,
+            "label": "Count (Sum per hour)",
+            "showUnits": false
+        }
+    },
+    "stacked": false,
+    "region": "af-south-1",
+    "stat": "Sum",
+    "period": 3600,
+    "start": "2026-10-26T08:00:00Z",
+    "end": "2026-10-27T00:00:00Z",
+    "width": 1200,
+    "height": 500,
+    "timezone": "+0000",
+    "metrics": [
+        [
+            "AWS/SNS",
+            "NumberOfMessagesPublished",
+            "TopicName",
+            "healthconnect-dev-appointment-events",
+            {
+                "label": "Messages published (Sum, 1 h)"
+            }
+        ],
+        [
+            "AWS/SNS",
+            "NumberOfNotificationsDelivered",
+            "TopicName",
+            "healthconnect-dev-appointment-events",
+            {
+                "label": "Notifications delivered (Sum, 1 h)"
+            }
+        ],
+        [
+            "AWS/SNS",
+            "NumberOfNotificationsFailed",
+            "TopicName",
+            "healthconnect-dev-appointment-events",
+            {
+                "label": "Failed (Sum, 1 h)"
+            }
+        ]
+    ]
+}
