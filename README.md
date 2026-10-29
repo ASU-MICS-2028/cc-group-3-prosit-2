@@ -14,7 +14,7 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 | L7-H1 Dead-letter queue screenshot `H-dlq.png` (the data is already in `outputs_A1_event_infra.txt`) | Eugene | 🟢 Ready | — |
 | L7-R paragraph: serverless fit (what we moved to Lambda, and one thing we deliberately didn't, and why), in `learnings/infra.md` | Eugene | 🟢 Ready | — |
 | L7-R paragraph: one open resilience question (e.g. SNS down = event lost; nobody is alerted when a dead-letter queue fills), in `learnings/database.md` | Elise | 🟢 Ready | — |
-| L7-H2 *Optional:* make the reminder send only once per appointment. Live example: Abena's booking was sent twice (an offline retry) and published two events | Elise | 🟢 Ready | — |
+| L7-H2 *Optional:* make the reminder send only once per appointment (D-027): code, tests and Terraform in review | Elise | 🔄 In progress | Eugene applies the DynamoDB table, then Elise captures the "after" logs |
 | L7-R Assemble the Lab 7 report + code snippets (endpoint, both functions, signaling server, client) | Joseph | ⛔ Blocked | The three paragraphs, log screenshots |
 
 ### Still open from Lab 6, in our real system
