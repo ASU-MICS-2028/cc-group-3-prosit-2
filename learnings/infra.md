@@ -56,6 +56,12 @@ alarms and budget, and the Lab 7 call server) is described as code in `infra/` a
     only SSM sessions. The API servers' role lost AWS's broad "read every image repository" policy and can now pull
     only `healthconnect-dev-backend`. Everything else it may do names exactly one resource: the database secret, the
     sign-in key secret, the appointment topic, its log group, the photo bucket, the image-tag parameter.
+13. **One reminder per appointment (Elise's L7-H2, D-027), applied 2026-10-29:** a DynamoDB table
+    `healthconnect-dev-reminders-sent` (pay per request, rows delete themselves after 30 days). Before sending, the
+    reminder function writes the appointment id there with "only if it isn't there yet"; if it's already there, the
+    reminder is skipped as `duplicate_skipped`. Only the reminder function's role may write to it. Checked live by
+    publishing one event twice: one `reminder_logged`, one `duplicate_skipped` (`evidence/lab7/outputs_H2_dedup_after.txt`).
+    Applied with `-target=module.events`, so the unconfirmed alarm emails weren't re-sent (see section 6).
 
 ## 3. Why we did it this way
 
@@ -220,6 +226,9 @@ built with `--platform linux/amd64`.
 - **Everyone on the alarm list must click "Confirm subscription"** in the AWS email, **within 3 days**. AWS deletes
   unconfirmed email subscriptions after 3 days, silently: on 26 Oct only Elise's had survived, and the next
   `terraform apply` re-created the other three and sent new emails.
+  It happened again on 29 Oct (Perfect's, Joseph's and Eugene's had lapsed), so the L7-H2 apply used
+  `terraform apply -target=module.events` to change only the event flow. `-target` is for that kind of
+  one-off; the next full apply will still re-send the three emails, so confirm them that day.
 - **`terraform destroy` deletes the database with no final snapshot** (lab setting). Fine for synthetic data.
 - **Instances give up pulling the image after about 90 seconds.** If ECR is empty when they boot, they come up
   without the app, fail health checks, and the auto scaling group replaces them until an image exists.
