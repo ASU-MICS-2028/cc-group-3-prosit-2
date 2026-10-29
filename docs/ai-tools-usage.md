@@ -34,6 +34,7 @@
 | 2026-10-27 | Perfect Avugla | Claude Code (Anthropic) | L8-A1: reading the Terraform and the event layer, generating the architecture diagram (PNG + draw.io) from one script; drafting the TURN cost paragraph (L7-H3) from vendor pricing pages | Diagram claims checked against `infra/` (database encrypted and private, TLS policy, who can read the secrets); I opened the .drawio and approved the layout; TURN prices read from Cloudflare and Twilio pages, the AWS Cape Town egress rate not confirmed and left out |
 | 2026-10-27 to 2026-10-28 | Eugene Sewor | Claude Code (Anthropic) | Reviewing PR #18; pulling both Lambda log groups for the L7-A5 appointments into `outputs_A_reminder_logs.txt` / `outputs_B_logs.txt`; SNS published/delivered counts; measuring function durations; drafting the serverless-fit paragraph | Every count matched Joseph's expected outcomes (2+2, 1+1, 1+1); published × 2 = delivered with 0 failed; Eugene reviewed the paragraph; screenshots taken by Eugene in the console |
 
+| 2026-10-29 | Eugene | Claude Code | Checked the four Lab 7 console screenshots against the expected log counts; found the hyphen-as-exclude filter trap; rendered the SNS Sum graph with `get-metric-widget-image` (definition saved beside it) | Screenshots taken by Eugene; counts cross-checked against CloudWatch from the terminal |
 
 ## Sign-off
 
