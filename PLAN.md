@@ -197,7 +197,7 @@ Design for A/B is decision D-010 (one SNS topic fanning out to two SQS queues).
 |---|---|---|---|---|
 | ✅ | **A.** Appointment created (the `curl` and its 201 response) | `outputs_A_create_appointment.txt` + `A-create-appointment.png` | L7-A5 | Joseph |
 | ☐ | **A.** Event published (service log line, or SNS "messages published" metric) | `A-event-published.png` | L7-A5 | Joseph |
-| ☐ | **A.** Reminder function triggered and the reminder logged/sent (CloudWatch log) | `A-reminder-logs.png` + `outputs_A_reminder_logs.txt` | L7-A5 | Joseph |
+| ✅ | **A.** Reminder function triggered and the reminder logged/sent (CloudWatch log) | `A-reminder-logs.png` + `outputs_A_reminder_logs.txt` | L7-A5 | Joseph |
 | ☐ | **B.** **Both** functions fired from the same single event (same `appointmentId` in both log groups) | `B-both-functions.png` + `outputs_B_logs.txt` | L7-A5 | Joseph |
 | ✅ | **C1.** Call connected on the same network, both video feeds visible | `C1-same-network.png` | L7-C2 | Perfect |
 | ✅ | **C2.** Connection state across two different networks (direct, or relay needed) | `C2-cross-network.png` | L7-C3 | Perfect |
