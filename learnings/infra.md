@@ -271,3 +271,19 @@ Booking an appointment publishes one event to an SNS topic, which copies it into
 own Lambda function (a reminder and a specialist notification). Neither function knows about the other or the API,
 each has its own least-privilege role, and a message that fails three times is kept in a dead-letter queue instead of
 being lost or retried forever.
+
+**Serverless fit (paragraph for the Lab 7 report, about 150 words):**
+
+> We moved the work that follows a booking to serverless: the patient's appointment reminder and the specialist's
+> notification. The API publishes one `appointment.created` event to an SNS topic, which copies it into a separate SQS
+> queue for each Lambda function, so the two never compete for the same message and neither knows the other or the API
+> exists. A message that fails three times is parked in a dead-letter queue instead of being lost. This work is short,
+> occasional and can wait a few seconds: in our live run each function did 1–20 ms of work using at most 32 MB, and it
+> costs nothing while idle. We deliberately kept the patient-record API on two always-on servers behind the load
+> balancer. Every request needs a fast answer and a database transaction with its audit row, and those stay simpler in
+> one long-running service than in functions that often start cold (4 of our 9 runs per function did).
+
+Numbers behind it: one event in, two copies out (SNS: 3 messages published and 6 delivered, 0 failed, in the 21:00 UTC
+hour of 26 Oct); both log groups per appointment in `evidence/lab7/outputs_B_logs.txt`; durations, memory and cold
+starts from each function's `REPORT` log lines (9 runs each, 26 Oct, including the 3 failing runs of the deliberate bad
+message).

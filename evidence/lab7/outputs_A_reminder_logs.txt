@@ -1,0 +1,13 @@
+# Lab 7 Part A: the reminder function, triggered by appointment.created (CloudWatch log group /aws/lambda/healthconnect-dev-reminders)
+# Captured 2026-10-27 07:08 UTC with: aws logs filter-log-events --log-group-name /aws/lambda/healthconnect-dev-reminders --filter-pattern '"<appointment id>"'
+# Bookings from Joseph's L7-A5 run (evidence/lab7/outputs_A_create_appointment.txt). Phones are masked by the function itself.
+
+## Abena, consented to reminders: 4f530cae-7556-4ebb-8d21-e317d06170b5 (booked, then the same request retried on purpose: two events, two reminders)
+2026-10-26 21:03:29Z  {"function": "reminder", "message_id": "4ed2e446-36cc-4f21-804f-fa96d6c4340e", "appointment_id": "4f530cae-7556-4ebb-8d21-e317d06170b5", "outcome": "reminder_logged", "to": "+233*****0011", "starts_at": "2026-11-10T09:00:00.000Z", "message": "Reminder queued for +233*****0011 at 2026-11-10T09:00:00.000Z"}
+2026-10-26 21:03:31Z  {"function": "reminder", "message_id": "ea73486d-ea5a-403d-ad46-61c847507b6e", "appointment_id": "4f530cae-7556-4ebb-8d21-e317d06170b5", "outcome": "reminder_logged", "to": "+233*****0011", "starts_at": "2026-11-10T09:00:00.000Z", "message": "Reminder queued for +233*****0011 at 2026-11-10T09:00:00.000Z"}
+
+## Yaw, no reminder consent: 390e40f9-2677-4551-bb4d-e70247d633d5 (the API sent no phone; the function skips)
+2026-10-26 21:03:30Z  {"function": "reminder", "message_id": "396055dd-35ba-4613-8d1c-53ce27393688", "appointment_id": "390e40f9-2677-4551-bb4d-e70247d633d5", "outcome": "skipped", "reason": "no consent for appointment reminders"}
+
+## The booking in the report screenshot: 9a4f5949-a984-49d7-bd33-fb3abd2aa18d
+2026-10-26 22:06:42Z  {"function": "reminder", "message_id": "87627a56-ef6d-4002-a362-e1bb53604260", "appointment_id": "9a4f5949-a984-49d7-bd33-fb3abd2aa18d", "outcome": "reminder_logged", "to": "+233*****0011", "starts_at": "2026-11-11T10:00:00.000Z", "message": "Reminder queued for +233*****0011 at 2026-11-11T10:00:00.000Z"}
