@@ -12,8 +12,8 @@
     "token": "tsx scripts/token.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.1147.0",
-    "@aws-sdk/client-sns": "^3.1156.0",
+    "@aws-sdk/client-secrets-manager": "^3.1157.0",
+    "@aws-sdk/client-sns": "^3.1157.0",
     "express": "^5.2.1",
     "helmet": "^8.3.0",
     "jose": "^6.2.13",
