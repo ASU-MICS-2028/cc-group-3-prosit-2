@@ -82,3 +82,63 @@ npm run dev                    # open the Network URL on your phone
 - **Five wrong PINs:** you are signed out, that account's PIN is wiped, and you set a new one (by design).
 - **Switching accounts:** press "Switch account" in the strip under the header (test mode only: a live account has one role, so the button disappears by itself when the real auth-service signs people in). Each account keeps its own PIN; coming back to one asks for it.
 - **Cleared browser data:** the PIN and session go with it; sign in again.
+
+---
+
+---
+
+# FB-3: offline patient records (data layer, security, CHV screens)
+
+## In one sentence
+A CHV can add patients, record permission and vitals with no signal; everything is saved first on the phone, encrypted, queued, and sent when there is a signal; clashes are shown and settled by a person.
+
+## What I did, step by step
+**Data layer (`src/data/`)**
+1. **Vault** (`vault.ts`): a random key encrypts every record; that key is locked with the person's **passphrase** (10+ characters, 600,000 rounds of PBKDF2). Each sealed record is tied to its own id.
+2. **Database** (`db.ts`): IndexedDB, one per person. Only the FHIR record is secret; the id, type and sent-or-not state sit beside it.
+3. **Records** (`model.ts`): Patient, Consent, Observation, Media as FHIR R4. LOINC codes and plausible ranges are copied from `db/migrations/002_loinc_reference.sql`.
+4. **Rules on the phone** (`repo.ts`), the same as the database's: no reading without active clinical-care consent (D-012, D-014); withdrawing marks a consent inactive, never deletes it (D-013); typing errors like 368 for 36.8 refused; blood pressure is two linked readings; a wrong reading is marked "entered in error", never deleted.
+5. **One write, one transaction:** the record, its "to send" entry and its audit entry are saved together or not at all.
+6. **Audit:** every create, read and search is logged with ids only. Asking for a patient that doesn't exist is logged, then reported as "not found".
+7. **Sync** (`sync.ts`, `mockServer.ts`): oldest first; a retry is recognised, so a lost reply makes no duplicate (D-011); if the other side changed the same record nothing is overwritten and a person chooses "keep mine" or "use theirs".
+
+**Security (decision D-030)**
+8. **Two tiers:** the **passphrase** is typed when the app starts cold (after a restart). The **PIN** (4 to 6 digits) only opens the 5-minute screen lock while the key is still in memory. Fingerprint works only for that screen lock.
+9. **Five tries, one count:** wrong PINs and wrong passphrases share it. The fifth wipes that person's local data (`data/wipe.ts`) and signs them out. Unsent records are lost, until the real login service can restore them.
+10. **Signing out locks the data key,** so the next sign-in needs the passphrase.
+
+**Screens (`src/screens/chvData.tsx`, `syncScreens.tsx`, a `DataProvider`)**
+11. Today (what is waiting to send), Patients (search), Add patient, Permission (one idea per screen, a separate step for SMS reminders), Patient (permission, latest readings with Check/Urgent flags, history, "mark as a mistake", withdraw), Record vitals, Waiting to send, and a conflict screen that lists what differs.
+12. **Sending** happens by itself: after every save, when the signal returns, and every 20 seconds.
+13. **Flags use example ranges** in `src/config/thresholds.ts`, labelled on screen, until a clinician signs them off.
+
+## Why we did it this way
+- **Encrypt on the phone:** a lost or shared phone must not expose patients.
+- **Passphrase plus PIN:** a PIN alone has only 10,000 possibilities; a long passphrase typed rarely is both safe and usable.
+- **A mock server with the real rules:** the PWA can be built and tested before the real sync API exists; `SyncApi` is the interface the real one will implement.
+
+## How to check it works
+```bash
+cd frontend && npm test    # 176 tests
+npm run dev                # open the Network URL on your phone
+```
+Phone steps are given in the chat after each round. The Sync screen has "Test tools" (pretend offline, pretend another phone edited, lose the next reply, empty the test server) that only exist for testing.
+
+## Photos, voice notes and starting with no signal
+14. **Photo** (`src/media/image.ts`, `screens/media.tsx`): the phone's camera is opened with a file picker (`capture`), then the photo is shrunk on the phone to about 100 KB (it tries high quality first, lowers quality, then shrinks the picture; never above 300 KB). It is encrypted and saved like any other record. A photo is only shown on the patient's own page.
+15. **Voice note** (`src/media/recorder.ts`): the microphone records up to 2 minutes at a low bit rate, the note is saved on the phone, and a player appears. Written text will be added later when there is a signal (not built). Leaving the page turns the microphone off. The microphone needs an **https** page and the person's permission; each way it can fail has its own plain message.
+16. **Mistakes:** a photo or voice note is "marked as a mistake", never deleted (D-013).
+17. **Service worker** (`public/sw.js`): on first visit it saves the app's own files, so the app opens with no signal, including deep links. It only runs in the real build, and browsers only allow it on **https** (or localhost). Patient data never goes through it. Change `VERSION` in `sw.js` when its behaviour changes.
+18. **Install:** `manifest.webmanifest` and the icons let a phone add HealthConnect to the home screen.
+19. **A bug a test found:** the vault turned a photo into text by passing the whole file to one function call, which crashes above about 100 KB ("Maximum call stack size exceeded"). It now works in chunks, and a test seals a 1 MB value so it can't come back.
+
+## What can go wrong / known limits
+- **Forgot the passphrase:** nobody can reset it. Five wrong tries (or forgetting) means the unsent records on that phone are gone. Records already sent are safe on the server.
+- **Fingerprint can't unlock after a restart:** it can't recreate the data key.
+- **The passphrase protects stored data, not a phone that is already unlocked and in use.**
+- **Photos and voice notes** are stored inside the record (limits 300 KB and 2 MB). Voice needs https; the written text of a voice note is not built yet.
+- **After an app update** a phone keeps running the saved copy until the app is opened again with a signal, then the new copy is used (the service worker saves the new files and takes over).
+- **Test mode:** the "server" is a mock kept in the browser's storage; the real sync API is SVC-0.
+
+## Not done yet
+Editing a patient; turning a voice note into text; the real sync API; the real login service; downloading a patient's records from the server onto a new phone.

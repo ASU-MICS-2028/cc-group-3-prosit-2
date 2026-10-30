@@ -25,7 +25,8 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
 | FB-0 Confirm D-028 and D-029 (Perfect has approved; fonts are in) | Joseph, Eugene, Elise | 🗳 Vote needed | Team OK |
-| FB-2 Sign-in, PIN lock, fingerprint, screens for all eight roles | Perfect | 🔄 Built; phone check | Perfect's phone |
+| FB-2 Sign-in, PIN lock, fingerprint, screens for all eight roles | Perfect | 🔄 Built; PR open | PR approval |
+| FB-3 Offline patient records (encrypted, synced) | Perfect | 🔄 Built (data, security, screens, photo, voice, offline start); phone check | Perfect's phone |
 | SVC-1 to SVC-16 Split the new backend services between the backend lead and the team | Joseph | 🟢 Ready | — |
 | Decide how sixteen services are hosted within the budget (merge, path-route on the fleet, or demo-only locally) | Eugene | 🟢 Ready | — |
 | Plan the DB migrations for the new roles and tables (see PLAN Phase 6 notes) | Joseph / Elise | 🟢 Ready | — |

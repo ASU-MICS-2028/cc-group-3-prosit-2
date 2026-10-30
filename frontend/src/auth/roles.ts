@@ -79,7 +79,7 @@ export const TABS: Record<Role, TabDef[]> = {
 };
 
 /** Screens every signed-in role may open. */
-export const SHARED_SCREENS = ["me", "sync"];
+export const SHARED_SCREENS = ["me", "sync", "conflict"];
 
 /** A screen id is "<role prefix>.<name>"; the prefix names the role family that owns it. */
 const PREFIX: Record<Role, string[]> = {

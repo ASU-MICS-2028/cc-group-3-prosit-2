@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { navigate, back, usePath } from "../router";
 import { BottomNav, Header } from "../components/nav";
 import { OfflineBanner, StateView } from "../components/display";
@@ -7,32 +6,25 @@ import { Avatar } from "../components/display";
 import { ROLE_LABEL, TABS, canOpen, homeScreen } from "../auth/roles";
 import { useSession } from "../auth/Session";
 import { SCREENS } from "../screens/registry";
-
-function useOnline() {
-  const [online, setOnline] = useState(navigator.onLine);
-  useEffect(() => {
-    const on = () => setOnline(true), off = () => setOnline(false);
-    window.addEventListener("online", on); window.addEventListener("offline", off);
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
-  }, []);
-  return online;
-}
+import { useData } from "../data/DataProvider";
 
 export function AppShell() {
   const { user, session, signOut } = useSession();
   const path = usePath();
-  const online = useOnline();
+  const { online } = useData();
   if (!user) return null;
 
   const tabs = TABS[user.role];
-  const screen = path.replace(/^\/app\/?/, "") || homeScreen(user.role);
+  const [screenId, ...rest] = path.replace(/^\/app\/?/, "").split("/");
+  const screen = screenId || homeScreen(user.role);
+  const param = rest.join("/") || undefined;
   const def = SCREENS[screen];
   const isRoot = tabs.some((t) => t.screen === screen);
 
   let body;
   if (!def) body = <StateView kind="error" plain text="We couldn't find that page." action={<PrimaryButton onClick={() => navigate(`/app/${homeScreen(user.role)}`)}>Go to my home</PrimaryButton>} />;
   else if (!canOpen(user.role, screen)) body = <StateView kind="error" plain text="You don't have access to that page." action={<PrimaryButton onClick={() => navigate(`/app/${homeScreen(user.role)}`)}>Go to my home</PrimaryButton>} />;
-  else body = def.render();
+  else body = def.render(param);
 
   const allowed = def && canOpen(user.role, screen);
   return (

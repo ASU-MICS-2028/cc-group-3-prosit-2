@@ -4,9 +4,10 @@ import { CategoryTile, PersonRow, SyncBadge, type SyncStatus } from "../componen
 import type { DuotoneName } from "../components/icons";
 import type { Day, Slot } from "../components/schedule";
 
-export type ScreenDef = { title: string; caption?: string; render: () => ReactNode };
+/** `param` is whatever follows the screen id in the address, e.g. a patient id in /app/chv.patient/<id>. */
+export type ScreenDef = { title: string; caption?: string; render: (param?: string) => ReactNode };
 
-export const go = (screen: string) => navigate(`/app/${screen}`);
+export const go = (screen: string, param?: string) => navigate(`/app/${screen}${param ? `/${param}` : ""}`);
 
 export const Heading = ({ children }: { children: ReactNode }) => <h2 className="heading section-title">{children}</h2>;
 
