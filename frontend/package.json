@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview --host",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "progress": "node scripts/progress.mjs"
   },
   "dependencies": {
     "qrcode-generator": "^2.0.4",

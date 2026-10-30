@@ -1,6 +1,6 @@
 # HealthConnect PWA: design tokens and component gallery (FB-1)
 
-**Owner:** Perfect · **Last updated:** 2026-10-30 · **Status:** working on a laptop; phone check still to do
+**Owner:** Perfect · **Last updated:** 2026-10-30 · **Status:** FB-1 checked on a phone; FB-2 working on a laptop, phone check still to do
 
 > Written for a teammate who will never open the code. Short sentences, no unexplained jargon.
 
@@ -45,3 +45,40 @@ You should see every section, no sideways scrolling at 360 px, and the Twi test 
 ## 6. What is not done yet
 
 Phone check by me; service worker and offline storage (FB-3); every product screen (FB-2 onwards); no real audio, camera or microphone yet (the gallery only shows how those controls look).
+
+---
+
+# FB-2: sign-in, PIN lock, fingerprint, screens for every role
+
+## In one sentence
+Anyone can open the app, pick a made-up account (test mode), set a PIN, and land on a home screen with only the tabs for their role; the app locks itself after 5 minutes in the background.
+
+## What I did, step by step
+1. **Roles table** (`src/auth/roles.ts`): the eight roles, their tabs (at most five), and `canOpen(role, screen)`. A screen id looks like `chv.today`; the part before the dot is the role family. `me` and `sync` are shared.
+2. **Test-mode sign-in** (`src/auth/mockApi.ts`): eight synthetic accounts, no phone numbers (the repo is public). It follows the `AuthApi` interface in `types.ts`, so the real auth-service (SVC-1) can replace it without touching the screens.
+3. **PIN** (`src/auth/pin.ts`): 4 to 6 digits, saved only as a salted PBKDF2 hash on the phone, under the person's own id, so two people sharing a phone have separate PINs and it works offline. Five wrong tries wipe that person's PIN and sign them out.
+4. **App lock** (`src/auth/lock.ts`, `Session.tsx`): when the app comes back after 5 minutes hidden, it shows the lock screen (the bubble mark only, no name). Restarting the app with a saved session also asks for the PIN.
+5. **Fingerprint** (`src/auth/webauthn.ts`): staff roles can turn on fingerprint unlock using the phone's own sensor (WebAuthn). Patients use the PIN only, because a fingerprint on a shared phone isn't reliable (the report's design note). It only works on an https page.
+6. **Screens** (`src/screens/`): about 60 basic screens with made-up data, one set per role, all built from the gallery components. The CHV's emergency button sits at the bottom of every CHV patient screen.
+7. **Shell** (`src/shell/`): offline banner, the right header, and the labelled bottom nav.
+
+## Why we did it this way
+- **A hidden screen is not a protected screen.** The UI only hides things; the API must check the role again (the eight-role table is for the server too).
+- **Test mode on purpose:** the login API doesn't exist yet, so everything is labelled "Test mode".
+- **Not done yet:** fingerprint is checked by the phone only; a server must verify the signature. Roles are not yet in the database (see the notes in PLAN Phase 6).
+
+## How to check it works
+```bash
+cd frontend && npm test        # 66 tests
+npm run dev                    # open the Network URL on your phone
+```
+- Pick each account in turn. Check the tabs differ per role.
+- Set a PIN, press Home, wait 5 minutes (or change `LOCK_AFTER_MS` in `lock.ts` to 10 seconds to test), come back: the PIN screen appears.
+- Fingerprint needs https. Install a tunnel (`brew install cloudflared`), run `cloudflared tunnel --url http://localhost:5173`, and open the https address it prints on the phone. Then Me, "Turn on fingerprint unlock".
+
+## What can go wrong
+- **"Fingerprint needs a secure page":** you opened the http Network address. Use the https tunnel address.
+- **"This phone has no fingerprint set up":** add one in the phone's settings first.
+- **Five wrong PINs:** you are signed out, that account's PIN is wiped, and you set a new one (by design).
+- **Switching accounts:** press "Switch account" in the strip under the header (test mode only: a live account has one role, so the button disappears by itself when the real auth-service signs people in). Each account keeps its own PIN; coming back to one asks for it.
+- **Cleared browser data:** the PIN and session go with it; sign in again.
