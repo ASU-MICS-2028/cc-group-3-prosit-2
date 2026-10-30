@@ -39,26 +39,51 @@ Each lead owns their area. Each person also does one task outside their lane, so
 | **Joseph** | Project Manager / API | Plan and tracking, facilitator questions, repo, `patient-record-service` + audit logging, report editing, Act 843 legal grounding for the residency doc | Decommissioning review with Eugene; secrets rotation drill |
 | **Eugene** | Cloud / DevOps | Terraform (VPC, ALB, ASG, RDS, S3, KMS), IAM role and policy, TLS certificate, failover demo, AgroConnect decommissioning, cost tracker, CI | FHIR managed-service sandbox comparison |
 | **Elise** | Data | FHIR-aligned schema + migrations, FHIR mapping and gaps, data minimisation, RBAC table, sharding design | Verify and write up encryption at rest and in transit (Lab 6 Part B) |
-| **Perfect** | Frontend | HealthConnect CHV PWA, offline demo, architecture diagrams, CDN measurement, WebRTC spike | Run the least-privilege checks and write "what IAM protects against" (Lab 6 Part A) |
+| **Perfect** | Frontend | HealthConnect PWA for all eight roles (design system, gallery, every screen), offline demo, architecture diagrams, CDN measurement, WebRTC spike | Run the least-privilege checks and write "what IAM protects against" (Lab 6 Part A) |
 
 **Everyone:** at least one reflection answer per lab, a daily learning log, the weekly peer evaluation, and a `learnings/` note for everything you own.
 
-## Scope: build, design or skip
+## Scope: the full brief, Weeks 1–4 (decision D-029)
 
-The brief is far bigger than four weeks (summary in [`knowledge/brief.md`](./knowledge/brief.md)). We build the foundation properly and document the rest honestly (decision D-008).
+The whole brief is in scope. Every requirement, page by page, is in [`REQUIREMENTS-CHECKLIST.md`](./REQUIREMENTS-CHECKLIST.md). **"Deferred" is not a status any more.** Each item is one of:
 
-| Area | Decision |
-|---|---|
-| CHV offline PWA: register patient, vitals, photo, consent | **Build** (fork of the AgroConnect PWA) |
-| Patient-record API (FHIR-shaped), audit log, RBAC | **Build** (Labs 5–6) |
-| Security foundation: least privilege, TLS, encryption, private DB | **Build + evidence** (Labs 5–6) |
-| Telemedicine: appointments, event-driven reminders, a WebRTC video-call proof of concept | **Build** (Lab 7) |
-| Mobile money fee, SMS reminders | **Reuse** Prosit 1 integrations (test mode) |
-| Multi-country data residency | **Design doc** (+ optional second-region DB) |
-| Real FHIR server | **Sandbox only** (Lab 6 homework) |
-| Biometrics, voice-to-text, Dagbani/Hausa | **Design / ADR only** |
-| Surveillance dashboard, ML, insurance, supply chain | **Design / defer**, unless a later lab requires them |
-| Real patient data | **Never** (D-004) |
+- **Build:** a working feature in the app.
+- **Build (sandbox):** works against a mock service with the real service's interface, labelled "Test mode" (NHIS, DHIS2, WHO, hospitals, pharmacies, SMS, payments).
+- **Design:** documented in the report with a diagram and the reason it isn't built.
+- **Process:** field work, not software (Dodowa CHV training, community leaders, open-source release).
+
+| Area (brief page) | Type | Build step |
+|---|---|---|
+| Offline PWA, encrypted local storage, sync with conflict resolution (p.2) | Build | FB-3 |
+| Patient register, per-purpose consent, vitals, photos, voice notes, history (p.2) | Build | FB-3 |
+| FHIR-shaped records, audit trail, role-based access, JWT (p.2) | Build | FB-2, FB-3 |
+| Act 843 **and** HIPAA safeguards (p.2, p.9), D-028 | Build + Design | FB-2, FB-3 |
+| End-to-end encryption, secure backup (p.2) | Build (backup: Eugene) | FB-3 |
+| Staff fingerprint login (WebAuthn); patient identity by photo + spoken consent | Build; patient fingerprint is **Design** (why a shared phone can't do it) | FB-2, FB-3 |
+| Five languages: English and Twi complete; Ewe, Dagbani, Hausa files ready | Build | FB-11 |
+| Appointments (UTC, local display), WebRTC video with audio-only fallback, mobile-money fee (p.3) | Build | FB-4 |
+| Consultation recording and quality-assurance list (p.3) | Build | FB-4 |
+| Referrals with automatic priority; **emergency protocol with auto-escalation** (p.3 "must implement") | Build | FB-5 |
+| Digital prescriptions, pharmacist verification, **fraud prevention** (p.3 "must implement"); image sharing | Build (pharmacy network: sandbox) | FB-6 |
+| Load balancing, 99.7% uptime, 50,000 records / 1,000 users load test (p.3, p.7) | Build (Eugene) | Lab 5 + load test, FB-11 |
+| Multi-hospital, pharmacy networks, GMDC licence check, NHIS (p.3, p.6) | Build (sandbox) + Design | FB-6, FB-9 |
+| Surveys, maternal and child tracking with reminders (p.4) | Build | FB-7 |
+| Surveillance dashboard, map, outbreak detection and alerts, forecasts, policy dashboard (p.4) | Build (WHO and DHIMS2 exports: sandbox) | FB-7, FB-10 |
+| Symptom decision support (p.4) | Build (basic rules) + Design the ML model | FB-7 |
+| Resource optimisation, supply chain (p.4) | Build | FB-9 |
+| Education library (audio/video, offline), local content creation (p.4–5) | Build | FB-8 |
+| Training modules, quiz, certificate (p.5) | Build | FB-8 |
+| Insurance with mobile-money premiums + NHIS check (p.4) | Build (NHIS: sandbox) | FB-9 |
+| Traditional healer directory and consented two-way referral (p.4) | Build | FB-9 |
+| Community ownership and admin tools, revenue view, SDG 3 dashboard (p.5) | Build | FB-10 |
+| Partnership integration, cloud health platform choice, multi-country residency | Design | report |
+| Open-source modules, community engagement, field testing | Process | report |
+| PROSIT 2.5 AgriHealth link | ⚪ Optional | — |
+| Real patient data | **Never** in this repo (D-004; see the open question in D-028) | — |
+
+### Roles (eight)
+
+CHV · patient · doctor / nurse / specialist · pharmacist · traditional healer · GHS official · health centre admin · platform admin. Access is enforced on the server, not only hidden in the UI. Today the database knows six (`chv`, `nurse`, `doctor`, `specialist`, `ghs_official`, `admin`) plus `system`; FB-2 adds `pharmacist`, `traditional_healer` and `health_centre_admin` with a new migration.
 
 ---
 
@@ -242,13 +267,64 @@ able to explain every part, which is what the `learnings/` notes are for.
 
 After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It gets its own phase when its handout is released.
 
+## Phase 6: Full-brief build, breadth first (D-029)
+
+**Status: approved by Perfect on 30 Oct (teammates still to confirm D-028 and D-029). Deadline: the weekend of 31 Oct–1 Nov, so each step is basic first.** The order is fixed: **each step must work on the owner's real phone before the next starts.** Steps FB-1 to FB-11 are the PWA (Perfect). The backend services each step needs are listed below the table; Joseph splits them with the backend lead. Every service has its own folder, a Dockerfile, `/health`, `/ready` and a mock/sandbox mode, and follows the rules in [`backend/AGENTS.md`](./backend/AGENTS.md) (UUIDs from the client, audited writes, no health data in logs).
+
+| ID | Step | Owner | Blocked by | Status | Done when (every step: tested on a phone, including offline, and a screenshot in `evidence/`) |
+|---|---|---|---|---|---|
+| FB-0 | Approve this plan, D-028 and D-029; `frontend/public/fonts/` has the two `.woff2` files and licences | Everyone | — | ✅ Done for Perfect (30 Oct; fonts are in); teammates confirm in the PR | Team OK in the PR |
+| FB-1 | `frontend/` scaffold (Vite + TypeScript, service worker), `tokens.css`, `/dev/gallery` with **every component in DESIGN-SYSTEM v0.2** in every state | Perfect | FB-0 | 🔄 Built 30 Oct (31 tests pass); waiting for the phone check. Service worker comes with FB-3 | Gallery reviewed and approved on a 360 px phone; contrast and Twi test strings pass |
+| FB-2 | Auth for all eight roles (login, refresh, PIN app lock, **WebAuthn fingerprint for staff**), role-based navigation, **every screen for every role present** (basic is fine) | Perfect + SVC-1 | FB-1 | ⛔ Blocked | Each role signs in on a phone and sees only its own tabs; a wrong-role API call returns 403 |
+| FB-3 | Patient records offline: register, consent (voice/visual), vitals, photos, voice notes, history; FHIR-shaped, encrypted on the device (WebCrypto, key from the PIN), synced with conflict handling, audit-logged | Perfect + SVC-0, SVC-2 | FB-2 | ⛔ Blocked | Airplane-mode demo: record, reconnect, sync, "Needs attention" conflict resolved; audit rows exist |
+| FB-4 | Appointments (UTC, local time), WebRTC video with audio-only fallback, recording with consent, consultation fee | Perfect + SVC-3, SVC-4, SVC-5 | FB-3 | ⛔ Blocked | A booked call runs on two phones; the fee is paid in test mode; throttling falls back to audio |
+| FB-5 | Referrals with automatic priority; emergency button and escalation | Perfect + SVC-7 | FB-3 | ⛔ Blocked | Priority is suggested from vitals and danger signs; an unacknowledged emergency escalates; offline shows Call and SMS |
+| FB-6 | Prescriptions, pharmacist verification (code + QR), fraud checks; image sharing | Perfect + SVC-6, SVC-2 | FB-4 | ⛔ Blocked | A code dispenses once; a second try and a duplicate prescription are flagged |
+| FB-7 | Public health: surveys, maternal/child tracking with reminders, surveillance dashboard, map, outbreak detection and alerts, policy dashboard, symptom decision support | Perfect + SVC-8, SVC-9, SVC-10 | FB-3 | ⛔ Blocked | Seeded cases trigger an outbreak flag; an official confirms it; the alert goes out in test mode |
+| FB-8 | Education library (audio/video, offline), training modules with certificates | Perfect + SVC-11 | FB-3 | ⛔ Blocked | A lesson plays offline; a passed quiz makes a certificate |
+| FB-9 | Insurance (mobile-money premiums, NHIS sandbox check), traditional healer collaboration, supply chain | Perfect + SVC-12, SVC-13, SVC-14, SVC-4 | FB-4 | ⛔ Blocked | Enrol and pay a premium in test mode; a healer receives a consented referral; low stock raises an alert |
+| FB-10 | Community ownership/admin tools, SDG 3 dashboard, revenue view, GHS/DHIS2/WHO exports (sandbox) | Perfect + SVC-15, SVC-16 | FB-7, FB-9 | ⛔ Blocked | A health-centre admin sees only their facility; exports validate against their formats |
+| FB-11 | Languages (English and Twi complete; Ewe, Dagbani, Hausa files ready), polish, load test, screenshots | Perfect (load test: Eugene) | FB-1 to FB-10 | ⛔ Blocked | Language switch on every screen; 1,000-user load test result recorded |
+
+### Backend services to create
+
+None of these exist in the repo yet except SVC-0. Each one is real code with a mock mode (`MODE=mock`), so the PWA never waits for a partner system. Owners are open: **Joseph to split with the backend lead.** Folder names are under `services/`.
+
+| ID | Folder | What it does (its interface) | Mock / sandbox | Needed by |
+|---|---|---|---|---|
+| SVC-0 | `backend/` (exists: `patient-record-service`) | Extend: observations, consents, history, sync endpoint with per-record versions and conflicts, field-level encryption, new roles migration | none needed | FB-2, FB-3 |
+| SVC-1 | `services/auth-service` | Login, JWT access + refresh (builds on D-026), PIN set/verify, WebAuthn register/assert, roles in claims | Test users | FB-2 |
+| SVC-2 | `services/media-service` | Presigned uploads to S3 for photos, voice notes, shared images, lessons; size limits; transcription job | Fake transcript text | FB-3, FB-6, FB-8 |
+| SVC-3 | `services/teleconsult-service` | Signaling (from `webrtc-spike/`), TURN credentials, recording consent and the QA review list | Local STUN only | FB-4 |
+| SVC-4 | `services/payments-service` | Consultation fee and premium payments via mobile money, status webhook, receipts | Test mode with **votex365**, as in Prosit 1 (decided 30 Oct) | FB-4, FB-9 |
+| SVC-5 | `services/notification-service` | SMS reminders and outbreak alerts, in the patient's language; consumes `appointment.created` events | Logs instead of sending | FB-4, FB-7 |
+| SVC-6 | `services/prescription-service` | Issue a signed prescription code, verify, one-time dispense, fraud rules (duplicates, rate, licence), pharmacy lookup | Sandbox pharmacy | FB-6 |
+| SVC-7 | `services/referral-service` | Referral and automatic priority rules, emergency raise/acknowledge, escalation timers | Rules in config (signed off by the medical partner) | FB-5 |
+| SVC-8 | `services/surveillance-service` | Aggregate cases (anonymised, D-018), baseline outbreak rule, district map data, forecasts | Seeded synthetic cases | FB-7 |
+| SVC-9 | `services/decision-support-service` | Symptom checklist to ranked possibilities, "decision support, not diagnosis" | Rule table | FB-7 |
+| SVC-10 | `services/community-programs-service` | Surveys (build, answer), pregnancy and child records, visit schedules | none needed | FB-7 |
+| SVC-11 | `services/learning-service` | Lesson library, course modules, quiz, certificates | Seeded lessons | FB-8 |
+| SVC-12 | `services/insurance-service` | Plans, enrolment, coverage status, premium schedule; calls SVC-15 for NHIS | NHIS sandbox | FB-9 |
+| SVC-13 | `services/supply-service` | Stock per facility, requests, deliveries, low-stock alerts, redistribution suggestions | Seeded stock | FB-9 |
+| SVC-14 | `services/directory-service` | Facilities, pharmacies, certified traditional healers, licence verification, partner directory | Sandbox licence check | FB-5, FB-9 |
+| SVC-15 | `services/integration-service` | GHS FHIR export, DHIS2 and WHO aggregate exports, NHIS check, hospital adapter | All sandbox, labelled "Test mode" | FB-9, FB-10 |
+| SVC-16 | `services/reporting-service` | Indicators (SDG 3, impact, revenue), audit viewer queries, policy dashboard data | Seeded indicators | FB-10 |
+
+**Notes for the team (30 Oct):**
+
+- **Data:** synthetic only for now (D-004 stands). No real patient data in the repo or the app.
+- **Backend lead (Joseph/Elise):** the database must change for this build. Add the roles `pharmacist`, `traditional_healer`, `health_centre_admin` to the `practitioners.role` check, and add tables for prescriptions, referrals and emergencies, surveys and answers, pregnancies and child records, courses and certificates, insurance plans and enrolments, stock, and facilities. Each is a new migration (never edit an applied one) with the `db/tests` cases. The PWA will not wait for these: it saves on the phone first and uses mock mode.
+- **Payments:** `payments-service` wraps the Prosit 1 votex365 test-mode integration, not Flutterwave.
+
+**Infrastructure effect (note for Eugene):** sixteen more containers behind one load balancer would strain the $400 budget and the instances we run. Before FB-3 we decide whether they run as path-routed containers on the existing fleet, a few merged services, or locally only for the demo. Each new resource goes in the cost tracker.
+
 ## Phase 5: Prosit 2 final package
 
 The final report reuses every lab's evidence and report text. Nothing new should need to be screenshotted at the end.
 
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
-| F1 | Final report (Prosit 1 template structure; each owner writes their sections) | Joseph (editor) | Lab tasks, S3 | ⛔ Blocked | Submitted |
+| F1 | Final report (Prosit 1 template structure; each owner writes their sections) | Joseph (editor) | Lab tasks, FB-11, S3 | ⛔ Blocked | Submitted |
 | F2 | Presentation + live demo script + fallback recording | Perfect + Joseph | F1 draft | ⛔ Blocked | Rehearsed once |
 | F3 | Peer assessment + AI disclosure sign-off | Everyone | F1 | ⛔ Blocked | All four signed |
 
@@ -262,6 +338,8 @@ The final report reuses every lab's evidence and report text. Nothing new should
 | A scoped-down IAM role breaks the service | Find the exact denied action in CloudTrail; add only that one |
 | Budget overrun from running AgroConnect and HealthConnect at once | Do L5-D promptly; one NAT instance; small instances; budget alarm (S6) |
 | A stopped RDS instance restarts by itself after 7 days | Snapshot and delete, or set a reminder |
-| The brief's scope spreads us thin | Stick to the scope table above |
+| The full brief (D-029) is far bigger than the time left | Breadth first: basic screens for every role before depth; sandbox mode for partner systems; each step proven on a phone before the next; say plainly in the report what is basic |
+| Sixteen new services overrun the budget or the fleet | Decide merging and hosting before FB-3; cost tracker row for each |
+| "HIPAA-compliant" claimed wrongly | Say "designed against the HIPAA Security Rule safeguards", never "certified" (D-028) |
 | Legal claims stated wrongly | Cite exact sections; mark "needs legal review"; verify before quoting |
 | Someone's part is a black box | Their `learnings/` note is required before the PR merges |

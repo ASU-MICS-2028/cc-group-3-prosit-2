@@ -1,0 +1,112 @@
+/* HealthConnect design tokens (DESIGN-SYSTEM.md v0.2, section 9).
+   Components use only these variables: no hex values or pixel sizes elsewhere. */
+
+@font-face { font-family: "EB Garamond"; src: url("/fonts/EBGaramond-subset.woff2") format("woff2");
+  font-weight: 400 600; font-display: swap; }
+@font-face { font-family: "Overpass"; src: url("/fonts/Overpass-subset.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap; }
+
+:root {
+  /* core */
+  --lavender: #B9B4F2;
+  --ink: #090124;
+  --mist: #EAE9EE;
+  --cream: #FAE7C8;
+  /* supporting */
+  --canvas: #F7F6FA;
+  --surface: #FFFFFF;
+  --lavender-tint: #E9E7FC;
+  --violet: #4B42B8;
+  --text: #090124;
+  --text-muted: #5E5873;
+  --on-ink: #FFFFFF;
+  --tan: #C9A36A;
+  /* status */
+  --ok-fg: #1F6B3A;   --ok-bg: #E5F4EA;
+  --warn-fg: #8A5A00; --warn-bg: #FFF4DB;
+  --danger: #B42318;  --danger-bg: #FDECEA;
+  /* derived (the design system names the values, not the tokens) */
+  --ink-pressed: #241B45;           /* pressed primary button, 7.1 */
+  --on-ink-dim: rgba(255, 255, 255, .7);  /* inactive nav icons, 7.13 */
+  --focus-ring: rgba(75, 66, 184, .2);    /* outer ring on focused inputs, 7.12 */
+  --scrim: rgba(9, 1, 36, .4);            /* behind sheets */
+  --gradient-onboarding: linear-gradient(180deg, #D9D6F8 0%, #FFFFFF 55%);
+
+  /* type */
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-ui: "Overpass", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --t-display: 500 40px/44px var(--font-display);
+  --t-title-1: 500 32px/36px var(--font-display);
+  --t-title-2: 500 26px/30px var(--font-display);
+  --t-heading: 700 19px/26px var(--font-ui);
+  --t-body: 400 16px/24px var(--font-ui);
+  --t-body-strong: 600 16px/24px var(--font-ui);
+  --t-label: 600 14px/20px var(--font-ui);
+  --t-caption: 400 14px/20px var(--font-ui);
+  --t-overline: 700 12px/16px var(--font-ui);
+  --t-nav: 600 12px/16px var(--font-ui);
+  --t-badge: 600 13px/16px var(--font-ui);
+  --t-vital: 700 28px/32px var(--font-ui);
+  --t-avatar: 700 18px/24px var(--font-ui);
+  --tracking-headline: -.01em;
+  --tracking-overline: .08em;
+
+  /* spacing */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px;
+  --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+  --space-0-5: 2px;
+
+  /* radius */
+  --radius-sm: 12px; --radius-md: 20px; --radius-lg: 28px; --radius-pill: 999px;
+
+  /* elevation */
+  --shadow-1: 0 1px 2px rgba(9,1,36,.06), 0 4px 12px rgba(9,1,36,.06);
+  --shadow-nav: 0 8px 24px rgba(9,1,36,.18);
+
+  /* motion */
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms;
+
+  /* sizes (the design system's component dimensions) */
+  --touch-min: 48px;
+  --h-button: 56px;
+  --h-button-secondary: 52px;
+  --h-chip: 40px;
+  --h-input: 56px;
+  --h-badge: 28px;
+  --h-nav: 72px;
+  --h-banner: 40px;
+  --h-vital-input: 56px;
+  --size-icon: 24px;
+  --size-icon-sm: 22px;
+  --size-icon-tile: 28px;
+  --size-icon-btn: 48px;
+  --size-arrow-circle: 44px;
+  --size-circle-sm: 40px;
+  --size-nav-active: 44px;
+  --size-avatar: 56px;
+  --size-mascot: 120px;
+  --size-self-view-w: 96px;
+  --size-self-view-h: 128px;
+  --size-call-btn: 56px;
+  --size-dot: 8px;
+  --size-handle-w: 36px;
+  --size-handle-h: 4px;
+  --size-qr: 112px;
+  --size-thumb: 72px;
+  --min-tile-w: 104px;
+  --min-tile-h: 112px;
+  --min-promo-h: 140px;
+  --nav-clearance: 104px;       /* bottom padding so content clears the floating nav */
+  --screen-pad: var(--space-5);
+  --section-gap: var(--space-8);
+  --max-width: 480px;           /* phone column on larger screens */
+  --border-hair: 1px;
+  --border-strong: 1.5px;
+  --border-focus: 2px;
+  --ring-w: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
+}

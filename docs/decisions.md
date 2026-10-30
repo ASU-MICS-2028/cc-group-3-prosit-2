@@ -223,3 +223,19 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** The API and SQS both deliver at least once (an offline retry, or SQS redelivering after a timeout), and the API deliberately re-publishes on a retry so a lost event can be recovered (`learnings/database.md` §8). So duplicates are expected, and the consumer must skip them: on 26 Oct, Abena's booking produced two reminders. A conditional write is atomic, so two copies arriving together can't both send. DynamoDB needs no network changes (our functions run outside the VPC), costs fractions of a cent at our volume, and keeps the functions independent of the main database, which is the decoupling Lab 7 is about.
 - **Rejected:** a table in our Postgres (the function would have to join the VPC and hold database credentials, coupling it to RDS); SNS/SQS FIFO deduplication (it only remembers for 5 minutes, while a phone can retry hours later, and the topic and queues would have to be rebuilt).
 - **Gave up:** a guaranteed reminder in one rare case: if the function dies after claiming but before sending, the retry sees the claim and skips. We chose "at most one reminder" over "sometimes two" for that case. The specialist-notify function still has no deduplication.
+
+## D-028: We design for Act 843 as the law and the HIPAA Security Rule as the safeguards
+
+- **Date:** 2026-10-30 · **Status:** Proposed · **Replaces:** D-005
+- **Affects:** everyone; Perfect (consent, PIN lock, device encryption), Joseph (access control, audit), Eugene (encryption, backup), Elise (data minimisation)
+- **Decision:** Act 843 is the legal basis for every health-data decision. We also design against the HIPAA Security Rule's safeguard groups (access control, audit controls, integrity, person authentication, transmission security, backup) and map each to a control in the report. We write "designed against HIPAA safeguards", never "HIPAA-compliant" or "certified".
+- **Why:** The brief asks for HIPAA compliance (p.2, p.7, p.9) and the rubric scores it, but HIPAA is a US law and doesn't apply in Ghana. Using both is accurate and scores.
+- **Gave up:** D-005's "reference checklist only" wording. Open question: the checklist mentions collecting real patient data with consent, but D-004 (synthetic data only, public repo) still stands. Real data would need ethics approval and a private store, and is not decided here.
+
+## D-029: The full brief is in scope: built breadth first, with sandbox mode for partner systems
+
+- **Date:** 2026-10-30 · **Status:** Proposed · **Replaces:** D-008
+- **Affects:** everyone; Perfect (all screens), Joseph (splits the new backend services), Eugene (hosting and cost of the services)
+- **Decision:** Every requirement in Weeks 1–4 is Build, Build (sandbox), Design or Process, as listed in [`REQUIREMENTS-CHECKLIST.md`](../REQUIREMENTS-CHECKLIST.md); nothing is "deferred". We build in the 11 steps of [`PLAN.md`](../PLAN.md) Phase 6, breadth first: a basic screen for every role before depth anywhere, and each step proven on a real phone before the next starts. Services that need a partner system (NHIS, DHIS2, WHO, hospitals, pharmacies, SMS, payments) get a real interface and a labelled mock mode. Must-implement items on p.3 (prescription fraud checks, emergency escalation) are core.
+- **Why:** The scope changed: the brief's weeks have passed and the whole brief must be shown. Partner systems can't be reached by a student team, so a mock with the real interface is the honest way.
+- **Gave up:** depth on the lab-graded foundation, and a calm budget: sixteen new services strain the $400 credits and the fleet (hosting is decided before FB-3). The report must say plainly what is basic or mock.
