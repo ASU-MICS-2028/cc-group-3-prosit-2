@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { ROLES, TABS, canOpen, homeScreen, type Role } from "../auth/roles";
+import { ROLES, SHARED_SCREENS, TABS, canOpen, homeScreen, type Role } from "../auth/roles";
 import { SCREENS } from "../screens/registry";
 
 const ids = Object.keys(SCREENS);
@@ -23,7 +23,7 @@ describe("role navigation", () => {
     for (const role of ROLES) {
       for (const id of ids) {
         const family = id.split(".")[0];
-        if (id === "me" || id === "sync") continue;
+        if (SHARED_SCREENS.includes(id)) continue;
         expect(canOpen(role, id), `${role} -> ${id}`).toBe(family === own[role]);
       }
     }
@@ -31,8 +31,7 @@ describe("role navigation", () => {
 
   it("everyone can open the shared screens; unknown or odd ids are refused", () => {
     for (const role of ROLES) {
-      expect(canOpen(role, "me")).toBe(true);
-      expect(canOpen(role, "sync")).toBe(true);
+      for (const shared of SHARED_SCREENS) expect(canOpen(role, shared), shared).toBe(true);
       expect(canOpen(role, "admin.secret")).toBe(false);
       expect(canOpen(role, "")).toBe(false);
       expect(canOpen(role, "../chv.today")).toBe(false);
@@ -51,7 +50,7 @@ describe("role navigation", () => {
     const tabs = new Set(Object.values(TABS).flat().map((t) => t.screen));
     for (const id of ids) {
       if (tabs.has(id)) continue;
-      const linked = new RegExp(`(to: "${id}"|go\\("${id}"\\)|to="${id}")`).test(src);
+      const linked = new RegExp(`(to: "${id}"|go\\("${id}"[,)]|to="${id}")`).test(src);
       expect(linked, `${id} is not reachable`).toBe(true);
     }
   });

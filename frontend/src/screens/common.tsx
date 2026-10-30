@@ -50,9 +50,4 @@ function Me() {
 
 export const common: Record<string, ScreenDef> = {
   me: { title: "Me", render: () => <Me /> },
-  sync: { title: "Waiting to send", render: () => (<Rows items={[
-    { name: "Esi Quaye: vitals", role: "Saved on this phone", trailing: sync("saved") },
-    { name: "Akosua Boateng: photo", role: "Sending", trailing: sync("sending") },
-    { name: "Yaw Owusu: referral", role: "Sent 8:05 am", trailing: sync("sent") },
-  ]} />) },
 };

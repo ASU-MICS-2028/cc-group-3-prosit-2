@@ -5,6 +5,7 @@ import { navigate, usePath } from "./router";
 import { homeScreen } from "./auth/roles";
 import { Login } from "./shell/Login";
 import { AppShell } from "./shell/AppShell";
+import { DataProvider } from "./data/DataProvider";
 import { LockScreen, PinSetup } from "./shell/PinScreens";
 
 export function Routes() {
@@ -23,7 +24,7 @@ export function Routes() {
   if (!user) return <Login />;
   if (locked) return <LockScreen />;
   if (!pinSet) return <PinSetup onDone={() => navigate(`/app/${homeScreen(user.role)}`, { replace: true })} />;
-  return <AppShell />;
+  return <DataProvider><AppShell /></DataProvider>;
 }
 
 export function App() {

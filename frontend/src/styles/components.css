@@ -324,3 +324,8 @@
 .whoami-text { display: flex; flex-direction: column; min-width: 0; }
 .whoami-text .caption { color: var(--text); }
 .whoami .btn-text { margin-left: auto; flex: none; }
+
+/* Photos and voice notes on the patient page */
+img.photo-thumb { object-fit: cover; background: var(--lavender-tint); }
+.photo-meta audio { width: 100%; max-width: 100%; }
+.photo-tile:disabled { color: var(--text-muted); border-color: var(--mist); cursor: progress; }

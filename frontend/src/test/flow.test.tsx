@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { App } from "../App";
 import { navigate } from "../router";
 import { LOCK_AFTER_MS } from "../auth/lock";
+import { lockVault } from "../data/vault";
 import { mockAuthApi } from "../auth/mockApi";
 import { SessionProvider } from "../auth/Session";
 import type { AuthApi } from "../auth/types";
@@ -11,13 +12,31 @@ function setVisibility(state: "hidden" | "visible") {
   document.dispatchEvent(new Event("visibilitychange"));
 }
 
-async function signInAs(name: string, pin = "4821") {
-  render(<App />);
-  fireEvent.click(await screen.findByText(name));
+const PHRASE = "blue goat river morning";
+const AMA = "00000000-0000-4000-8000-000000000001";
+
+/** The two set-up steps: passphrase, then PIN. */
+async function setUpSecurity(pin = "4821", phrase = PHRASE) {
+  await screen.findByText("Choose a passphrase");
+  fireEvent.change(screen.getByLabelText("Passphrase"), { target: { value: phrase } });
+  fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: phrase } });
+  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
   await screen.findByText("Choose a PIN");
   fireEvent.change(screen.getByLabelText("PIN (4 to 6 digits)"), { target: { value: pin } });
   fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: pin } });
-  fireEvent.click(screen.getByRole("button", { name: "Save PIN" }));
+  fireEvent.click(screen.getByRole("button", { name: "Save" }));
+}
+
+async function signInAs(name: string, pin = "4821") {
+  render(<App />);
+  fireEvent.click(await screen.findByText(name));
+  await setUpSecurity(pin);
+}
+
+async function enterPassphrase(value = PHRASE) {
+  await screen.findByText("Enter your passphrase");
+  fireEvent.change(screen.getByLabelText("Passphrase"), { target: { value } });
+  fireEvent.click(screen.getByRole("button", { name: "Unlock" }));
 }
 
 beforeEach(() => { localStorage.clear(); navigate("/", { replace: true }); setVisibility("visible"); });
@@ -74,11 +93,59 @@ describe("sign-in to the app", () => {
   it("mismatched PINs are refused", async () => {
     render(<App />);
     fireEvent.click(await screen.findByText("Akosua Boateng"));
+    await screen.findByText("Choose a passphrase");
+    fireEvent.change(screen.getByLabelText("Passphrase"), { target: { value: PHRASE } });
+    fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: PHRASE } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     await screen.findByText("Choose a PIN");
     fireEvent.change(screen.getByLabelText("PIN (4 to 6 digits)"), { target: { value: "4821" } });
     fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: "4822" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save PIN" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(await screen.findByText("The two PINs are different.")).toBeTruthy();
+  });
+});
+
+describe("the passphrase", () => {
+  it("a weak passphrase is refused with advice, and the two must match", async () => {
+    render(<App />);
+    fireEvent.click(await screen.findByText("Ama Serwaa"));
+    await screen.findByText("Choose a passphrase");
+    fireEvent.change(screen.getByLabelText("Passphrase"), { target: { value: "short" } });
+    fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: "short" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await waitFor(() => expect(document.querySelector(".has-error .field-note")).not.toBeNull());
+    expect(document.querySelector(".has-error .field-note")!.textContent).toMatch(/at least 10 characters.*blue goat river morning/);
+    fireEvent.change(screen.getByLabelText("Passphrase"), { target: { value: PHRASE } });
+    fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: PHRASE + "x" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("The two passphrases are different.")).toBeTruthy();
+  });
+
+  it("after a restart a wrong passphrase counts down, and the fifth wipes the phone's data and signs out", async () => {
+    await signInAs("Ama Serwaa");
+    await screen.findByText("Hi Ama");
+    document.body.innerHTML = "";
+    lockVault(AMA);
+    render(<App />);
+    for (let i = 1; i <= 4; i++) {
+      await enterPassphrase("wrong wrong wrong wrong");
+      await screen.findByText(new RegExp(`${5 - i} tries left`));
+    }
+    await enterPassphrase("wrong wrong wrong wrong");
+    await screen.findByText(/Test mode: these are made-up people/);
+    expect(localStorage.getItem("hc.session.v1")).toBeNull();
+    expect(Object.keys(localStorage).filter((k) => k.includes(".v1.") && k.includes(AMA))).toEqual([]);
+  });
+
+  it("the lock screen after a restart asks for the passphrase, not the PIN, and shows no name", async () => {
+    await signInAs("Ama Serwaa");
+    await screen.findByText("Hi Ama");
+    document.body.innerHTML = "";
+    lockVault(AMA);
+    render(<App />);
+    await screen.findByText("Enter your passphrase");
+    expect(screen.queryByLabelText("PIN")).toBeNull();
+    expect(document.body.textContent).not.toContain("Ama");
   });
 });
 
@@ -88,10 +155,7 @@ describe("switching accounts is a test-mode tool", () => {
     const { Routes } = await import("../App");
     render(<SessionProvider api={live}><Routes /></SessionProvider>);
     fireEvent.click(await screen.findByText("Ama Serwaa"));
-    await screen.findByText("Choose a PIN");
-    fireEvent.change(screen.getByLabelText("PIN (4 to 6 digits)"), { target: { value: "4821" } });
-    fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: "4821" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save PIN" }));
+    await setUpSecurity();
     await screen.findByText("Hi Ama");
     expect(screen.queryByRole("button", { name: "Switch account" })).toBeNull();
     expect(screen.getByLabelText("Signed in as").textContent).toContain("Community health volunteer");
@@ -106,10 +170,7 @@ describe("switching accounts", () => {
     await screen.findByText("Hi Ama");
     fireEvent.click(screen.getByRole("button", { name: "Switch account" }));
     fireEvent.click(await screen.findByText("Dr. Kofi Mensah"));
-    await screen.findByText("Choose a PIN");               // a new account sets its own PIN
-    fireEvent.change(screen.getByLabelText("PIN (4 to 6 digits)"), { target: { value: "7777" } });
-    fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: "7777" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save PIN" }));
+    await setUpSecurity("7777", "red river goat evening");   // a new account sets its own
     await screen.findByText("Hi Dr. Mensah");
     const nav = screen.getByRole("navigation", { name: "Main" });
     expect(nav.textContent).toContain("Prescribe");
@@ -117,21 +178,16 @@ describe("switching accounts", () => {
     expect(screen.getByLabelText("Signed in as").textContent).toContain("Doctor, nurse or specialist");
   });
 
-  it("one person's PIN does not open another person's account", async () => {
+  it("one person's passphrase does not open another person's account", async () => {
     await signInAs("Ama Serwaa", "4821");
     await screen.findByText("Hi Ama");
     fireEvent.click(screen.getByRole("button", { name: "Switch account" }));
     fireEvent.click(await screen.findByText("Dr. Kofi Mensah"));
-    await screen.findByText("Choose a PIN");
-    fireEvent.change(screen.getByLabelText("PIN (4 to 6 digits)"), { target: { value: "7777" } });
-    fireEvent.change(screen.getByLabelText("Type it again"), { target: { value: "7777" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save PIN" }));
+    await setUpSecurity("7777", "red river goat evening");
     await screen.findByText("Hi Dr. Mensah");
     fireEvent.click(screen.getByRole("button", { name: "Switch account" }));
     fireEvent.click(await screen.findByText("Ama Serwaa"));
-    await screen.findByText("Enter your PIN");
-    fireEvent.change(screen.getByLabelText("PIN"), { target: { value: "7777" } });   // the doctor's PIN
-    fireEvent.click(screen.getByRole("button", { name: "Unlock" }));
+    await enterPassphrase("red river goat evening");             // the doctor's passphrase
     await screen.findByText(/4 tries left/);
   });
 });
@@ -180,7 +236,7 @@ describe("app lock", () => {
     fireEvent.click(screen.getByRole("button", { name: "Unlock" }));
     await waitFor(() => expect(screen.getByText(/Test mode: these are made-up people/)).toBeTruthy());
     expect(localStorage.getItem("hc.session.v1")).toBeNull();
-    expect(Object.keys(localStorage).filter((k) => k.startsWith("hc.pin.v1."))).toEqual([]);
+    expect(Object.keys(localStorage).filter((k) => k.startsWith("hc.pin.v1.") || k.startsWith("hc.vault.v1."))).toEqual([]);
     spy.mockRestore();
   });
 
@@ -188,8 +244,10 @@ describe("app lock", () => {
     await signInAs("Ama Serwaa");
     await screen.findByText("Hi Ama");
     document.body.innerHTML = "";
+    lockVault(AMA);                                   // a restart: the data key is gone from memory
     render(<App />);
-    expect(await screen.findByText("Enter your PIN")).toBeTruthy();
+    await enterPassphrase();
+    await screen.findByText("Hi Ama");
   });
 
   it("a damaged saved session means signed out, not a crash", async () => {
@@ -198,7 +256,7 @@ describe("app lock", () => {
     expect(await screen.findByText(/Test mode: these are made-up people/)).toBeTruthy();
   });
 
-  it("signing out ends the session but keeps the person's PIN, which is asked next time", async () => {
+  it("signing out ends the session and locks the data; the passphrase is asked next time", async () => {
     await signInAs("Ama Serwaa");
     await screen.findByText("Hi Ama");
     act(() => navigate("/app/me"));
@@ -206,9 +264,7 @@ describe("app lock", () => {
     await screen.findByText(/Test mode: these are made-up people/);
     expect(localStorage.getItem("hc.session.v1")).toBeNull();
     fireEvent.click(await screen.findByText("Ama Serwaa"));
-    await screen.findByText("Enter your PIN");
-    fireEvent.change(screen.getByLabelText("PIN"), { target: { value: "4821" } });
-    fireEvent.click(screen.getByRole("button", { name: "Unlock" }));
+    await enterPassphrase();                          // signing out locked the data key
     await screen.findByText("Hi Ama");
   });
 });
