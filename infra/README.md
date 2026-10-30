@@ -142,7 +142,8 @@ Needs the Session Manager plugin for the AWS CLI (`brew install --cask session-m
 ## Shipping a change
 
 Merging to `main` deploys (D-030). `.github/workflows/ci.yml` tests and scans every PR; on `main` it runs the
-same gates again and then ships only what changed:
+same gates again and then ships only what changed since the last green run on `main` (so a run GitHub replaced
+while it waited, or a red run, is shipped by the next one):
 
 | What changed | What happens on merge |
 |---|---|
