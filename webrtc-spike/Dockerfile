@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # The call page (built by Vite into dist/) and the signaling server, in one container on one port.
 # `npm start` runs the server through tsx, so dev dependencies stay in the image: fine for a Lab 7 spike.
-FROM node:24-alpine
+FROM node:25-alpine
 
 WORKDIR /app
 
