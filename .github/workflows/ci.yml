@@ -1,14 +1,32 @@
 name: ci
 
-# Gate every PR into main.
+# One pipeline (D-030): every PR is tested and scanned; a merge to main runs the same gates again, then
+# deploys only what changed. Nothing reaches AWS unless every gate it depends on passed.
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+# A new push to a PR cancels its older run. Runs on main are never cancelled (a deploy may be mid-way).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  AWS_REGION: af-south-1
+  # Not a secret: the role can only be assumed by a run on main of this repo (infra/modules/cicd).
+  AWS_DEPLOY_ROLE_ARN: arn:aws:iam::315224414532:role/healthconnect-dev-gha-deploy
+  TRIVY_IMAGE: aquasec/trivy:0.58.1
+  GITLEAKS_IMAGE: zricethezav/gitleaks:v8.21.2
+
 jobs:
+  # ---------------------------------------------------------------- tests
+
   terraform:
     name: terraform fmt + validate
     runs-on: ubuntu-latest
@@ -99,3 +117,246 @@ jobs:
           python-version: "3.12" # the Lambda runtime
       - run: python -m unittest -v
 
+  frontend:
+    name: frontend tests + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  call:
+    name: call page tests + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webrtc-spike
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: webrtc-spike/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  # ---------------------------------------------------------------- security
+
+  security:
+    name: secrets + dependency + IaC scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks reads the whole history: a secret removed later is still public
+
+      # The repo is public: a committed key, token or password must never pass.
+      - name: Secrets (gitleaks, full history)
+        run: docker run --rm -v "$PWD":/repo "$GITLEAKS_IMAGE" git /repo --no-banner --redact -v
+
+      # Known-vulnerable packages in every lockfile (npm). Fails on HIGH/CRITICAL that have a fix.
+      - name: Dependencies (Trivy fs)
+        run: >-
+          docker run --rm -v "$PWD":/repo -w /repo "$TRIVY_IMAGE"
+          fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed
+          --skip-dirs '**/node_modules' --exit-code 1 .
+
+      # Terraform and Dockerfile misconfigurations. Accepted findings, each with a reason, are in
+      # .trivyignore.yaml; anything new fails the build.
+      - name: Infrastructure as code (Trivy config)
+        run: >-
+          docker run --rm -v "$PWD":/repo -w /repo "$TRIVY_IMAGE"
+          config --severity HIGH,CRITICAL --ignorefile .trivyignore.yaml --exit-code 1 .
+
+  # ---------------------------------------------------------------- deploy (main only)
+
+  changes:
+    name: what changed
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      call: ${{ steps.filter.outputs.call }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - "backend/**"
+            call:
+              - "webrtc-spike/**"
+
+  deploy-backend:
+    name: deploy API
+    needs: [backend, schema, security, changes]
+    if: github.ref == 'refs/heads/main' && (needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC -> AWS, no stored keys
+      contents: read
+    # One deploy at a time; never cancel a rolling instance refresh midway.
+    concurrency:
+      group: deploy-backend
+      cancel-in-progress: false
+    env:
+      ECR_REPO: healthconnect-dev-backend
+      ASG_NAME: healthconnect-dev-asg
+      IMAGE_TAG_PARAM: /healthconnect-dev/app-image-tag
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build
+        run: docker build -t "app:${{ github.sha }}" backend
+
+      # Scanned before it is pushed: a vulnerable image never reaches ECR.
+      - name: Scan image (Trivy)
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE"
+          image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "app:${{ github.sha }}"
+
+      - name: Push
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}
+        run: |
+          docker tag "app:${{ github.sha }}" "$IMAGE:${{ github.sha }}"
+          docker tag "app:${{ github.sha }}" "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+      # Instances pull the immutable :<sha> named here, so a rollback is pointing it at an earlier SHA and
+      # refreshing (infra/README.md).
+      - name: Pin the deployed image tag
+        run: |
+          aws ssm put-parameter --name "$IMAGE_TAG_PARAM" --value "${{ github.sha }}" --type String --overwrite
+          echo "Pinned $IMAGE_TAG_PARAM = ${{ github.sha }}"
+
+      - name: Replace the API servers and wait
+        run: |
+          set -euo pipefail
+          # AWS allows one instance refresh at a time, and `terraform apply` starts its own when the launch
+          # template changes. Wait for that one rather than join it: it may have booted the previous image.
+          REFRESH_ID=""
+          for _ in $(seq 1 120); do
+            if REFRESH_ID=$(aws autoscaling start-instance-refresh \
+              --auto-scaling-group-name "$ASG_NAME" \
+              --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}' \
+              --query 'InstanceRefreshId' --output text 2>"$RUNNER_TEMP/refresh.err"); then
+              break
+            fi
+            grep -q InstanceRefreshInProgress "$RUNNER_TEMP/refresh.err" || { cat "$RUNNER_TEMP/refresh.err"; exit 1; }
+            echo "Another instance refresh is running; waiting for it to finish."
+            sleep 15
+          done
+          [ -n "$REFRESH_ID" ] || { echo "Timed out waiting for the other instance refresh."; exit 1; }
+          echo "Started instance refresh: $REFRESH_ID"
+
+          for _ in $(seq 1 120); do
+            STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name "$ASG_NAME" \
+              --instance-refresh-ids "$REFRESH_ID" --query 'InstanceRefreshes[0].Status' --output text)
+            echo "refresh status: $STATUS"
+            case "$STATUS" in
+              Successful) exit 0 ;;
+              Failed|Cancelled|RollbackFailed|RollbackInProgress|RollbackSuccessful) echo "Deploy failed: $STATUS"; exit 1 ;;
+            esac
+            sleep 15
+          done
+          echo "Timed out waiting for the instance refresh."; exit 1
+
+      # A red run here means the new servers aren't answering: roll back (infra/README.md).
+      - name: Smoke test the live API
+        run: |
+          set -euo pipefail
+          for url in https://api-hc.agroconnect.space/health https://api-hc.agroconnect.space/ready; do
+            ok=0
+            for _ in $(seq 1 20); do curl -fsS "$url" && { ok=1; break; }; sleep 3; done
+            [ "$ok" = 1 ] || { echo "smoke test failed: $url" >&2; exit 1; }
+            echo
+          done
+
+  deploy-call:
+    name: deploy call page
+    needs: [call, security, changes]
+    if: github.ref == 'refs/heads/main' && (needs.changes.outputs.call == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    concurrency:
+      group: deploy-call
+      cancel-in-progress: false
+    env:
+      ECR_REPO: healthconnect-dev-call
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build
+        run: docker build -t "call:${{ github.sha }}" webrtc-spike
+
+      # Report only (D-030): the Lab 7 spike runs through tsx with its dev tools in the image, and is retired
+      # into SVC-3. The API image above is the hard gate.
+      - name: Scan image (Trivy, report only)
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE"
+          image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 "call:${{ github.sha }}"
+
+      - name: Push
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}
+        run: |
+          docker tag "call:${{ github.sha }}" "$IMAGE:${{ github.sha }}"
+          docker tag "call:${{ github.sha }}" "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+      # One server, rooms in memory (D-023): re-run its boot script, which pulls :latest and starts the
+      # container. Calls in progress drop for a few seconds.
+      - name: Restart the call server on the new image
+        run: |
+          set -euo pipefail
+          ID=$(aws ec2 describe-instances \
+            --filters Name=tag:Name,Values=healthconnect-dev-call Name=instance-state-name,Values=running \
+            --query 'Reservations[].Instances[].InstanceId' --output text)
+          [ -n "$ID" ] || { echo "No running call server (call_hostname empty?)"; exit 1; }
+          CMD=$(aws ssm send-command --instance-ids "$ID" --document-name AWS-RunShellScript \
+            --comment "deploy ${{ github.sha }}" \
+            --parameters 'commands=["docker rm -f call || true","bash /var/lib/cloud/instance/scripts/part-001"]' \
+            --query Command.CommandId --output text)
+          aws ssm wait command-executed --command-id "$CMD" --instance-id "$ID" || true
+          STATUS=$(aws ssm get-command-invocation --command-id "$CMD" --instance-id "$ID" --query Status --output text)
+          echo "restart: $STATUS"
+          [ "$STATUS" = Success ] || { aws ssm get-command-invocation --command-id "$CMD" --instance-id "$ID" \
+            --query StandardErrorContent --output text; exit 1; }
+
+      - name: Smoke test the call page
+        run: |
+          for _ in $(seq 1 20); do curl -fsS -o /dev/null https://call-hc.agroconnect.space/ && exit 0; sleep 3; done
+          echo "call page not answering" >&2; exit 1

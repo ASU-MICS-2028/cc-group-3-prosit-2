@@ -1,0 +1,19 @@
+# Weekly pull requests for outdated or vulnerable dependencies (D-030). Minor and patch updates are grouped
+# into one PR per folder, so this stays a handful of PRs a week; CI tests each one like any other PR.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directories: ["/backend", "/frontend", "/webrtc-spike"]
+    schedule: { interval: weekly }
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+  - package-ecosystem: docker
+    directories: ["/backend", "/webrtc-spike"]
+    schedule: { interval: weekly }
+  - package-ecosystem: terraform
+    directories: ["/infra", "/infra/bootstrap"]
+    schedule: { interval: weekly }

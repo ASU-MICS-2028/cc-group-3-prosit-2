@@ -62,6 +62,17 @@ alarms and budget, and the Lab 7 call server) is described as code in `infra/` a
     reminder is skipped as `duplicate_skipped`. Only the reminder function's role may write to it. Checked live by
     publishing one event twice: one `reminder_logged`, one `duplicate_skipped` (`evidence/lab7/outputs_H2_dedup_after.txt`).
     Applied with `-target=module.events`, so the unconfirmed alarm emails weren't re-sent (see section 6).
+14. **CI/CD pipeline (D-030), 2026-10-30:** merging to `main` now deploys, and every PR is scanned first.
+    Before this, CI only ran tests, and every deploy was me building images on my laptop. One workflow,
+    `.github/workflows/ci.yml`: tests for all six parts (Terraform, API, schema, Lambda, frontend, call page), then
+    security checks. **gitleaks** looks through the whole git history for keys and passwords. **Trivy** checks every
+    package list for known vulnerabilities and checks our Terraform and Dockerfiles for unsafe settings. On `main`,
+    only what changed is shipped: the API image is scanned *before* it's pushed, so a vulnerable image never
+    reaches ECR. Then the servers are replaced and `/health` is checked. The first scans found and fixed: a
+    vulnerable `body-parser` in the API (a crafted request could crash it); npm left inside the API image (removed,
+    the server only needs `node`); the load balancer passing malformed headers on; and the load balancer allowed to
+    send traffic anywhere (now only inside our network). The GitHub deploy role used to accept any branch of
+    the repo; now only `main` can deploy, and each permission names the one resource it may touch.
 
 ## 3. Why we did it this way
 
@@ -191,13 +202,20 @@ built with `--platform linux/amd64`.
   the API (`strict-transport-security: max-age=31536000; includeSubDomains`, from `helmet` in `backend/`).
 - **The call server has no TURN relay** (on purpose, see `learnings/lab7-webrtc.md`) and no login. Anyone with the
   address and a room name can join. Test rooms only, never patient data.
-- **The call image was built and pushed by hand** (`webrtc-spike/Dockerfile`, tag `latest` + git SHA; live: `248ea83`
-  since 26 Oct, after Perfect's PR #15 didn't show up because nobody had redeployed). To ship a
-  change: rebuild, push, then `terraform apply -replace='module.call[0].aws_instance.call'` (about 4 minutes of
-  downtime).
+- **The call page deploys on merge too (D-030)**, but its image scan only reports: the Lab 7 spike keeps its
+  developer tools in the image (they carry known vulnerabilities) and is being replaced by SVC-3. A deploy
+  restarts the one call server, so calls in progress drop for a few seconds.
+- **`terraform apply` is not in the pipeline on purpose.** The deploy role can push images and replace servers,
+  but cannot change infrastructure; someone still reads the plan and applies it by hand.
 
 ## 6. What will bite us
 
+- **A build can turn red when no code changed.** A new vulnerability published for a package we use fails the
+  Trivy step on the next PR. Fix: bump the package (`npm update <name>`, check the lockfile diff is small), or, if
+  it truly doesn't affect us, add it to `.trivyignore.yaml` with the reason. Never delete the scan.
+- **A local `npm update` can rewrite the whole lockfile** if your npm is a different version from the one that
+  made it (on 30 Oct it dropped the `libc` markers that tell the Alpine image which native files to install). Look
+  at `git diff --stat` on the lockfile; a one-package fix should change a handful of lines.
 - **It costs money while it runs:** about \$70–90/month (ALB ~\$19, three `t3.micro` ~\$28, RDS ~\$16, NAT ~\$3,
   plus public IPs and CloudWatch). The budget alarm emails everyone at \$50 forecast and \$100 actual. **Tear the call
   server down after Lab 7:** set `call_hostname = ""` in `terraform.tfvars` and apply.

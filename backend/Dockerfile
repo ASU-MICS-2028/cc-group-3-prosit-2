@@ -21,7 +21,11 @@ ENV NODE_ENV=production
 ENV PORT=8000
 
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# The server runs with `node`, so npm and corepack are removed after install: less to attack, and their
+# bundled packages (undici, brace-expansion) were the image's only HIGH findings in Trivy (D-030).
+RUN npm ci --omit=dev && npm cache clean --force \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+              /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 COPY --from=build /app/dist ./dist
 

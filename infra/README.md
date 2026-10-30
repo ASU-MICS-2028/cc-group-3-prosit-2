@@ -139,33 +139,64 @@ them without re-running them: `db/migrate.sh --baseline 003`. See [`learnings/da
 Needs the Session Manager plugin for the AWS CLI (`brew install --cask session-manager-plugin`).
 `db/tests/run_tests.sh` refuses to run through this tunnel (it checks for RDS's `rds_superuser` role), because it drops databases.
 
-## Shipping a change (until the Week 9 deploy workflow exists)
+## Shipping a change
 
-Images are built on a laptop and pushed to ECR. Our Macs are ARM; the servers are x86, so always pass
-`--platform linux/amd64` (an ARM image starts and then crashes on the server with "exec format error").
+Merging to `main` deploys (D-030). `.github/workflows/ci.yml` tests and scans every PR; on `main` it runs the
+same gates again and then ships only what changed:
+
+| What changed | What happens on merge |
+|---|---|
+| `backend/` (the API) | Image built, scanned by Trivy (HIGH/CRITICAL fails), pushed as `:<sha>` and `:latest`, the SHA pinned in `/healthconnect-dev/app-image-tag`, servers replaced one by one (no downtime, ~8 min), `/health` and `/ready` checked |
+| `webrtc-spike/` (call page) | Image built, scanned (report only), pushed, container restarted on the call server through SSM (calls drop for a few seconds) |
+| `functions/` (Lambda) | Tested only. Ship with `terraform -chdir=infra apply` (Terraform re-zips both functions) |
+| `db/migrations/` | Tested only. Apply with `db/migrate.sh` through the SSM tunnel ("Running database migrations" above) |
+| `infra/` | Validated and scanned only. `terraform plan`, read all of it, get the owner's OK, then `apply` |
+
+Watch a deploy: Actions tab → `ci` → the run for the merge commit. Re-run a deploy without a code change:
+Actions → `ci` → **Run workflow** on `main` (redeploys both).
+
+**By hand, if Actions is down.** Images are built on a laptop; our Macs are ARM and the servers x86, so always
+pass `--platform linux/amd64` (an ARM image starts and then crashes with "exec format error"):
 
 ```bash
 export AWS_PROFILE=ashesi-dev
 R=315224414532.dkr.ecr.af-south-1.amazonaws.com
 aws ecr get-login-password --region af-south-1 | docker login -u AWS --password-stdin $R
-SHA=$(git rev-parse --short HEAD)       # build from an up-to-date main
+SHA=$(git rev-parse HEAD)       # build from an up-to-date main
+docker buildx build --platform linux/amd64 -t $R/healthconnect-dev-backend:$SHA -t $R/healthconnect-dev-backend:latest --push backend
+aws ssm put-parameter --name /healthconnect-dev/app-image-tag --value $SHA --type String --overwrite --region af-south-1
+aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg \
+  --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}' --region af-south-1
 ```
 
-| What changed | Ship it with |
-|---|---|
-| `backend/` (the API) | `docker buildx build --platform linux/amd64 -t $R/healthconnect-dev-backend:latest -t $R/healthconnect-dev-backend:$SHA --push backend`, then `aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'`. No downtime: new servers start before old ones stop (~8 min). |
-| `webrtc-spike/` (call page) | Same build with `healthconnect-dev-call` and `webrtc-spike`, then `terraform -chdir=infra apply -replace='module.call[0].aws_instance.call'` (~4 min down: one server). |
-| `functions/` (Lambda) | `terraform -chdir=infra apply`. Terraform re-zips the files and updates both functions. |
-| `db/migrations/` | `db/migrate.sh` through the SSM tunnel ("Running database migrations" above). |
-| `infra/` | `terraform plan`, read all of it, get the owner's OK, then `apply`. |
+After any deploy: `curl -s https://api-hc.agroconnect.space/health` a few times (both instance ids should appear).
 
-After any of these: `curl -s https://api-hc.agroconnect.space/health` a few times (both instance ids should appear).
+### Security gates
+
+| Gate | Tool | Fails the build on |
+|---|---|---|
+| Secrets | gitleaks, whole history | any key, token or password ever committed |
+| Dependencies | Trivy `fs` | a HIGH/CRITICAL package vulnerability that has a fix |
+| Infrastructure | Trivy `config` (Terraform, Dockerfiles) | a HIGH/CRITICAL misconfiguration not accepted in `.trivyignore.yaml` |
+| API image | Trivy `image`, before push | a HIGH/CRITICAL fixable vulnerability: the image never reaches ECR |
+| Code | CodeQL (PRs + weekly) | shown under Security → Code scanning |
+| Updates | Dependabot (weekly PRs) | n/a: each PR goes through the gates above |
+
+Run the same scans locally before pushing (Docker only, nothing to install):
+
+```bash
+docker run --rm -v "$PWD":/repo zricethezav/gitleaks:v8.21.2 git /repo --no-banner --redact
+docker run --rm -v "$PWD":/repo -w /repo aquasec/trivy:0.58.1 fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --skip-dirs '**/node_modules' .
+docker run --rm -v "$PWD":/repo -w /repo aquasec/trivy:0.58.1 config --severity HIGH,CRITICAL --ignorefile .trivyignore.yaml .
+```
+
+To accept a Trivy finding, add it to `.trivyignore.yaml` with the reason and the task that will remove it, in
+the same PR, so the reviewer sees it.
 
 ## Rollback
 
 The deployed image tag lives in SSM at `/healthconnect-dev/app-image-tag`. Instances pull whatever tag it names
-(today `latest`). Once the deploy workflow exists (Week 9), CI will pin it to the merge commit's SHA on every
-deploy. A rollback is two commands:
+CI pins it to the merge commit's SHA on every API deploy (D-030). A rollback is two commands:
 
 ```bash
 # 1. Point the parameter at the last good SHA.
@@ -198,5 +229,4 @@ terraform destroy
   `terraform apply -replace='module.call[0].aws_instance.call'`.
 - One instance role is shared by the app and the fck-nat instance. Lab 6 (L6-A1) replaces it with a dedicated,
   least-privilege `healthconnect-service` role.
-- Instance role has broad ECR read; narrow to the specific repo ARN in L6-A1.
 - Migrations are run by hand through an SSM tunnel; the service doesn't migrate on boot.

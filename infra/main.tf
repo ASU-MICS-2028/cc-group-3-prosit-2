@@ -166,9 +166,13 @@ resource "aws_secretsmanager_secret" "jwt" {
 
 # ---------- cicd (GitHub Actions OIDC + deploy role) ----------
 module "cicd" {
-  source      = "./modules/cicd"
-  name_prefix = local.name
-  github_repo = var.github_repo
+  source                 = "./modules/cicd"
+  name_prefix            = local.name
+  github_repo            = var.github_repo
+  github_oidc_sub_prefix = var.github_oidc_sub_prefix
+  ecr_repository_arns    = concat([module.ecr.repository_arn], [for r in module.ecr_call : r.repository_arn])
+  asg_name               = module.compute.asg_name
+  call_instance_id       = local.call_enabled ? module.call[0].instance_id : ""
 }
 
 # ---------- observability (SNS topic + CloudWatch alarms + monthly budget) ----------

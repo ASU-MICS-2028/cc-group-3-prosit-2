@@ -1,0 +1,24 @@
+# Trivy findings we accept on purpose. CI fails on any HIGH/CRITICAL finding that is NOT listed here (D-030).
+# Every entry says why, and which task would remove it. Remove the entry when that task lands.
+misconfigurations:
+  - id: AVD-AWS-0053
+    paths: ["infra/modules/alb/main.tf"]
+    statement: "The load balancer is public on purpose: it is the API's front door (HTTPS only, HTTP redirects)."
+  - id: AVD-AWS-0164
+    paths: ["infra/modules/network/main.tf"]
+    statement: "Public subnets hold only the ALB and the NAT box, which need public IPs. App servers and the database are in private subnets."
+  - id: AVD-AWS-0104
+    paths: ["infra/modules/alb/main.tf", "infra/modules/nat/main.tf", "infra/modules/call/main.tf"]
+    statement: "App servers, the NAT box and the call server must reach AWS APIs (ECR, SSM, SNS, Secrets Manager) and the internet through NAT. Narrowing to VPC endpoints is a cost trade-off (about $7/month each) not taken. The ALB's own egress is limited to the VPC."
+  - id: AVD-AWS-0131
+    paths: ["infra/modules/nat/main.tf", "infra/modules/call/main.tf"]
+    statement: "Root disks of the NAT box and the call server hold no patient data. Encrypting them replaces both instances (NAT outage); do it with L6-B1b (KMS)."
+  - id: AVD-AWS-0095
+    paths: ["infra/modules/events/main.tf", "infra/modules/observability/main.tf"]
+    statement: "SNS topics carry appointment ids and masked phones / alarm text. Customer-managed KMS encryption is L6-B1b."
+  - id: AVD-AWS-0132
+    paths: ["infra/bootstrap/main.tf", "infra/modules/storage/main.tf"]
+    statement: "Buckets are encrypted with SSE-S3 already; a customer-managed KMS key is L6-B1b."
+  - id: AVD-AWS-0031
+    paths: ["infra/modules/ecr/main.tf"]
+    statement: "Deploys pin the immutable git SHA tag in SSM; the mutable `latest` tag is kept only for the call server and first boot. Make tags immutable once the call server is retired (SVC-3)."

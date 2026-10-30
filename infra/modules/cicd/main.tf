@@ -26,15 +26,15 @@ data "aws_iam_policy_document" "gha_assume" {
       variable = "token.actions.githubusercontent.com:aud"
       values   = ["sts.amazonaws.com"]
     }
-    # ASU-MICS-2028 org uses OIDC subject customization that appends numeric IDs
-    # (e.g. `repo:ASU-MICS-2028@326597623/cc-group-3-prosit-1@1363910903:ref:...`),
-    # so match both the standard and the ID-suffixed form.
+    # Only a workflow run on main may deploy (D-030); a PR or any other branch gets no AWS credentials.
+    # The org issues immutable subjects (`repo:ORG@<id>/REPO@<id>:...`); the plain form is kept in case it
+    # is ever switched back to the default.
     condition {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:${var.github_repo}:*",
-        "repo:${split("/", var.github_repo)[0]}@*/${split("/", var.github_repo)[1]}@*:*",
+        "repo:${var.github_repo}:ref:refs/heads/main",
+        "${var.github_oidc_sub_prefix}:ref:refs/heads/main",
       ]
     }
   }
@@ -45,10 +45,24 @@ resource "aws_iam_role" "gha_deploy" {
   assume_role_policy = data.aws_iam_policy_document.gha_assume.json
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+locals {
+  account = data.aws_caller_identity.current.account_id
+  region  = data.aws_region.current.name
+}
+
+# Least privilege: push to our image repositories, pin the image tag, refresh our one auto scaling group,
+# and restart the container on the call server. Every action names its resource except the ones AWS only
+# allows on "*" (the ECR login token and the Describe calls).
 data "aws_iam_policy_document" "gha_deploy" {
   statement {
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+  }
+  statement {
     actions = [
-      "ecr:GetAuthorizationToken",
       "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
       "ecr:InitiateLayerUpload",
@@ -57,20 +71,38 @@ data "aws_iam_policy_document" "gha_deploy" {
       "ecr:BatchGetImage",
       "ecr:GetDownloadUrlForLayer",
     ]
-    resources = ["*"]
+    resources = var.ecr_repository_arns
   }
   statement {
-    actions = [
-      "autoscaling:StartInstanceRefresh",
-      "autoscaling:DescribeInstanceRefreshes",
-      "autoscaling:DescribeAutoScalingGroups",
-    ]
+    actions   = ["autoscaling:StartInstanceRefresh"]
+    resources = ["arn:aws:autoscaling:${local.region}:${local.account}:autoScalingGroup:*:autoScalingGroupName/${var.asg_name}"]
+  }
+  statement {
+    actions   = ["autoscaling:DescribeInstanceRefreshes", "autoscaling:DescribeAutoScalingGroups"]
     resources = ["*"]
   }
   statement {
     # CI pins the deployed image tag here; a rollback rewrites it.
     actions   = ["ssm:PutParameter"]
     resources = [aws_ssm_parameter.app_image_tag.arn]
+  }
+  dynamic "statement" {
+    # Redeploy the call server: re-run its boot script (pull the new image, restart the container) through SSM.
+    for_each = var.call_instance_id == "" ? [] : [1]
+    content {
+      actions = ["ssm:SendCommand"]
+      resources = [
+        "arn:aws:ec2:${local.region}:${local.account}:instance/${var.call_instance_id}",
+        "arn:aws:ssm:${local.region}::document/AWS-RunShellScript",
+      ]
+    }
+  }
+  dynamic "statement" {
+    for_each = var.call_instance_id == "" ? [] : [1]
+    content {
+      actions   = ["ssm:GetCommandInvocation", "ec2:DescribeInstances"] # AWS allows these only on "*"
+      resources = ["*"]
+    }
   }
 }
 

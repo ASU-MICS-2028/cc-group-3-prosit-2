@@ -12,3 +12,24 @@ variable "initial_image_tag" {
   description = "Initial value of the app-image-tag parameter, before the first CI deploy overwrites it."
   default     = "latest"
 }
+
+variable "github_oidc_sub_prefix" {
+  type        = string
+  description = "The org's immutable OIDC subject prefix: gh api repos/<org>/<repo>/actions/oidc/customization/sub"
+}
+
+variable "ecr_repository_arns" {
+  type        = list(string)
+  description = "Image repositories CI may push to"
+}
+
+variable "asg_name" {
+  type        = string
+  description = "The one auto scaling group CI may refresh"
+}
+
+variable "call_instance_id" {
+  type        = string
+  description = "Call server CI may redeploy through SSM; empty when the call server is off"
+  default     = ""
+}
