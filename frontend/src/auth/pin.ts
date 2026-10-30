@@ -47,3 +47,12 @@ export function clearPin(userId: string) {
   localStorage.removeItem(KEY(userId));
   localStorage.removeItem(ATTEMPTS(userId));
 }
+
+/** A wrong passphrase counts against the same five tries as a wrong PIN. */
+export function recordFailure(userId: string): "wrong" | "signed-out" {
+  const used = Number(localStorage.getItem(ATTEMPTS(userId)) ?? 0) + 1;
+  if (used >= MAX_ATTEMPTS) { clearPin(userId); return "signed-out"; }
+  localStorage.setItem(ATTEMPTS(userId), String(used));
+  return "wrong";
+}
+export const resetAttempts = (userId: string) => localStorage.removeItem(ATTEMPTS(userId));

@@ -1,0 +1,16 @@
+{
+  "name": "HealthConnect",
+  "short_name": "HealthConnect",
+  "description": "Health records and care for rural communities, working with or without a signal.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F6FA",
+  "theme_color": "#B9B4F2",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
