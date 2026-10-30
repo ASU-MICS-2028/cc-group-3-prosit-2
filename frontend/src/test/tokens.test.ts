@@ -51,7 +51,7 @@ describe("components use tokens only", () => {
   const css = ["base.css", "components.css"].map((f) => [f, readFileSync(join(root, "styles", f), "utf8")] as const);
   const walk = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));
-  const tsx = walk(join(root, "components")).concat(walk(join(root, "gallery"))).filter((f) => f.endsWith(".tsx") && !f.endsWith("icons.tsx"));
+  const tsx = ["components", "gallery", "screens", "shell"].flatMap((d) => walk(join(root, d))).filter((f) => f.endsWith(".tsx") && !f.endsWith("icons.tsx"));
 
   it.each(css)("%s has no hex colours or pixel sizes", (_name, src) => {
     const stripped = src.replace(/\/\*[\s\S]*?\*\//g, "");
