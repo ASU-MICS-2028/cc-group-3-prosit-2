@@ -37,6 +37,7 @@
 | 2026-10-29 | Eugene Sewor | Claude Code (Anthropic) | L7-H2: reviewed Elise's #24 (role grants exactly the two DynamoDB calls the code makes; 18 tests pass), planned, applied only `module.events`, then published one synthetic event twice and read both log groups and the table | Apply approved by Eugene (asked by Joseph); plan read before apply; nothing destroyed |
 
 | 2026-10-30 | Perfect Avugla | Claude Code (Anthropic) | Reading the full brief and the design system; drafting the full-brief plan (PLAN.md Phase 6, D-027, D-028); building `frontend/` with `tokens.css` and the `/dev/gallery` component page (FB-1) | 31 tests pass (contrast of every colour pair, no hex or pixel values in components, EB Garamond never below 22px, every button and input named); typecheck and build pass; gallery looked at in Chrome at 360 px wide and two layout bugs fixed; phone check still to be done by me |
+| 2026-10-30 | Eugene | Claude Code | D-030 pipeline: traced why CI had no deploy (Week 9 deferral, `deploy.yml` not copied from Prosit 1); wrote the workflows; baseline gitleaks/Trivy scans with Docker; fixed body-parser, npm in the API image, two ALB findings; scoped the deploy role to `main` and named resources; actionlint | Eugene asked for it; every finding checked by hand, accepted ones written down with reasons; apply needs Eugene's OK |
 
 ## Sign-off
 

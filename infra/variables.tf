@@ -60,6 +60,12 @@ variable "github_repo" {
   default     = "ASU-MICS-2028/cc-group-3-prosit-2"
 }
 
+variable "github_oidc_sub_prefix" {
+  description = "The org's immutable OIDC subject prefix for this repo (gh api repos/<org>/<repo>/actions/oidc/customization/sub)"
+  type        = string
+  default     = "repo:ASU-MICS-2028@326597623/cc-group-3-prosit-2@1422334146"
+}
+
 # S5: subdomains of agroconnect.space (ours, DNS at Hostinger). See docs/ for the ADR.
 variable "api_hostname" {
   description = "FQDN for the API's TLS certificate. Empty = HTTP only on the ALB's own DNS name."

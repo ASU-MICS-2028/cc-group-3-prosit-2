@@ -1,3 +1,7 @@
+data "aws_vpc" "this" {
+  id = var.vpc_id
+}
+
 resource "aws_security_group" "alb" {
   name = "${var.name_prefix}-alb-sg"
   # NOTE: SG description is ForceNew — editing it replaces the SG (and the ALB
@@ -19,11 +23,12 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # The ALB only talks to our own targets, so it may only send traffic inside the VPC (Trivy AVD-AWS-0104).
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [data.aws_vpc.this.cidr_block]
   }
 
   tags = { Name = "${var.name_prefix}-alb-sg" }
@@ -58,6 +63,9 @@ resource "aws_lb" "app" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnet_ids
+
+  # Reject malformed headers instead of forwarding them (request smuggling; Trivy AVD-AWS-0052).
+  drop_invalid_header_fields = true
 }
 
 resource "aws_lb_target_group" "app" {
