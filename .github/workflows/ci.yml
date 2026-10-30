@@ -185,14 +185,34 @@ jobs:
     name: what changed
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read # to find the last green run on main
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       call: ${{ steps.filter.outputs.call }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Compare with the last main run that passed, not just the previous commit. GitHub keeps one waiting run
+      # per branch and replaces it when another merge lands, and a red run deploys nothing; either way the
+      # next run must still ship those changes.
+      - name: Last green commit on main
+        id: base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch main --event push \
+            --status success --limit 1 --json headSha --jq '.[0].headSha // empty')
+          echo "sha=${SHA:-${{ github.event.before }}}" >> "$GITHUB_OUTPUT"
+          echo "comparing with ${SHA:-the previous commit}"
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          base: ${{ steps.base.outputs.sha }}
           filters: |
             backend:
               - "backend/**"

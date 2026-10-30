@@ -216,6 +216,10 @@ built with `--platform linux/amd64`.
 - **A local `npm update` can rewrite the whole lockfile** if your npm is a different version from the one that
   made it (on 30 Oct it dropped the `libc` markers that tell the Alpine image which native files to install). Look
   at `git diff --stat` on the lockfile; a one-package fix should change a handful of lines.
+- **Main runs that wait in line can be replaced.** GitHub keeps one waiting run per branch; when several PRs merge
+  at once, the older waiting runs are cancelled. On 30 Oct #43's call page deploy was skipped this way (harmless:
+  a test tool). Fix: `what changed` compares with the last *green* main run, not the previous commit, so the next
+  run ships whatever was skipped.
 - **It costs money while it runs:** about \$70–90/month (ALB ~\$19, three `t3.micro` ~\$28, RDS ~\$16, NAT ~\$3,
   plus public IPs and CloudWatch). The budget alarm emails everyone at \$50 forecast and \$100 actual. **Tear the call
   server down after Lab 7:** set `call_hostname = ""` in `terraform.tfvars` and apply.
