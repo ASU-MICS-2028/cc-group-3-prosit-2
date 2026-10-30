@@ -77,7 +77,7 @@ export type Media = {
 export type Resource = Patient | Consent | Observation | Media;
 
 export const newId = (): string =>
-  crypto.randomUUID ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/[x]/g, () => ((Math.random() * 16) | 0).toString(16));
+  crypto.randomUUID ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/[x]/g, () => (crypto.getRandomValues(new Uint8Array(1))[0] & 15).toString(16));
 
 export const consentPurpose = (c: Consent): Purpose => c.category[0].coding[0].code as Purpose;
 export const consentWithdrawnAt = (c: Consent): string | undefined => c.extension?.find((e) => e.url === EXT_WITHDRAWN)?.valueDateTime;
