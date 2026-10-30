@@ -306,3 +306,21 @@
 .person > .badge { margin-left: calc(var(--size-avatar) + var(--space-4)); }
 .vital-bp > .field { min-width: 0; }
 .row > .field { flex: 1 1 var(--min-tile-w); min-width: 0; }
+
+/* ---------- App shell and lock screen ---------- */
+.lock { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-12); }
+.login-list { margin-top: var(--space-4); }
+.shell { max-width: var(--max-width); margin: 0 auto; padding-bottom: var(--nav-clearance); }
+.shell-body { padding: 0 var(--screen-pad); display: flex; flex-direction: column; gap: var(--space-4); }
+.shell-nav { position: fixed; left: 0; right: 0; bottom: var(--space-4); z-index: 5; max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-4); }
+.section-title { margin-top: var(--space-4); }
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--min-tile-w), 1fr)); gap: var(--space-3); }
+.tile-grid .tile { min-width: 0; }
+.kv { display: flex; justify-content: space-between; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: var(--border-hair) solid var(--mist); }
+
+/* Who is signed in: shown under the header on every screen so a tester is never unsure of the role */
+.whoami { display: flex; align-items: center; gap: var(--space-3); margin: 0 var(--screen-pad) var(--space-4); padding: var(--space-2) var(--space-3); border-radius: var(--radius-pill); background: var(--lavender-tint); }
+.whoami .avatar { width: var(--size-circle-sm); height: var(--size-circle-sm); border-radius: var(--radius-pill); font: var(--t-label); background: var(--lavender); }
+.whoami-text { display: flex; flex-direction: column; min-width: 0; }
+.whoami-text .caption { color: var(--text); }
+.whoami .btn-text { margin-left: auto; flex: none; }
