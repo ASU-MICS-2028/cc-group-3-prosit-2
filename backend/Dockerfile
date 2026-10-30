@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # --- build stage: install dev deps and compile TypeScript ---
-FROM node:24-alpine AS build
+FROM node:25-alpine AS build
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY src ./src
 RUN npm run build
 
 # --- runtime stage: production deps + compiled output only ---
-FROM node:24-alpine
+FROM node:25-alpine
 
 WORKDIR /app
 
