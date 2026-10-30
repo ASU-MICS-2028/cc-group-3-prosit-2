@@ -30,7 +30,12 @@ waiting for the Week 9 handout.
 - Frontend 31 tests and call page 16 tests pass and build; API typechecks, starts, `/health` answers with npm removed.
 - actionlint (with shellcheck): clean.
 
+## Applied (Eugene's OK)
+`terraform apply` of the 4 in-place updates: 0 added, 4 changed, 0 destroyed. `/health` 10/10 and the call page
+answered throughout. IAM simulator 11/11: pushes only to our two repos, refreshes only our ASG, writes only the
+tag parameter, restarts only the call server; no secrets, no database. Trust: only `ref:refs/heads/main`.
+Evidence: `evidence/cicd/outputs_deploy_role.txt`.
+
 ## Left over
-- `terraform apply` of the deploy-role and ALB change (4 in-place updates) needs Eugene's OK; the first deploy
-  of the call page fails until it is applied (the live role lacks `ssm:SendCommand`); the API deploy works either way.
+- The first merge to `main` touching `backend/` is the end-to-end test of the deploy job.
 - Frontend hosting (S3 + CloudFront at `app-hc`) and its deploy job: next PR.

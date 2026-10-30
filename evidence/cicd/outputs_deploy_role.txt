@@ -1,0 +1,30 @@
+# D-030 deploy role (healthconnect-dev-gha-deploy), 2026-10-30, after terraform apply (0 added, 4 changed, 0 destroyed)
+# IAM policy simulator: what a deploy needs is allowed, everything else is denied
+$ bash evidence/cicd/check_deploy_role.sh
+PASS  allowed  ecr:PutImage                       repository/healthconnect-dev-backend
+PASS  allowed  ecr:PutImage                       repository/healthconnect-dev-call
+PASS  denied   ecr:PutImage                       repository/some-other-repo
+PASS  allowed  autoscaling:StartInstanceRefresh   autoScalingGroupName/healthconnect-dev-asg
+PASS  denied   autoscaling:StartInstanceRefresh   autoScalingGroupName/other-asg
+PASS  allowed  ssm:PutParameter                   parameter/healthconnect-dev/app-image-tag
+PASS  denied   ssm:PutParameter                   parameter/anything-else
+PASS  allowed  ssm:SendCommand                    instance/i-0a5c1b13ee934a046
+PASS  denied   ssm:SendCommand                    instance/i-0000000000000000
+PASS  denied   secretsmanager:GetSecretValue      healthconnect-dev-jwt-secret-abc
+PASS  denied   rds:DeleteDBInstance               healthconnect-dev-db
+
+# Who may assume it: only a workflow run on main of this repo
+$ aws iam get-role --role-name healthconnect-dev-gha-deploy --query Role.AssumeRolePolicyDocument.Statement[0].Condition
+{
+    "StringEquals": {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+        "token.actions.githubusercontent.com:sub": [
+            "repo:ASU-MICS-2028/cc-group-3-prosit-2:ref:refs/heads/main",
+            "repo:ASU-MICS-2028@326597623/cc-group-3-prosit-2@1422334146:ref:refs/heads/main"
+        ]
+    }
+}
+
+# Live after the apply (ALB now drops invalid headers; its egress is limited to 10.30.0.0/16)
+$ curl https://api-hc.agroconnect.space/health  (x10)
+200 200 200 200 200 200 200 200 200 200 
