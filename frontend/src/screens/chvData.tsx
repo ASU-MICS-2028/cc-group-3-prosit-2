@@ -9,11 +9,12 @@ import { PromoCard } from "../components/display";
 import { useData, useLoad } from "../data/DataProvider";
 import { PhotosSection, VoiceSection } from "./media";
 import {
-  RepoError, createPatient, getPatient, listConsents, listMedia, listObservations, listPatients, markObservationInError, pendingCount, recordConsent, recordVitals, withdrawConsent,
+  RepoError, createPatient, getPatient, listAppointments, listConsents, listMedia, listObservations, listPatients, markObservationInError, pendingCount, recordConsent, recordVitals, withdrawConsent,
   type View,
 } from "../data/repo";
 import { LOINC, VITAL_BY_CODE, consentPurpose, consentWithdrawnAt, observationGroup, type Gender, type GivenBy, type Observation, type Patient, type Vital } from "../data/model";
 import { THRESHOLDS, flagFor } from "../config/thresholds";
+import { ghanaPhone, nameProblem, numberProblem, placeProblem, toNumber, vitalProblem, yearProblem } from "../data/validate";
 import { Heading, KV, Tiles, go, type ScreenDef } from "./kit";
 
 const Emergency = () => <div className="stack"><EmergencyButton onClick={() => go("chv.emergency")} /></div>;
@@ -47,7 +48,7 @@ function Today() {
     <Heading>Recent patients</Heading>
     {data.patients.length === 0
       ? <StateView kind="empty" text="No patients yet. Add the first one." action={<PrimaryButton onClick={() => go("chv.register")}>Add patient</PrimaryButton>} />
-      : <div className="stack">{data.patients.slice(0, 4).map((v) => <PersonRow key={v.resource.id} name={name(v.resource)} role={v.resource.address?.[0].city ?? "Patient"} trailing={badge(v.syncState)} onClick={() => go("chv.patient", v.resource.id)} />)}</div>}
+      : <div className="stack">{data.patients.slice(0, 4).map((v) => <PersonRow key={v.resource.id} name={name(v.resource)} role={(v.resource.address?.[0].city ?? "Patient") + withTags(data.patients)(v)} trailing={badge(v.syncState)} onClick={() => go("chv.patient", v.resource.id)} />)}</div>}
     <Heading>Quick actions</Heading>
     <Tiles items={[{ icon: "users", label: "Add patient", to: "chv.register" }, { icon: "baby", label: "Mothers & babies", to: "chv.maternal" }, { icon: "calendar-check", label: "Survey", to: "chv.survey" }]} />
     <PromoCard title="Vaccination day: Saturday at the clinic" action="Learn more" />
@@ -61,33 +62,52 @@ function Patients() {
   const [q, setQ] = useState("");
   if (!data) return <Loading error={error} loading={loading} />;
   const shown = data.filter((v) => name(v.resource).toLowerCase().includes(q.trim().toLowerCase()));
+  const tag = withTags(data);
   return (<>
     <SearchField placeholder="Search patients" value={q} onChange={(e) => setQ(e.target.value)} />
     {data.length === 0 ? <StateView kind="empty" text="No patients yet. Add the first one." />
       : shown.length === 0 ? <StateView kind="empty" text={`No patient called "${q}".`} />
-      : <div className="stack">{shown.map((v) => <PersonRow key={v.resource.id} name={name(v.resource)} role={[ageOf(v.resource), v.resource.address?.[0].city].filter(Boolean).join(" · ") || "Patient"} trailing={badge(v.syncState)} onClick={() => go("chv.patient", v.resource.id)} />)}</div>}
+      : <div className="stack">{shown.map((v) => <PersonRow key={v.resource.id} name={name(v.resource)} role={([ageOf(v.resource), v.resource.address?.[0].city].filter(Boolean).join(" · ") || "Patient") + tag(v)} trailing={badge(v.syncState)} onClick={() => go("chv.patient", v.resource.id)} />)}</div>}
     <PrimaryButton onClick={() => go("chv.register")}>Add patient</PrimaryButton>
   </>);
 }
 
 /* ---------------- Register ---------------- */
+const norm = (n: string) => n.trim().toLowerCase().replace(/\s+/g, " ");
+/** When two patients share a name, a short record tag tells them apart. */
+const withTags = (list: View<Patient>[]) => {
+  const count = new Map<string, number>();
+  for (const v of list) count.set(norm(name(v.resource)), (count.get(norm(name(v.resource))) ?? 0) + 1);
+  return (v: View<Patient>) => ((count.get(norm(name(v.resource))) ?? 0) > 1 ? ` · record ${v.resource.id.slice(0, 4)}` : "");
+};
+
 function Register() {
   const { userId, notify, sync } = useData();
   const [f, setF] = useState({ name: "", village: "", year: "", phone: "" });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [gender, setGender] = useState<Gender>();
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
+  const [same, setSame] = useState<View<Patient> | null>(null);
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => { setSame(null); setF({ ...f, [k]: e.target.value }); };
+  const touch = (k: keyof typeof f) => () => setTouched((t) => ({ ...t, [k]: true }));
 
-  async function save() {
+  const phone = ghanaPhone(f.phone);
+  const problems = { name: nameProblem(f.name), village: placeProblem(f.village), year: yearProblem(f.year), phone: phone.problem };
+  const shown = (k: keyof typeof f) => (touched[k] ? problems[k] ?? undefined : undefined);
+
+  async function save(anyway = false) {
     if (busy) return;                                   // a second tap while saving does nothing
     setError(undefined);
-    const year = f.year.trim();
-    if (year && (!/^\d{4}$/.test(year) || Number(year) < 1900 || Number(year) > new Date().getFullYear())) return setError("Please enter a 4-digit year of birth, like 1984.");
-    const digits = f.phone.replace(/\D/g, "").replace(/^0+/, "");
+    setTouched({ name: true, village: true, year: true, phone: true });
+    if (Object.values(problems).some(Boolean)) return;  // each wrong field shows its own message
     setBusy(true);
     try {
-      const p = await createPatient(userId, { fullName: f.name, village: f.village, birthDate: year || undefined, gender, phone: digits ? `+233${digits}` : undefined });
+      if (!anyway) {
+        const match = (await listPatients(userId)).find((v) => norm(name(v.resource)) === norm(f.name));
+        if (match) { setSame(match); setBusy(false); return; }
+      }
+      const p = await createPatient(userId, { fullName: f.name, village: f.village, birthDate: f.year.trim() || undefined, gender, phone: phone.digits ? `+233${phone.digits}` : undefined });
       notify(); void sync();
       go("chv.consent", p.id);
     } catch (e) {
@@ -96,13 +116,24 @@ function Register() {
     }
   }
   return (<>
-    <Field label="Full name" value={f.name} onChange={set("name")} />
-    <Field label="Village or town" value={f.village} onChange={set("village")} />
-    <Field label="Year of birth" inputMode="numeric" maxLength={4} value={f.year} onChange={set("year")} helper="An estimate is fine" />
+    <Field label="Full name" value={f.name} onChange={set("name")} onBlur={touch("name")} error={shown("name")} autoComplete="off" />
+    <Field label="Village or town" value={f.village} onChange={set("village")} onBlur={touch("village")} error={shown("village")} autoComplete="off" />
+    <Field label="Year of birth" inputMode="numeric" maxLength={4} value={f.year} onChange={set("year")} onBlur={touch("year")} error={shown("year")} helper="An estimate is fine" />
     <div className="row">{(["female", "male"] as Gender[]).map((g) => <Chip key={g} selected={gender === g} onClick={() => setGender(gender === g ? undefined : g)}>{g === "female" ? "Female" : "Male"}</Chip>)}</div>
-    <Field label="Phone number (optional)" inputMode="tel" prefix="+233" value={f.phone} onChange={set("phone")} helper="Only if they agree to reminders" />
+    <Field label="Phone number (optional)" inputMode="tel" prefix="+233" value={f.phone} onChange={set("phone")} onBlur={touch("phone")} error={shown("phone")} helper="Only if they agree to reminders" />
     {error && <Alert>{error}</Alert>}
-    <PrimaryButton loading={busy} onClick={save}>Save and continue</PrimaryButton>
+    {same && (
+      <div className="notice" role="alert">
+        <Icon name="warning" size="sm" />
+        <div className="stack">
+          <span className="body-strong">{name(same.resource)} is already saved{same.resource.address?.[0].city ? ` (${same.resource.address[0].city})` : ""}.</span>
+          <span className="caption">Is this the same person? Adding them twice splits their records.</span>
+          <PrimaryButton onClick={() => go("chv.patient", same.resource.id)}>Open that patient</PrimaryButton>
+          <SecondaryButton onClick={() => void save(true)}>No, add a new patient</SecondaryButton>
+        </div>
+      </div>
+    )}
+    {!same && <PrimaryButton loading={busy} onClick={() => void save()}>Save and continue</PrimaryButton>}
     <Emergency />
   </>);
 }
@@ -176,17 +207,17 @@ function readingsOf(obs: View<Observation>[]): Reading[] {
   return out.sort((a, b) => b.at.localeCompare(a.at));
 }
 
-function PatientDetail({ id }: { id?: string }) {
+export function PatientDetail({ id, readOnly }: { id?: string; readOnly?: boolean }) {
   const { userId, notify, sync } = useData();
   const { data, error, loading } = useLoad(async () => {
     if (!id) throw new Error("No patient chosen.");
-    return { patient: await getPatient(userId, id), consents: await listConsents(userId, id), obs: await listObservations(userId, id), media: await listMedia(userId, id) };
+    return { patient: await getPatient(userId, id), consents: await listConsents(userId, id), obs: await listObservations(userId, id), media: await listMedia(userId, id), visits: await listAppointments(userId, id) };
   }, [id]);
   const [confirm, setConfirm] = useState<{ kind: "mistake" | "withdraw"; id: string } | null>(null);
   const [problem, setProblem] = useState<string>();
   if (!data || !id) return <Loading error={error} loading={loading} />;
 
-  const { patient, consents, obs, media } = data;
+  const { patient, consents, obs, media, visits } = data;
   const care = consents.map((c) => c.resource).filter((c) => consentPurpose(c) === "clinical_care");
   const active = care.find((c) => c.status === "active");
   const readings = readingsOf(obs);
@@ -206,35 +237,38 @@ function PatientDetail({ id }: { id?: string }) {
     {problem && <Alert>{problem}</Alert>}
     <Heading>Permission</Heading>
     {active ? (
-      <div className="row"><span className="body-strong">Readings may be recorded</span><TextButton onClick={() => setConfirm({ kind: "withdraw", id: active.id })}>Withdraw</TextButton></div>
+      <div className="row"><span className="body-strong">Readings may be recorded</span>{!readOnly && <TextButton onClick={() => setConfirm({ kind: "withdraw", id: active.id })}>Withdraw</TextButton>}</div>
     ) : (<>
-      <p className="caption">{care.some((c) => consentWithdrawnAt(c)) ? "Permission was withdrawn." : "No permission yet."} Ask before recording readings.</p>
-      <SecondaryButton onClick={() => go("chv.consent", id)}>Ask for permission</SecondaryButton>
+      <p className="caption">{care.some((c) => consentWithdrawnAt(c)) ? "Permission was withdrawn." : "No permission yet."}{readOnly ? "" : " Ask before recording readings."}</p>
+      {!readOnly && <SecondaryButton onClick={() => go("chv.consent", id)}>Ask for permission</SecondaryButton>}
     </>)}
     {confirm && (confirm.kind === "withdraw"
-      ? <ConfirmDialog title="Withdraw permission?" body="No new readings can be recorded until permission is given again. Old records stay." cancel={<SecondaryButton onClick={() => setConfirm(null)}>Cancel</SecondaryButton>} confirm={<PrimaryButton onClick={confirmed}>Withdraw</PrimaryButton>} />
-      : <ConfirmDialog title="Mark this reading as a mistake?" body="It stays in the history, marked as a mistake. It is not deleted." cancel={<SecondaryButton onClick={() => setConfirm(null)}>Cancel</SecondaryButton>} confirm={<PrimaryButton onClick={confirmed}>Mark as mistake</PrimaryButton>} />)}
+      ? <ConfirmDialog title="Withdraw permission?" body="No new readings can be recorded until permission is given again. Old records stay." cancel={<SecondaryButton onClick={() => setConfirm(null)}>Keep permission</SecondaryButton>} confirm={<PrimaryButton onClick={confirmed}>Withdraw</PrimaryButton>} onClose={() => setConfirm(null)} />
+      : <ConfirmDialog title="Mark this reading as a mistake?" body="It stays in the history, marked as a mistake. It is not deleted." cancel={<SecondaryButton onClick={() => setConfirm(null)}>Keep it</SecondaryButton>} confirm={<PrimaryButton onClick={confirmed}>Mark as mistake</PrimaryButton>} onClose={() => setConfirm(null)} />)}
     <Heading>Latest readings</Heading>
     {latest.length === 0 ? <p className="caption">No readings yet.</p> : (<div className="row">{latest.map((r) => <VitalCard key={r.key} label={r.label} value={r.text.split(" ")[0]} unit={r.text.split(" ").slice(1).join(" ")} taken={when(r.at)} flag={r.flag} />)}</div>)}
     {latest.some((r) => r.flag !== "normal") && !THRESHOLDS.signedOff && <p className="caption">{THRESHOLDS.note}</p>}
-    <PrimaryButton onClick={() => go("chv.vitals", id)}>Record vitals</PrimaryButton>
+    {!readOnly && <PrimaryButton onClick={() => go("chv.vitals", id)}>Record vitals</PrimaryButton>}
+    <Heading>Visits</Heading>
+    {visits.filter((v) => v.resource.status === "booked").length === 0 ? <p className="caption">No visits booked.</p> : visits.filter((v) => v.resource.status === "booked").map((v) => <div className="kv" key={v.resource.id}><span className="body-strong">{new Date(v.resource.start).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span><SyncBadge status={v.syncState} /></div>)}
+    {!readOnly && <SecondaryButton onClick={() => go("chv.book", id)}>Book a visit</SecondaryButton>}
     <Heading>Photos</Heading>
-    <PhotosSection patientId={id} media={media} />
+    <PhotosSection patientId={id} media={media} readOnly={readOnly} />
     <Heading>Voice notes</Heading>
-    <VoiceSection patientId={id} media={media} />
+    <VoiceSection patientId={id} media={media} readOnly={readOnly} />
     <Heading>History</Heading>
     {readings.length === 0 ? <p className="caption">Nothing recorded yet.</p> : readings.map((r) => (
       <div className="kv" key={r.key}>
         <span><span className="body-strong">{r.label}</span><br /><span className="caption tabular">{when(r.at)}</span></span>
         <span style={{ textAlign: "right" }}>
           <span className="body-strong tabular">{r.text}</span><br />
-          {r.mistake ? <span className="caption">Marked as a mistake</span> : <><RangeFlag flag={r.flag} /><TextButton onClick={() => setConfirm({ kind: "mistake", id: r.ids[0] })}>Mark as a mistake</TextButton></>}
+          {r.mistake ? <span className="caption">Marked as a mistake</span> : <><RangeFlag flag={r.flag} />{!readOnly && <TextButton onClick={() => setConfirm({ kind: "mistake", id: r.ids[0] })}>Mark as a mistake</TextButton>}</>}
         </span>
       </div>
     ))}
     <KV k="Record id" v={<span className="caption tabular">{id.slice(0, 8)}</span>} />
-    <div className="row"><SecondaryButton onClick={() => go("chv.referral")}>Refer</SecondaryButton><SecondaryButton onClick={() => go("chv.book")}>Book visit</SecondaryButton></div>
-    <Emergency />
+    {!readOnly && <div className="row"><SecondaryButton onClick={() => go("chv.referral")}>Refer</SecondaryButton></div>}
+    {!readOnly && <Emergency />}
   </>);
 }
 
@@ -243,16 +277,33 @@ function Vitals({ id }: { id?: string }) {
   const { userId, notify, sync } = useData();
   const { data, error, loading } = useLoad(() => (id ? getPatient(userId, id) : Promise.reject(new Error("No patient chosen."))), [id]);
   const [v, setV] = useState({ sys: "", dia: "", temp: "", weight: "", height: "" });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [problem, setProblem] = useState<{ text: string; consent: boolean }>();
   const [busy, setBusy] = useState(false);
   if (!data || !id) return <Loading error={error} loading={loading} />;
-  const num = (s: string) => (s.trim() === "" ? undefined : Number(s.trim().replace(",", ".")));
+
+  const problems: Record<keyof typeof v, string | null> = {
+    sys: vitalProblem("systolic", v.sys), dia: vitalProblem("diastolic", v.dia),
+    temp: vitalProblem("temperature", v.temp), weight: vitalProblem("weight", v.weight), height: vitalProblem("height", v.height),
+  };
+  // Blood pressure needs both numbers, and the top one must be bigger.
+  if (!problems.sys && !problems.dia) {
+    if ((v.sys.trim() === "") !== (v.dia.trim() === "")) { if (v.sys.trim() === "") problems.sys = "Blood pressure needs both numbers."; else problems.dia = "Blood pressure needs both numbers."; }
+    else if (v.sys.trim() && (toNumber(v.sys) as number) <= (toNumber(v.dia) as number)) problems.sys = "The top number should be bigger than the bottom one.";
+  }
+  const show = (k: keyof typeof v) => (touched[k] ? problems[k] ?? undefined : undefined);
+  const touch = (k: keyof typeof v) => () => setTouched((t) => ({ ...t, [k]: true }));
+  const change = (k: keyof typeof v) => (x: string) => { setProblem(undefined); setV({ ...v, [k]: x }); };
 
   async function save() {
     if (busy) return;
-    setBusy(true); setProblem(undefined);
+    setProblem(undefined);
+    setTouched({ sys: true, dia: true, temp: true, weight: true, height: true });
+    if (Object.values(v).every((x) => x.trim() === "")) return setProblem({ text: "Enter at least one reading.", consent: false });
+    if (Object.values(problems).some(Boolean)) return;                    // each wrong box shows its own message
+    setBusy(true);
     try {
-      await recordVitals(userId, id!, { systolic: num(v.sys), diastolic: num(v.dia), temperature: num(v.temp), weight: num(v.weight), height: num(v.height) });
+      await recordVitals(userId, id!, { systolic: toNumber(v.sys), diastolic: toNumber(v.dia), temperature: toNumber(v.temp), weight: toNumber(v.weight), height: toNumber(v.height) });
       notify(); void sync();
       go("chv.patient", id!);
     } catch (e) {
@@ -263,10 +314,10 @@ function Vitals({ id }: { id?: string }) {
   }
   return (<>
     <p className="body-strong">{name(data.resource)}</p>
-    <VitalField vital="bp" value={v.sys} onChange={(x) => setV({ ...v, sys: x })} diastolic={v.dia} onDiastolic={(x) => setV({ ...v, dia: x })} />
-    <VitalField vital="temp" value={v.temp} onChange={(x) => setV({ ...v, temp: x })} />
-    <VitalField vital="weight" value={v.weight} onChange={(x) => setV({ ...v, weight: x })} />
-    <VitalField vital="height" value={v.height} onChange={(x) => setV({ ...v, height: x })} />
+    <VitalField vital="bp" value={v.sys} onChange={change("sys")} diastolic={v.dia} onDiastolic={change("dia")} error={show("sys")} diastolicError={show("dia")} onBlurTop={touch("sys")} onBlurBottom={touch("dia")} />
+    <VitalField vital="temp" value={v.temp} onChange={change("temp")} error={show("temp")} onBlurTop={touch("temp")} />
+    <VitalField vital="weight" value={v.weight} onChange={change("weight")} error={show("weight")} onBlurTop={touch("weight")} />
+    <VitalField vital="height" value={v.height} onChange={change("height")} error={show("height")} onBlurTop={touch("height")} />
     {problem && <><Alert>{problem.text}</Alert>{problem.consent && <SecondaryButton onClick={() => go("chv.consent", id)}>Ask for permission</SecondaryButton>}</>}
     <PrimaryButton loading={busy} onClick={save}>Save</PrimaryButton>
     <Emergency />

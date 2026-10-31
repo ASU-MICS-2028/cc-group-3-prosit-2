@@ -1,7 +1,7 @@
 import { deleteDb, get, transact, type Row } from "../data/db";
 import { MockServer } from "../data/mockServer";
 import { auditLog, createPatient, listPatients, pendingCount, recordConsent, recordVitals } from "../data/repo";
-import { conflictOf, resolveConflict, syncNow } from "../data/sync";
+import { NetworkError, conflictOf, resolveConflict, syncNow } from "../data/sync";
 import { createVault, lockVault, unlockVault, VaultLockedError, open } from "../data/vault";
 import type { Patient } from "../data/model";
 
@@ -24,7 +24,7 @@ describe("sending", () => {
     const { p, obs } = await withData();
     expect(await pendingCount(u)).toBe(4);
     const r = await syncNow(u, server);
-    expect(r).toEqual({ sent: 4, conflicts: 0, pending: 0, offline: false });
+    expect(r).toEqual({ sent: 4, conflicts: 0, pending: 0, offline: false, pulled: 0 });
     expect(server.store.size).toBe(4);
     expect(await state(p.id)).toBe("sent");
     expect(await state(obs[0].id)).toBe("sent");
@@ -32,7 +32,7 @@ describe("sending", () => {
   });
 
   it("nothing to send is fine", async () => {
-    expect(await syncNow(u, server)).toEqual({ sent: 0, conflicts: 0, pending: 0, offline: false });
+    expect(await syncNow(u, server)).toEqual({ sent: 0, conflicts: 0, pending: 0, offline: false, pulled: 0 });
     expect(server.pushes).toBe(0);
   });
 
@@ -84,6 +84,37 @@ describe("sending", () => {
     expect(server.pushes).toBe(4);
   });
 
+  it("a record saved while a send is running still goes out in the same round of sending", async () => {
+    const a = await createPatient(u, { fullName: "First" });
+    let release!: () => void;
+    const gate = new Promise<void>((r) => { release = r; });
+    const held = { push: async (req: Parameters<MockServer["push"]>[0]) => { await gate; return server.push(req); } };
+    const first = syncNow(u, held);
+    await new Promise((r) => setTimeout(r, 30));                       // the first round is now waiting inside its push
+    const b = await createPatient(u, { fullName: "Second" });          // saved in the middle of it
+    const joined = syncNow(u, held);                                   // and its owner asks for a send
+    release();
+    await Promise.all([first, joined]);
+    expect(server.store.has(b.id)).toBe(true);
+    expect(await state(a.id)).toBe("sent");
+    expect(await state(b.id)).toBe("sent");
+  });
+
+  it("a send asked for while an offline round is ending is not dropped: it runs once the signal is back", async () => {
+    const p = await createPatient(u, { fullName: "Akosua" });
+    let release!: () => void;
+    const gate = new Promise<void>((r) => { release = r; });
+    let calls = 0;
+    const api = { push: async (req: Parameters<MockServer["push"]>[0]) => { if (++calls === 1) { await gate; throw new NetworkError(); } return server.push(req); } };
+    const first = syncNow(u, api);
+    await new Promise((r) => setTimeout(r, 30));                       // round one is waiting, and will end with "no signal"
+    const joined = syncNow(u, api);                                    // the signal is back and a send is asked for
+    release();
+    await Promise.all([first, joined]);
+    expect(server.store.has(p.id)).toBe(true);
+    expect(await state(p.id)).toBe("sent");
+  });
+
   it("a change made twice before sending goes out once, as the newest version", async () => {
     const p = await createPatient(u, { fullName: "Akosua" });
     await createPatient(u, { id: p.id, fullName: "Akosua Boateng" });   // same id again = an edit
@@ -118,7 +149,7 @@ describe("sending", () => {
   });
 
   it("an unexpected server error is raised, and the record is kept for next time", async () => {
-    const p = await createPatient(u, { fullName: "A" });
+    const p = await createPatient(u, { fullName: "Ama" });
     const broken = { push: async () => { throw new Error("500"); } };
     await expect(syncNow(u, broken)).rejects.toThrow("500");
     expect(await state(p.id)).toBe("saved");
@@ -130,7 +161,7 @@ describe("conflicts", () => {
   async function conflicted() {
     const p = await createPatient(u, { fullName: "Akosua Boateng" });
     await syncNow(u, server);
-    server.editElsewhere(p.id, (r) => renamed(r as Patient, "Akosua B. (clinic)"));   // another phone
+    server.editElsewhere(p.id, (r) => renamed(r as Patient, "Akosua B. Clinic"));   // another phone
     await createPatient(u, { id: p.id, fullName: "Akosua Boateng-Mensah" });        // an edit here
     const r = await syncNow(u, server);
     return { p, r };
@@ -142,8 +173,8 @@ describe("conflicts", () => {
     expect(await state(p.id)).toBe("attention");
     const c = (await conflictOf(u, p.id))!;
     expect((c.mine as Patient).name[0].text).toBe("Akosua Boateng-Mensah");
-    expect((c.theirs as Patient).name[0].text).toBe("Akosua B. (clinic)");
-    expect((server.store.get(p.id)!.resource as Patient).name[0].text).toBe("Akosua B. (clinic)");  // server untouched
+    expect((c.theirs as Patient).name[0].text).toBe("Akosua B. Clinic");
+    expect((server.store.get(p.id)!.resource as Patient).name[0].text).toBe("Akosua B. Clinic");  // server untouched
   });
 
   it("a record waiting for a decision is not resent, and does not block other records", async () => {
@@ -172,7 +203,7 @@ describe("conflicts", () => {
     const before = server.pushes;
     await resolveConflict(u, p.id, "theirs");
     expect(await state(p.id)).toBe("sent");
-    expect((await listPatients(u))[0].resource.name[0].text).toBe("Akosua B. (clinic)");
+    expect((await listPatients(u))[0].resource.name[0].text).toBe("Akosua B. Clinic");
     expect((await syncNow(u, server)).sent).toBe(0);
     expect(server.pushes).toBe(before);
   });
@@ -184,7 +215,7 @@ describe("conflicts", () => {
   });
 
   it("resolving something that is not in conflict is refused", async () => {
-    const p = await createPatient(u, { fullName: "A" });
+    const p = await createPatient(u, { fullName: "Ama" });
     await expect(resolveConflict(u, p.id, "mine")).rejects.toThrow(/nothing to resolve/);
     await expect(resolveConflict(u, crypto.randomUUID(), "theirs")).rejects.toThrow();
   });

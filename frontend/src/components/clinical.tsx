@@ -16,21 +16,22 @@ export const VITAL_META: Record<Vital, { label: string; unit: string; icon: Icon
 };
 
 /** Large numeric field with the unit inside on the right. Blood pressure is two fields. */
-export function VitalField({ vital, error, value, onChange, diastolic, onDiastolic }: {
+export function VitalField({ vital, error, value, onChange, diastolic, onDiastolic, diastolicError, onBlurTop, onBlurBottom }: {
   vital: Vital; error?: string; value?: string; onChange?: (v: string) => void; diastolic?: string; onDiastolic?: (v: string) => void;
+  diastolicError?: string; onBlurTop?: () => void; onBlurBottom?: () => void;
 }) {
   const { label, unit } = VITAL_META[vital];
   const bind = (v: string | undefined, cb?: (v: string) => void) => (cb ? { value: v ?? "", onChange: (e: React.ChangeEvent<HTMLInputElement>) => cb(e.target.value) } : {});
   if (vital === "bp") {
     return (
       <div className="vital-bp">
-        <Field label={`${label}, top number`} inputMode="decimal" suffix={unit} error={error} {...bind(value, onChange)} />
+        <Field label={`${label}, top number`} inputMode="decimal" suffix={unit} error={error} onBlur={onBlurTop} {...bind(value, onChange)} />
         <span className="vital-slash" aria-hidden>/</span>
-        <Field label="Bottom number" inputMode="decimal" suffix={unit} {...bind(diastolic, onDiastolic)} />
+        <Field label="Bottom number" inputMode="decimal" suffix={unit} error={diastolicError} onBlur={onBlurBottom} {...bind(diastolic, onDiastolic)} />
       </div>
     );
   }
-  return <Field label={label} inputMode="decimal" suffix={unit} error={error} {...bind(value, onChange)} />;
+  return <Field label={label} inputMode="decimal" suffix={unit} error={error} onBlur={onBlurTop} {...bind(value, onChange)} />;
 }
 
 export type Flag = "normal" | "check" | "urgent";

@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { App } from "../App";
 import { navigate } from "../router";
+import { whenSyncIdle } from "../data/sync";
 import { LOCK_AFTER_MS } from "../auth/lock";
 import { lockVault } from "../data/vault";
 import { mockAuthApi } from "../auth/mockApi";
@@ -39,7 +40,8 @@ async function enterPassphrase(value = PHRASE) {
   fireEvent.click(screen.getByRole("button", { name: "Unlock" }));
 }
 
-beforeEach(() => { localStorage.clear(); navigate("/", { replace: true }); setVisibility("visible"); });
+beforeEach(async () => {
+  await whenSyncIdle(); localStorage.clear(); navigate("/", { replace: true }); setVisibility("visible"); });
 
 describe("sign-in to the app", () => {
   it("shows the test-mode account list when signed out", async () => {

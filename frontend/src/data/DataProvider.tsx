@@ -9,6 +9,7 @@ export const sharedServer = new MockServer("hc.mock.server.v1");
 
 type Ctx = {
   userId: string;
+  api: Api;
   server: MockServer;
   /** Test switch: pretend there is no signal, even though the phone is online. */
   simulatedOffline: boolean;
@@ -22,8 +23,12 @@ type Ctx = {
 };
 const DataCtx = createContext<Ctx | null>(null);
 
-export function DataProvider({ children, api = sharedServer }: { children: ReactNode; api?: SyncApi & { reachable?: boolean } }) {
+export type Api = SyncApi & { taken?: (specialistId: string, fromIso: string, toIso: string) => Promise<{ start: string; end: string }[]> };
+
+export function DataProvider({ children, api: given }: { children: ReactNode; api?: Api }) {
   const { user, lockNow } = useSession();
+  // The server as this person sees it: what they may download depends on who they are.
+  const api = useMemo<Api>(() => given ?? sharedServer.as({ userId: user!.id, role: user!.role }), [given, user]);
   const [simulatedOffline, setSimulated] = useState(false);
   const [deviceOnline, setDeviceOnline] = useState(navigator.onLine);
   const [lastSync, setLastSync] = useState<SyncSummary | null>(null);
@@ -36,17 +41,17 @@ export function DataProvider({ children, api = sharedServer }: { children: React
   const notify = useCallback(() => setChanged((n) => n + 1), []);
 
   const sync = useCallback(async () => {
-    if ("reachable" in api) (api as { reachable: boolean }).reachable = onlineRef.current;
+    if (!given) sharedServer.reachable = onlineRef.current;   // test mode: "no signal" cuts the mock server off
     try {
       const summary = await syncNow(userId, api);
       setLastSync(summary);
-      if (summary.sent > 0 || summary.conflicts > 0) setChanged((n) => n + 1);   // screens reload only if something moved
+      if (summary.sent > 0 || summary.conflicts > 0 || summary.pulled > 0) setChanged((n) => n + 1);   // screens reload only if something moved
       return summary;
     } catch (e) {
       if (e instanceof VaultLockedError) { lockNow(); return null; }
       return null; // an unexpected server error: the records stay saved on the phone for the next try
     }
-  }, [api, userId, lockNow]);
+  }, [api, userId, lockNow, given]);
 
   // Send when the signal comes back, and every 20 seconds while the app is open.
   useEffect(() => {
@@ -61,8 +66,8 @@ export function DataProvider({ children, api = sharedServer }: { children: React
   const setSimulatedOffline = useCallback((v: boolean) => { setSimulated(v); onlineRef.current = navigator.onLine && !v; if (!v) void sync(); }, [sync]);
 
   const value = useMemo<Ctx>(() => ({
-    userId, server: sharedServer, simulatedOffline, setSimulatedOffline, online, sync, lastSync, changed, notify,
-  }), [userId, simulatedOffline, setSimulatedOffline, online, sync, lastSync, changed, notify]);
+    userId, api, server: sharedServer, simulatedOffline, setSimulatedOffline, online, sync, lastSync, changed, notify,
+  }), [userId, api, simulatedOffline, setSimulatedOffline, online, sync, lastSync, changed, notify]);
   return <DataCtx.Provider value={value}>{children}</DataCtx.Provider>;
 }
 

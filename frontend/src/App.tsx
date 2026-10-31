@@ -6,9 +6,11 @@ import { homeScreen } from "./auth/roles";
 import { Login } from "./shell/Login";
 import { AppShell } from "./shell/AppShell";
 import { DataProvider } from "./data/DataProvider";
+import { CallProvider } from "./call/useCall";
+import type { CallApi } from "./call/engine";
 import { LockScreen, PinSetup } from "./shell/PinScreens";
 
-export function Routes() {
+export function Routes({ callEngine }: { callEngine?: CallApi } = {}) {
   const path = usePath();
   const { user, locked, pinSet } = useSession();
 
@@ -24,9 +26,9 @@ export function Routes() {
   if (!user) return <Login />;
   if (locked) return <LockScreen />;
   if (!pinSet) return <PinSetup onDone={() => navigate(`/app/${homeScreen(user.role)}`, { replace: true })} />;
-  return <DataProvider><AppShell /></DataProvider>;
+  return <DataProvider><CallProvider engine={callEngine}><AppShell /></CallProvider></DataProvider>;
 }
 
-export function App() {
-  return <SessionProvider><Routes /></SessionProvider>;
+export function App({ callEngine }: { callEngine?: CallApi } = {}) {
+  return <SessionProvider><Routes callEngine={callEngine} /></SessionProvider>;
 }

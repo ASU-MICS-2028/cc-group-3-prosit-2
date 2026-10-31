@@ -65,13 +65,22 @@ export function Sheet({ open = true, onClose, title, children, inline }: { open?
   return inline ? sheet : <div className="scrim" onClick={onClose}><div onClick={(e) => e.stopPropagation()}>{sheet}</div></div>;
 }
 
-/** 7.15: only for destructive or irreversible actions. Secondary left, primary right. */
-export function ConfirmDialog({ title, body, cancel, confirm }: { title: string; body: string; cancel: ReactNode; confirm: ReactNode }) {
-  return (
-    <div className="dialog" role="alertdialog" aria-label={title}>
+/** 7.15: only for destructive or irreversible actions. A bottom sheet with full-width buttons, the main one on top,
+ *  so the labels never squeeze. Escape or tapping outside closes it. `inline` is for the gallery only. */
+export function ConfirmDialog({ title, body, cancel, confirm, onClose, inline }: { title: string; body: ReactNode; cancel: ReactNode; confirm: ReactNode; onClose?: () => void; inline?: boolean }) {
+  useEffect(() => {
+    if (inline || !onClose) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [inline, onClose]);
+  const dialog = (
+    <div className="sheet confirm-sheet" role="alertdialog" aria-modal={!inline} aria-label={title}>
+      <span className="sheet-handle" aria-hidden />
       <h2 className="heading">{title}</h2>
-      <p>{body}</p>
-      <div className="dialog-actions">{cancel}{confirm}</div>
+      <div className="confirm-body">{body}</div>
+      <div className="confirm-actions">{confirm}{cancel}</div>
     </div>
   );
+  return inline ? dialog : <div className="scrim" onClick={onClose}><div onClick={(e) => e.stopPropagation()}>{dialog}</div></div>;
 }

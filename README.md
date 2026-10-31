@@ -27,9 +27,11 @@ _Updated 26 Oct 2026. Lab 6 submitted. Call tests C1–C4 done; live bookings do
 | Task | Who | Status | Waiting on |
 |---|---|---|---|
 | FB-0 Confirm D-028 and D-029 (Perfect has approved; fonts are in) | Joseph, Eugene, Elise | 🗳 Vote needed | Team OK |
-| FB-2 Sign-in, PIN lock, fingerprint, screens for all eight roles | Perfect | 🔄 Built; PR open | PR approval |
-| FB-3 Offline patient records (encrypted, synced) | Perfect | 🔄 Built (data, security, screens, photo, voice, offline start); phone check | Perfect's phone |
+| FB-4 Video call and appointments (built), recording and QA list (to do) | Perfect | 🔄 Built; phone check | Perfect's phone |
+| Real sync API: a role-filtered download endpoint (D-032), 409 on double booking | Joseph | 🟢 Ready | — |
+| FB-2 / FB-3 phone checks: fingerprint, voice notes, offline start and install (need an https address); airplane-mode evidence | Perfect | 🟢 Ready | An https address |
 | SVC-1 to SVC-16 Split the new backend services between the backend lead and the team | Joseph | 🟢 Ready | — |
+| SVC-4 Integrate the existing votex365 payments code as `payments-service` (no mock) and share its endpoints for the fee and premium screens | Joseph | 🟢 Ready | — |
 | Decide how sixteen services are hosted within the budget (merge, path-route on the fleet, or demo-only locally) | Eugene | 🟢 Ready | — |
 | Plan the DB migrations for the new roles and tables (see PLAN Phase 6 notes) | Joseph / Elise | 🟢 Ready | — |
 

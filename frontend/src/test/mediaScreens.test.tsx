@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { App } from "../App";
 import { navigate } from "../router";
+import { whenSyncIdle } from "../data/sync";
 import { sharedServer } from "../data/DataProvider";
 import { deleteDb } from "../data/db";
 import { ImageError } from "../media/image";
@@ -42,6 +43,7 @@ function fakeRecording(bytes = new Uint8Array([1, 2, 3, 4]), contentType = "audi
 }
 
 beforeEach(async () => {
+  await whenSyncIdle();      // a send left over from the previous test must not touch this one
   localStorage.clear(); compress.mockReset(); start.mockReset();
   URL.createObjectURL = vi.fn(() => "blob:test"); URL.revokeObjectURL = vi.fn();
   sharedServer.store.clear(); sharedServer.reachable = true;
