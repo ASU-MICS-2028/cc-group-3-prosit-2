@@ -4,8 +4,9 @@ import { PersonRow, StateView, SyncBadge } from "../components/display";
 import { Icon } from "../components/icons";
 import { useData, useLoad } from "../data/DataProvider";
 import { listActivity } from "../data/repo";
-import { conflictOf, resolveConflict } from "../data/sync";
-import type { Consent, Resource } from "../data/model";
+import { cancelRejected, conflictOf, rejectedOf, resolveConflict } from "../data/sync";
+import type { Appointment, Consent, Resource } from "../data/model";
+import { SPECIALISTS, dayStartUtc, slotsForDay } from "../config/people";
 import { Heading, go, type ScreenDef } from "./kit";
 
 function SyncScreen() {
@@ -29,6 +30,23 @@ function SyncScreen() {
     setNote("Pretended another phone edited a permission. Now open that patient, press Withdraw, then Send now.");
   }
 
+  /** Puts a booking by "someone else" on the server at the first free time, so a clash can be tried on one phone. */
+  function pretendOtherBooking() {
+    const now = new Date();
+    const doctor = SPECIALISTS[0];
+    const busy = [...server.store.values()].map((x) => x.resource).filter((r): r is Appointment => r.resourceType === "Appointment" && r.status === "booked");
+    for (let d = 0; d < 8; d++) {
+      for (const iso of slotsForDay(dayStartUtc(now, d))) {
+        const end = new Date(new Date(iso).getTime() + 30 * 60_000).toISOString();
+        if (new Date(iso) <= now || busy.some((a) => a.start < end && iso < a.end)) continue;
+        const a: Appointment = { resourceType: "Appointment", id: crypto.randomUUID(), status: "booked", start: iso, end, participant: [{ actor: { reference: "Patient/another-phone", display: "Another patient" }, status: "accepted" }, { actor: { reference: `Practitioner/${doctor.id}`, display: doctor.name }, status: "accepted" }] };
+        server.store.set(a.id, { version: 1, resource: a, owner: "another-phone", patientId: null });
+        return setNote(`Pretended another phone booked ${doctor.name} on ${new Date(iso).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}. Turn "Pretend I'm offline" on, book that time, then turn it off.`);
+      }
+    }
+    setNote("No free time found this week.");
+  }
+
   return (<>
     <div className="row">
       <SyncBadge status={waiting > 0 ? "saved" : "sent"} />
@@ -48,8 +66,9 @@ function SyncScreen() {
     <div className="row">
       <Chip selected={simulatedOffline} onClick={() => setSimulatedOffline(!simulatedOffline)}>Pretend I'm offline</Chip>
       <SecondaryButton onClick={pretendOtherPhone}>Pretend another phone edited a permission</SecondaryButton>
+      <SecondaryButton onClick={pretendOtherBooking}>Pretend another phone booked the first free time</SecondaryButton>
       <SecondaryButton onClick={() => { server.loseNextReply = true; setNote("The next send will reach the server, but the reply will be lost. Add a patient and press Send now."); }}>Lose the next reply</SecondaryButton>
-      <SecondaryButton onClick={() => { server.store.clear(); localStorage.removeItem("hc.mock.server.v1"); notify(); setNote("The test server was emptied."); }}>Empty the test server</SecondaryButton>
+      <SecondaryButton onClick={() => { server.clear(); notify(); setNote("The test server was emptied."); }}>Empty the test server</SecondaryButton>
     </div>
   </>);
 }
@@ -63,13 +82,32 @@ function flat(v: unknown, path = ""): Record<string, string> {
 }
 const human = (p: string) => p.replace(/\.(\d+)/g, "").replace(/\./g, " › ").replace(/^name › text$/, "Name").replace(/^address › city$/, "Village");
 
+const REJECTED: Record<string, string> = { "slot-taken": "Someone else booked that time first, so this visit was not made. Nothing else was lost." };
+
+/** A booking the server refused for good: the person chooses another time or cancels. */
+function Rejected({ id, reason, patientId }: { id: string; reason: string; patientId: string | null }) {
+  const { userId, notify, sync } = useData();
+  const [busy, setBusy] = useState(false);
+  const done = async (next: () => void) => { setBusy(true); await cancelRejected(userId, id); notify(); void sync(); next(); };
+  return (<>
+    <p>{REJECTED[reason] ?? "The server could not accept this."}</p>
+    <PrimaryButton loading={busy} onClick={() => done(() => go("chv.book", patientId ?? undefined))}>Choose another time</PrimaryButton>
+    <SecondaryButton disabled={busy} onClick={() => done(() => go("chv.visits"))}>Cancel this visit</SecondaryButton>
+  </>);
+}
+
 function Conflict({ id }: { id?: string }) {
   const { userId, sync, notify } = useData();
+  const refused = useLoad(() => (id ? rejectedOf(userId, id) : Promise.resolve(null)), [id]);
   const { data, error, loading } = useLoad(() => (id ? conflictOf(userId, id) : Promise.resolve(null)), [id]);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string>();
   if (error) return <StateView kind="error" plain text={error} />;
-  if (loading) return <StateView kind="loading" text="Opening…" />;
+  if (loading || refused.loading) return <StateView kind="loading" text="Opening…" />;
+  if (refused.data && id) {
+    const res = refused.data.resource;
+    return <Rejected id={id} reason={refused.data.reason} patientId={res.resourceType === "Appointment" ? res.participant[0].actor.reference.replace("Patient/", "") : null} />;
+  }
   if (!data || !id) return <StateView kind="empty" plain text="Nothing needs your attention here." action={<SecondaryButton onClick={() => go("sync")}>Back to sending</SecondaryButton>} />;
 
   const a = flat(data.mine as Resource), b = flat(data.theirs as Resource);

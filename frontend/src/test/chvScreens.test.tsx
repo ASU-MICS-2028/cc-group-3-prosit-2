@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { App } from "../App";
 import { navigate } from "../router";
+import { whenSyncIdle } from "../data/sync";
 import { sharedServer } from "../data/DataProvider";
 import { deleteDb } from "../data/db";
 
@@ -50,6 +51,7 @@ const goOffline = async (on: boolean) => {
 };
 
 beforeEach(async () => {
+  await whenSyncIdle();      // a send left over from the previous test must not touch this one
   localStorage.clear();
   sharedServer.store.clear(); sharedServer.reachable = true; sharedServer.pushes = 0; sharedServer.loseNextReply = false;
   await deleteDb(AMA);
@@ -82,20 +84,66 @@ describe("CHV records patients on the phone", () => {
     expect(screen.getByText(/It will send by itself/)).toBeTruthy();
   });
 
-  it("refuses an empty name, a bad year and a bad phone, in plain words, without saving", async () => {
+  it("each wrong field shows its own message under it, and nothing is saved", async () => {
     await signInAma();
     open("/app/chv.register");
     await screen.findByLabelText("Full name");
     click("Save and continue");
-    expect(await alertText()).toBe("Please enter the patient's name.");
-    type("Full name", "Yaw"); type("Year of birth", "84");
+    expect(await screen.findByText("Please enter the name.")).toBeTruthy();
+    type("Full name", "Yaw2");
+    expect(await screen.findByText("Names use letters only, no numbers.")).toBeTruthy();   // shown once the box was touched
+    type("Full name", "Yaw Owusu"); type("Year of birth", "84"); fireEvent.blur(screen.getByLabelText("Year of birth"));
+    expect(await screen.findByText(/Use a 4-digit year/)).toBeTruthy();
+    type("Year of birth", "19a4");
+    expect(await screen.findByText(/Numbers only. Use a 4-digit year/)).toBeTruthy();
+    type("Year of birth", "1984");
+    type(/Phone number/, "abc"); fireEvent.blur(screen.getByLabelText(/Phone number/));
+    expect(await screen.findByText("Numbers only. Don't type letters or symbols.")).toBeTruthy();
+    type(/Phone number/, "12");
+    expect(await screen.findByText(/9 digits after \+233/)).toBeTruthy();
+    type("Village or town", "Dodowa!!"); fireEvent.blur(screen.getByLabelText("Village or town"));
+    expect(await screen.findByText("Use letters, numbers and spaces only.")).toBeTruthy();
     click("Save and continue");
-    expect(await alertText()).toMatch(/4-digit year/);
-    type("Year of birth", "1984"); type(/Phone number/, "12");
-    click("Save and continue");
-    expect(await alertText()).toBe("The phone number is not valid.");
+    expect(screen.queryByText(/May we write down/)).toBeNull();                              // still on the form
     open("/app/chv.patients");
     expect(await screen.findByText("No patients yet. Add the first one.")).toBeTruthy();
+  });
+
+  it("a number with spaces or a leading 0 is accepted and saved in the +233 form", async () => {
+    await signInAma();
+    open("/app/chv.register");
+    await screen.findByLabelText("Full name");
+    type("Full name", "Yaw Owusu"); type(/Phone number/, "024 400 0001");
+    click("Save and continue");
+    await screen.findByText(/May we write down/);
+    await waitFor(() => expect([...sharedServer.store.values()].some((s) => JSON.stringify(s.resource).includes("+233244000001"))).toBe(true), { timeout: 3000 });
+  });
+
+  it("registering a name that is already saved asks first: open that patient, or add a new one anyway", async () => {
+    await signInAma(); await addPatient("Akosua Boateng");
+    open("/app/chv.register");
+    await screen.findByLabelText("Full name");
+    type("Full name", "  akosua   BOATENG ");
+    click("Save and continue");
+    expect((await screen.findByRole("alert")).textContent).toContain("Akosua Boateng is already saved");
+    expect(screen.queryByRole("button", { name: "Save and continue" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "No, add a new patient" }));
+    await screen.findByText(/May we write down/);
+    open("/app/chv.patients");
+    await screen.findAllByText("Akosua Boateng");
+    expect(screen.getAllByText(/record [0-9a-f]{4}/)).toHaveLength(2);                          // told apart by a short record tag
+  });
+
+  it("'Open that patient' goes to the saved record and adds nobody", async () => {
+    await signInAma(); await addPatient("Akosua Boateng");
+    open("/app/chv.register");
+    await screen.findByLabelText("Full name");
+    type("Full name", "Akosua Boateng"); click("Save and continue");
+    fireEvent.click(await screen.findByRole("button", { name: "Open that patient" }));
+    expect(await screen.findByText("Latest readings")).toBeTruthy();
+    open("/app/chv.patients");
+    await screen.findByText("Akosua Boateng");
+    expect(screen.getAllByText("Akosua Boateng")).toHaveLength(1);
   });
 
   it("a double tap on Save makes one patient", async () => {
@@ -137,15 +185,27 @@ describe("consent and vitals", () => {
     expect(screen.getByRole("button", { name: "Ask for permission" })).toBeTruthy();
   });
 
-  it("a typing error (368 for 36.8) is caught, and nothing is saved", async () => {
+  it("a typing error (368 for 36.8) is shown under the box as you leave it, and nothing is saved", async () => {
     await signInAma(); await addPatient(); await openPatient();
     fireEvent.click(screen.getByRole("button", { name: "Record vitals" }));
     await screen.findByLabelText("Temperature");
-    type("Temperature", "368");
+    type("Temperature", "368"); fireEvent.blur(screen.getByLabelText("Temperature"));
+    expect(await screen.findByText(/Body temperature of 368 °C looks wrong. It should be between 25 and 45/)).toBeTruthy();
     click("Save");
-    expect(await alertText()).toMatch(/looks wrong/);
     await openPatient();
     expect(await screen.findByText("No readings yet.")).toBeTruthy();
+  });
+
+  it("letters in a number box are refused with a message, in every reading box", async () => {
+    await signInAma(); await addPatient(); await openPatient();
+    fireEvent.click(screen.getByRole("button", { name: "Record vitals" }));
+    await screen.findByLabelText("Temperature");
+    for (const [label, vital] of [[/top number/, "bp"], ["Bottom number", "bp"], ["Temperature", "t"], ["Weight", "w"], ["Height", "h"]] as const) {
+      type(label, "abc"); fireEvent.blur(screen.getByLabelText(label));
+    }
+    await waitFor(() => expect(screen.getAllByText(/Numbers only. Use digits and one decimal point/)).toHaveLength(5));
+    click("Save");
+    expect(screen.queryByText("Latest readings")).toBeNull();                                  // still on the form
   });
 
   it("only one blood pressure number, an empty form and a comma decimal are each handled", async () => {
@@ -154,10 +214,11 @@ describe("consent and vitals", () => {
     await screen.findByLabelText("Temperature");
     click("Save");
     expect(await alertText()).toBe("Enter at least one reading.");
-    type(/top number/, "120");
-    click("Save");
-    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Blood pressure needs both numbers."));
-    type(/top number/, ""); type("Temperature", "37,4");
+    type(/top number/, "120"); fireEvent.blur(screen.getByLabelText("Bottom number"));
+    expect(await screen.findByText("Blood pressure needs both numbers.")).toBeTruthy();
+    type("Bottom number", "130"); fireEvent.blur(screen.getByLabelText("Bottom number"));
+    expect(await screen.findByText("The top number should be bigger than the bottom one.")).toBeTruthy();
+    type(/top number/, ""); type("Bottom number", ""); type("Temperature", "37,4");
     click("Save");
     expect(await screen.findByText("37.4 °C", {}, { timeout: 3000 })).toBeTruthy();
   });

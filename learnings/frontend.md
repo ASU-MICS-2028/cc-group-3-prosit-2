@@ -142,3 +142,77 @@ Phone steps are given in the chat after each round. The Sync screen has "Test to
 
 ## Not done yet
 Editing a patient; turning a voice note into text; the real sync API; the real login service; downloading a patient's records from the server onto a new phone.
+
+---
+
+# FB-4 part 1: the video call, inside the app
+
+## In one sentence
+Two people open the same call code in the app and see and hear each other; on a weak connection the call offers (then switches to) audio only.
+
+## What I did, step by step (`src/call/`, `src/components/live.tsx`, `src/screens/call.tsx`)
+1. **Ported the Lab 7 call** (`webrtc-spike/`) into the app. It uses the **same signaling server**, hosted at `call-hc.agroconnect.space` (D-023). `src/call/signaling.ts` is a copy of the spike's message list; keep the two in step. To use another server, set `VITE_CALL_WS` when building.
+2. **Low-bandwidth video:** the camera is asked for 320 by 240 at about 15 frames a second, and the video is capped at about 150 kbit/s (usable on 3G).
+3. **Quality indicator** (`quality.ts`): every 2 seconds the browser's stats (packet loss, delay, frame rate) are judged good or weak. Two weak readings in a row (4 s) suggest **"Switch to audio?"**; five in a row (10 s) switch to audio by themselves. These limits are settings from the Lab 7 throttling tests, not facts about every network.
+4. **Audio only:** the camera is switched off and nothing is sent, which saves most of the bandwidth. The other person sees your name instead of a black box. You can go back to video at any time. A call that starts audio-only keeps a video line reserved, so switching later needs no new setup.
+5. **Before the call** (`network.ts`, `screens/call.tsx`): a check page looks at the secure-page rule, the signal, whether the call server can be reached, and the microphone; the phone's own connection hint makes "audio only" the first choice when it says 2G or slow.
+6. **Full-screen call** above the bottom navigation, with mute, camera, audio-only and end (red). The screen is kept awake during a call where the phone allows it. Leaving the page ends the call and releases the camera and microphone.
+7. **After the call:** why it ended and how long it lasted, then "Call again".
+8. **Codes:** "Clinic 1" and "clinic-1" are the same room. Make a code, then share it by the phone's Share button.
+
+## Why we did it this way
+- **Reuse, not rewrite:** the call already worked in Lab 7; the new work is the screens, the weak-network behaviour and the checks around it.
+- **A fake engine in tests:** the screens are written against a small interface (`CallApi`), so every state (waiting, weak, ended, error) is tested without two phones. The real engine was tested separately with two real browsers.
+
+## How I checked it (a real call, not only unit tests)
+Two separate browsers with fake cameras joined the same code through the new screens against a local copy of the signaling server. Both connected, each received video at 320 by 240, audio-only hid the picture and showed the name on the other side, switching back restored it, mute worked, and ending showed the right message on both sides. A layout bug found this way (the bottom nav covered the call buttons) was fixed.
+
+## What can go wrong / known limits
+- **Needs a secure page** (https, or localhost) for the camera and microphone.
+- **Two different mobile networks may not connect:** only a public STUN server is used. If it fails, the app says so. This is the Lab 7 TURN finding. A TURN relay can be added with `VITE_TURN_URL`, `VITE_TURN_USERNAME` and `VITE_TURN_CREDENTIAL` (these end up in the app, so use short-lived ones).
+- **No code check:** anyone who knows a code can join if the room has a free place (two people at most). Codes made from an appointment will be hard to guess; the hand-typed ones are only as private as the code you choose.
+- **If the connection drops** the call waits 10 seconds to recover, then ends with a plain message. It does not restart the connection by itself yet.
+- **Not built yet:** booking appointments, recording with both people's consent, the quality-assurance list, the consultation fee (Joseph integrates the existing payments code).
+
+---
+
+# FB-4 part 2: appointments, and downloading records
+
+## In one sentence
+A CHV books a 30-minute video visit for a patient with a doctor; it is saved on the phone, sent when there is a signal, and the doctor's phone downloads it, so both see the same visit and can join the same call.
+
+## What I did, step by step
+1. **Visit records** (`data/model.ts`, `data/repo.ts`): an Appointment (FHIR-shaped) with the patient, the doctor, a start and end in UTC. Rules copied from the database: a visit needs permission for care, can't be in the past or more than 90 days ahead, and a doctor (or a patient) can't have two booked visits at overlapping times (D-017). Cancelling marks it cancelled; nothing is deleted.
+2. **Times** (`config/people.ts`): clinic hours (08:00 to 16:00 UTC, 30-minute slots, Sunday closed) are settings. Times are saved in UTC and shown in the phone's own time zone, so a doctor in another country sees the right local time (brief p.3).
+3. **Booking screen** (`screens/visits.tsx`): pick the patient, a day (a week ahead), and a time. Times already booked are greyed out; with no signal it says it will check again when there is one.
+4. **Visits list**: coming up, earlier and cancelled, with sync state, "Join call" (which opens the Lab 7 call with a code made from the visit, so both people land in the same room) and "Cancel visit". It also says whether an **SMS reminder** will go out: only with permission for reminders and a phone number (D-014). In test mode the reminder is only a note; the real reminder comes from the existing event pipeline once the PWA talks to the real API.
+5. **Two phones, one time:** if another phone booked the same doctor and time first, the server refuses it for good. Your phone keeps the visit, shows "Needs attention", explains, and offers "Choose another time" or "Cancel this visit". Nothing is lost.
+6. **Downloading** (`data/sync.ts`, `data/mockServer.ts`, D-032): after sending, the phone downloads what its person may see that others created, from a bookmark so nothing repeats. A doctor gets the visits booked with them and those patients' records (read only). A person's own records come back after a wipe or a new phone. A record with unsent changes is never overwritten by a download.
+7. **Doctor screens:** Today (visits booked with you, "Check for new visits", "Join call"), Patients, and a read-only patient page with no buttons that change anything.
+
+## Why we did it this way
+- **The server decides who sees what.** The app only hides things.
+- **Booking offline is allowed:** a rural CHV with no signal can still book, and gets told afterwards if the time was lost.
+
+## How I checked it
+266 tests: the booking rules, double booking across two phones, who downloads what, repeated downloads, a wiped phone getting its records back, and the screens end to end including a CHV booking and then switching to the doctor in the same browser. Three bugs were found and fixed on the way:
+- a record saved while a send was running waited up to 20 seconds for the next round;
+- a send asked for just as an offline round ended was dropped;
+- after a download the screens did not refresh (the doctor's list stayed empty).
+Each has a test that fails if the fix is removed.
+
+## What can go wrong / known limits
+- **Needs the real download endpoint** for two real phones to see each other's records (Joseph); today the "server" is a mock in the browser, so two roles on one phone (Switch account) is the way to test.
+- **Patient-role screens are still basic:** a patient doesn't yet have their own view of their visits.
+- **No real SMS in the PWA:** the reminder line is a promise, not a message.
+- **Recording with consent and the QA list:** not built yet.
+
+## FB-4 fixes after the phone check (31 Oct)
+- **Field validation** (`src/data/validate.ts`): every form box now checks its value and shows a message under it: names (letters only, 2 to 100 characters, any Ghanaian letters allowed), village, year of birth (4 digits, 1900 to this year), Ghana phone number (digits only, 9 after +233; spaces, dashes and a leading 0 are forgiven), vitals (digits and one decimal point; comma accepted; each reading checked against its plausible range), and call codes. The same rules run again inside the repository, so a bad value can't get in even if a form is skipped. **Bug fixed:** the phone box used to throw away letters silently and accept what was left.
+- **Duplicate patients:** registering a name that is already saved (ignoring case and extra spaces) asks first: "Open that patient" or "No, add a new patient". When two saved patients share a name, lists add a short record tag (for example "record 4f2a") so they can be told apart. Two different people with the same name are still allowed.
+- **Confirm sheet:** the "are you sure" box is now a bottom sheet with full-width buttons, the main one on top (before, a button label wrapped onto two lines). The cancel-visit sheet names the patient, the time and the doctor. Escape or a tap outside closes it without doing anything.
+- **Offline booking notice:** when the times can't be checked, a yellow notice sits above the times: "You're offline. We'll check the times are still free when you have a signal. If someone else took your time, the visit will show 'Needs attention' and you can choose another."
+- **Test hygiene:** a send still running at the end of one test could write into the next test's data. Tests now wait for sends to finish, and wiping a person's data does too (`whenSyncIdle`). 342 tests, 10 clean runs in a row.
+
+## Running the frontend tests: use Node 24
+CI runs Node 24, and `main` now has jsdom 30 and vitest 5, which don't start on Node 20 ("Cannot read properties of undefined (reading 'bind')"). On a Mac with nvm: `nvm install 24 && nvm use 24`, then `cd frontend && npm install && npm test`. Without changing your Node, this also works: `npx -y node@24 node_modules/vitest/vitest.mjs run`.

@@ -22,7 +22,7 @@ function useObjectUrl(m: Media): string {
 const messageOf = (e: unknown) =>
   e instanceof RepoError || e instanceof ImageError || e instanceof RecorderError ? e.message : e instanceof Error && /make small|too big/i.test(e.message) ? e.message : "We couldn't save that. Please try again.";
 
-function MediaRow({ v, onMistake }: { v: View<Media>; onMistake: (id: string) => void }) {
+function MediaRow({ v, onMistake }: { v: View<Media>; onMistake?: (id: string) => void }) {
   const m = v.resource;
   const mistake = m.status === "entered-in-error";
   const url = useObjectUrl(m);
@@ -36,13 +36,13 @@ function MediaRow({ v, onMistake }: { v: View<Media>; onMistake: (id: string) =>
         {!isPhoto && !mistake && <audio controls src={url} aria-label="Play voice note" />}
         {!isPhoto && !mistake && <span className="caption">Written text will be added when there is a signal.</span>}
         {mistake ? <span className="caption">Marked as a mistake</span> : <SyncBadge status={v.syncState} />}
-        {!mistake && <TextButton onClick={() => onMistake(m.id)}>Mark as a mistake</TextButton>}
+        {!mistake && onMistake && <TextButton onClick={() => onMistake(m.id)}>Mark as a mistake</TextButton>}
       </div>
     </div>
   );
 }
 
-export function PhotosSection({ patientId, media }: { patientId: string; media: View<Media>[] }) {
+export function PhotosSection({ patientId, media, readOnly }: { patientId: string; media: View<Media>[]; readOnly?: boolean }) {
   const { userId, notify, sync } = useData();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -62,6 +62,8 @@ export function PhotosSection({ patientId, media }: { patientId: string; media: 
   }
   async function mistake(id: string) { try { await markMediaInError(userId, id); notify(); void sync(); } catch (e) { setProblem(messageOf(e)); } }
 
+  if (readOnly) return photos.length === 0 ? <p className="caption">No photos.</p> : <>{photos.map((v) => <MediaRow key={v.resource.id} v={v} />)}</>;
+
   return (<>
     <input ref={input} type="file" accept="image/*" capture="environment" hidden onChange={picked} aria-label="Choose a photo" />
     <button className="photo-tile" disabled={busy} onClick={() => input.current?.click()}>
@@ -73,7 +75,7 @@ export function PhotosSection({ patientId, media }: { patientId: string; media: 
   </>);
 }
 
-export function VoiceSection({ patientId, media }: { patientId: string; media: View<Media>[] }) {
+export function VoiceSection({ patientId, media, readOnly }: { patientId: string; media: View<Media>[]; readOnly?: boolean }) {
   const { userId, notify, sync } = useData();
   const rec = useRef<Recording | null>(null);
   const timer = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -106,6 +108,8 @@ export function VoiceSection({ patientId, media }: { patientId: string; media: V
   }
   function cancel() { clearInterval(timer.current); rec.current?.cancel(); rec.current = null; setState("idle"); }
   async function mistake(id: string) { try { await markMediaInError(userId, id); notify(); void sync(); } catch (e) { setProblem(messageOf(e)); } }
+
+  if (readOnly) return notes.length === 0 ? <p className="caption">No voice notes.</p> : <>{notes.map((v) => <MediaRow key={v.resource.id} v={v} />)}</>;
 
   return (<>
     <div className="row">

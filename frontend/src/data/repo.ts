@@ -1,11 +1,13 @@
 import { add, get, getAll, put, transact, type AuditEntry, type Op, type ResourceType, type Row } from "./db";
 import { open, seal } from "./vault";
+import { nameProblem, placeProblem } from "./validate";
 import {
   EXT_CONSENT, EXT_GROUP, EXT_WITHDRAWN, LOINC, LOINC_SYSTEM, PURPOSES, PURPOSE_SYSTEM, UCUM_SYSTEM, consentPurpose, consentWithdrawnAt, newId, toBase64,
-  type Consent, type Gender, type GivenBy, type Media, type MediaKind, type Observation, type Patient, type Purpose, type Resource, type Vital,
+  appointmentPatientId, appointmentPractitionerId,
+  type Appointment, type Consent, type Gender, type GivenBy, type Media, type MediaKind, type Observation, type Patient, type Purpose, type Resource, type Vital,
 } from "./model";
 
-export type RepoErrorCode = "invalid" | "not-found" | "consent-required" | "consent-withdrawn" | "implausible" | "too-large" | "before-consent";
+export type RepoErrorCode = "invalid" | "not-found" | "consent-required" | "consent-withdrawn" | "implausible" | "too-large" | "before-consent" | "slot-taken" | "past" | "too-far";
 export class RepoError extends Error {
   constructor(public code: RepoErrorCode, message: string) { super(message); this.name = "RepoError"; }
 }
@@ -58,7 +60,8 @@ export type NewPatient = { fullName: string; gender?: Gender; birthDate?: string
 
 export async function createPatient(userId: string, input: NewPatient): Promise<Patient> {
   const name = input.fullName?.trim() ?? "";
-  if (!name || name.length > 200) throw new RepoError("invalid", "Please enter the patient's name.");
+  const bad = nameProblem(name) ?? placeProblem(input.village ?? "");
+  if (bad) throw new RepoError("invalid", name ? bad : "Please enter the patient's name.");
   if (input.phone && !/^\+[1-9][0-9]{7,14}$/.test(input.phone)) throw new RepoError("invalid", "The phone number is not valid.");
   if (input.birthDate && (Number.isNaN(Date.parse(input.birthDate)) || new Date(input.birthDate) > new Date())) throw new RepoError("invalid", "The date of birth is not valid.");
   const p: Patient = {
@@ -206,6 +209,61 @@ export async function listMedia(userId: string, patientId: string): Promise<View
   return views<Media>(userId, await rowsOf(userId, "Media", patientId));
 }
 
+/* ---------- appointments ---------- */
+
+export type BookInput = { patientId: string; specialistId: string; specialistName?: string; start: Date; minutes?: number };
+const MAX_DAYS_AHEAD = 90;
+const overlaps = (a: Appointment, start: string, end: string) => a.status === "booked" && a.start < end && start < a.end;
+
+/** The database refuses two booked visits for one specialist at the same time (D-017). The phone checks
+ *  what it knows; the server has the last word, and a clash it finds is shown to the person, never lost. */
+export async function bookAppointment(userId: string, input: BookInput, now: Date = new Date()): Promise<Appointment> {
+  const minutes = input.minutes ?? 30;
+  if (!Number.isFinite(minutes) || minutes < 10 || minutes > 120) throw new RepoError("invalid", "The visit length is not valid.");
+  if (Number.isNaN(input.start.getTime())) throw new RepoError("invalid", "Choose a day and time.");
+  if (input.start.getTime() <= now.getTime()) throw new RepoError("past", "That time has already passed. Choose a later time.");
+  if (input.start.getTime() > now.getTime() + MAX_DAYS_AHEAD * 86_400_000) throw new RepoError("too-far", "Visits can be booked up to 90 days ahead.");
+  const patient = (await getPatient(userId, input.patientId)).resource;
+  await clinicalConsent(userId, input.patientId);                       // a care visit needs permission for care
+  const start = input.start.toISOString();
+  const end = new Date(input.start.getTime() + minutes * 60_000).toISOString();
+  const known = (await views<Appointment>(userId, await rowsOf(userId, "Appointment"))).map((v) => v.resource);
+  if (known.some((a) => appointmentPractitionerId(a) === input.specialistId && overlaps(a, start, end))) throw new RepoError("slot-taken", "That time is already booked. Choose another time.");
+  if (known.some((a) => appointmentPatientId(a) === input.patientId && overlaps(a, start, end))) throw new RepoError("slot-taken", "This patient already has a visit at that time.");
+  const a: Appointment = {
+    resourceType: "Appointment", id: newId(), status: "booked", start, end,
+    participant: [{ actor: { reference: `Patient/${patient.id}`, display: patient.name[0].text }, status: "accepted" }, { actor: { reference: `Practitioner/${input.specialistId}`, display: input.specialistName }, status: "accepted" }],
+  };
+  await commit(userId, [{ resource: a, patientId: patient.id, action: "create" }]);
+  return a;
+}
+
+export async function listAppointments(userId: string, patientId?: string): Promise<View<Appointment>[]> {
+  await audit(userId, "read", "Appointment", patientId ?? "*");
+  const list = await views<Appointment>(userId, await rowsOf(userId, "Appointment", patientId));
+  return list.sort((a, b) => a.resource.start.localeCompare(b.resource.start));
+}
+
+/** Appointments are cancelled, never deleted; the time becomes free again. */
+export async function cancelAppointment(userId: string, id: string): Promise<void> {
+  const row = await transact(userId, ["records"], "readonly", (s) => get<Row>(s.records, id));
+  if (!row || row.type !== "Appointment") throw new RepoError("not-found", "We couldn't find that visit.");
+  const a = await open<Appointment>(userId, row.sealed, row.id);
+  if (a.status === "cancelled") return;
+  await commit(userId, [{ resource: { ...a, status: "cancelled" }, patientId: row.patientId, action: "update" }]);
+}
+
+export type ReminderStatus = "scheduled" | "no-permission" | "no-phone";
+
+/** Reminders go by SMS only with consent for that purpose and a phone number (D-014). */
+export async function reminderStatus(userId: string, patientId: string): Promise<ReminderStatus> {
+  const patient = (await views<Patient>(userId, (await rowsOf(userId, "Patient")).filter((r) => r.id === patientId)))[0]?.resource;
+  const consents = (await views<Consent>(userId, await rowsOf(userId, "Consent", patientId))).map((v) => v.resource);
+  const allowed = consents.some((c) => consentPurpose(c) === "appointment_reminders" && c.status === "active");
+  if (!allowed) return "no-permission";
+  return patient?.telecom?.length ? "scheduled" : "no-phone";
+}
+
 /** Like readings, photos and recordings are corrected, never deleted. */
 export async function markMediaInError(userId: string, mediaId: string): Promise<void> {
   const row = await transact(userId, ["records"], "readonly", (s) => get<Row>(s.records, mediaId));
@@ -239,6 +297,7 @@ export async function listActivity(userId: string, limit = 50): Promise<Activity
       res.resourceType === "Patient" ? `Patient: ${res.name[0].text}`
       : res.resourceType === "Consent" ? `Permission: ${consentPurpose(res).replace(/_/g, " ")}${res.status === "inactive" ? " (withdrawn)" : ""}`
       : res.resourceType === "Observation" ? `Reading: ${res.code.coding[0].display} ${res.valueQuantity.value} ${res.valueQuantity.unit}`
+      : res.resourceType === "Appointment" ? `Visit: ${new Date(res.start).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}${res.status === "cancelled" ? " (cancelled)" : ""}`
       : `${res.type.coding[0].code === "image" ? "Photo" : "Voice note"}`;
     out.push({ id: r.id, type: r.type, label, syncState: r.syncState, updatedAt: r.updatedAt });
   }

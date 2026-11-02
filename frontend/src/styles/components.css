@@ -329,3 +329,31 @@
 img.photo-thumb { object-fit: cover; background: var(--lavender-tint); }
 .photo-meta audio { width: 100%; max-width: 100%; }
 .photo-tile:disabled { color: var(--text-muted); border-color: var(--mist); cursor: progress; }
+
+/* Live video call */
+/* A live call fills the screen and sits above the bottom navigation, so Mute and End are always reachable. */
+.call-live { position: fixed; inset: 0; z-index: 20; min-height: 100dvh; border-radius: 0; padding: var(--space-4) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom)); max-width: var(--max-width); margin: 0 auto; }
+.video-surface { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: var(--ink); }
+.video-surface.is-hidden { opacity: 0; pointer-events: none; }
+.video-surface.mirrored { transform: scaleX(-1); }   /* only how you see yourself; the other person sees you unflipped */
+.call-self.video-surface { inset: auto; top: var(--space-4); right: var(--space-4); width: var(--size-self-view-w); height: var(--size-self-view-h); border-radius: var(--radius-md); z-index: 2; border: var(--border-focus) solid var(--on-ink-dim); }
+.call-avatar { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--size-avatar) * 2); height: calc(var(--size-avatar) * 2); border-radius: var(--radius-pill); background: var(--lavender); color: var(--ink); font: var(--t-title-1); }
+.call-top { position: relative; z-index: 2; }
+.call-controls { position: relative; }
+.call-note { position: relative; z-index: 2; align-self: center; text-align: center; padding: var(--space-2) var(--space-4); border-radius: var(--radius-pill); background: var(--ink-pressed); color: var(--on-ink); font: var(--t-caption); }
+.call-suggest { position: relative; z-index: 3; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface); color: var(--text); }
+
+/* Visit cards */
+.visit-card { flex-wrap: wrap; }
+.visit-actions { width: 100%; margin-top: var(--space-2); }
+
+/* Confirm sheet: stacked, full-width buttons, main action on top */
+.confirm-sheet { gap: var(--space-3); }
+.confirm-body { display: flex; flex-direction: column; gap: var(--space-1); }
+.confirm-actions { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-2); }
+.confirm-actions .btn { width: 100%; white-space: nowrap; }
+
+/* A notice that must not be missed (offline booking, a possible duplicate) */
+.notice { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); background: var(--warn-bg); color: var(--text); }
+.notice > .icon { color: var(--warn-fg); margin-top: var(--space-0-5); }
+.notice .stack { gap: var(--space-2); flex: 1; }

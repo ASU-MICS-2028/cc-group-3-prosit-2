@@ -237,7 +237,7 @@ export function Gallery() {
           <SecondaryButton onClick={() => setSheet("referral")}>Bottom sheet</SecondaryButton>
           <SecondaryButton onClick={() => setToast(true)}>Show toast</SecondaryButton>
         </div>
-        <ConfirmDialog title="Delete this photo?" body="It will be removed from this phone. This can't be undone." cancel={<SecondaryButton>Cancel</SecondaryButton>} confirm={<PrimaryButton>Delete</PrimaryButton>} />
+        <ConfirmDialog inline title="Delete this photo?" body="It will be removed from this phone. This can't be undone." cancel={<SecondaryButton>Keep photo</SecondaryButton>} confirm={<PrimaryButton>Delete photo</PrimaryButton>} />
         {toast && <Toast>Saved on this phone</Toast>}
       </Section>
 

@@ -2,7 +2,7 @@ import type { Sealed } from "./vault";
 
 /** IndexedDB, one database per person (`hc-<userId>`). Only the sealed payload is secret; the
  *  fields beside it (id, type, state) are what the sync engine needs and contain no health data. */
-export type ResourceType = "Patient" | "Consent" | "Observation" | "Media";
+export type ResourceType = "Patient" | "Consent" | "Observation" | "Media" | "Appointment";
 export type SyncState = "saved" | "sending" | "sent" | "attention";
 
 export type Row = {
@@ -15,6 +15,7 @@ export type Row = {
   updatedAt: string;
   sealed: Sealed;               // the FHIR resource
   conflict?: Sealed;            // the server's copy, when the two differ
+  rejected?: string;            // why the server refused it for good (e.g. "slot-taken")
 };
 export type Op = { seq?: number; recordId: string; version: number; queuedAt: string };
 export type AuditEntry = { seq?: number; at: string; userId: string; action: string; resourceType: string; resourceId: string };
@@ -26,14 +27,17 @@ export function openDb(userId: string): Promise<IDBDatabase> {
   let p = connections.get(userId);
   if (!p) {
     p = new Promise((resolve, reject) => {
-      const req = indexedDB.open(name(userId), 1);
-      req.onupgradeneeded = () => {
+      const req = indexedDB.open(name(userId), 2);
+      req.onupgradeneeded = (e) => {
         const db = req.result;
-        const records = db.createObjectStore("records", { keyPath: "id" });
-        records.createIndex("type", "type");
-        records.createIndex("patientId", "patientId");
-        db.createObjectStore("outbox", { keyPath: "seq", autoIncrement: true });
-        db.createObjectStore("audit", { keyPath: "seq", autoIncrement: true });
+        if (e.oldVersion < 1) {
+          const records = db.createObjectStore("records", { keyPath: "id" });
+          records.createIndex("type", "type");
+          records.createIndex("patientId", "patientId");
+          db.createObjectStore("outbox", { keyPath: "seq", autoIncrement: true });
+          db.createObjectStore("audit", { keyPath: "seq", autoIncrement: true });
+        }
+        if (e.oldVersion < 2) db.createObjectStore("meta", { keyPath: "key" });   // e.g. how far we have downloaded
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);

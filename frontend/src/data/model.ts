@@ -74,7 +74,23 @@ export type Media = {
   content: { contentType: string; size: number; data: string };
 };
 
-export type Resource = Patient | Consent | Observation | Media;
+export type AppointmentStatus = "booked" | "cancelled" | "fulfilled" | "noshow";
+export type Appointment = {
+  resourceType: "Appointment";
+  id: string;
+  status: AppointmentStatus;
+  start: string;                  // always UTC; shown in the device's time zone
+  end: string;
+  participant: [{ actor: Ref & { display?: string }; status: "accepted" }, { actor: Ref & { display?: string }; status: "accepted" }];   // [patient, practitioner]
+  extension?: { url: string; valueString: string }[];
+};
+
+export type Resource = Patient | Consent | Observation | Media | Appointment;
+
+export const appointmentPatientId = (a: Appointment) => a.participant[0].actor.reference.replace("Patient/", "");
+export const appointmentPractitionerId = (a: Appointment) => a.participant[1].actor.reference.replace("Practitioner/", "");
+/** The call code for a visit: hard to guess, the same for both people. */
+export const appointmentCallCode = (id: string) => `appt-${id}`;
 
 export const newId = (): string =>
   crypto.randomUUID ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/[x]/g, () => (crypto.getRandomValues(new Uint8Array(1))[0] & 15).toString(16));
