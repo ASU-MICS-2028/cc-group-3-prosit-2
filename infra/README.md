@@ -55,7 +55,9 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
   zipped from `functions/` at plan time, batch size 1), each with its own role (its queue + its log group only).
   The API role may `sns:Publish` to that topic only
 - Sign-in token key: Secrets Manager `healthconnect-dev-jwt-secret` (D-026); the API role may read it
-- No PWA hosting yet: added when `frontend/` exists (S9)
+- PWA (D-033): private S3 bucket `healthconnect-dev-frontend` (only CloudFront may read it) → CloudFront at
+  `https://app-hc.agroconnect.space` (certificate in us-east-1, African edges, security headers, a CloudFront Function
+  that sends app routes `index.html`). About $0/month inside CloudFront's free tier
 
 ## DNS (at Hostinger, not in Terraform)
 
@@ -148,13 +150,14 @@ while it waited, or a red run, is shipped by the next one):
 | What changed | What happens on merge |
 |---|---|
 | `backend/` (the API) | Image built, scanned by Trivy (HIGH/CRITICAL fails), pushed as `:<sha>` and `:latest`, the SHA pinned in `/healthconnect-dev/app-image-tag`, servers replaced one by one (no downtime, ~8 min), `/health` and `/ready` checked |
+| `frontend/` (the PWA) | Tested and built, hashed files uploaded (cached a year, kept), then `index.html`, `sw.js` and the rest (`no-cache`), CDN cleared, `/`, `/login`, `/sw.js` checked (~2 min) |
 | `webrtc-spike/` (call page) | Image built, scanned (report only), pushed, container restarted on the call server through SSM (calls drop for a few seconds) |
 | `functions/` (Lambda) | Tested only. Ship with `terraform -chdir=infra apply` (Terraform re-zips both functions) |
 | `db/migrations/` | Tested only. Apply with `db/migrate.sh` through the SSM tunnel ("Running database migrations" above) |
 | `infra/` | Validated and scanned only. `terraform plan`, read all of it, get the owner's OK, then `apply` |
 
 Watch a deploy: Actions tab → `ci` → the run for the merge commit. Re-run a deploy without a code change:
-Actions → `ci` → **Run workflow** on `main` (redeploys both).
+Actions → `ci` → **Run workflow** on `main` (redeploys all three).
 
 **By hand, if Actions is down.** Images are built on a laptop; our Macs are ARM and the servers x86, so always
 pass `--platform linux/amd64` (an ARM image starts and then crashes with "exec format error"):

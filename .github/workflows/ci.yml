@@ -191,6 +191,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       call: ${{ steps.filter.outputs.call }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -218,6 +219,8 @@ jobs:
               - "backend/**"
             call:
               - "webrtc-spike/**"
+            frontend:
+              - "frontend/**"
 
   deploy-backend:
     name: deploy API
@@ -380,3 +383,61 @@ jobs:
         run: |
           for _ in $(seq 1 20); do curl -fsS -o /dev/null https://call-hc.agroconnect.space/ && exit 0; sleep 3; done
           echo "call page not answering" >&2; exit 1
+
+  deploy-frontend:
+    name: deploy PWA
+    needs: [frontend, security, changes]
+    if: github.ref == 'refs/heads/main' && (needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    concurrency:
+      group: deploy-frontend
+      cancel-in-progress: false
+    env:
+      BUCKET: healthconnect-dev-frontend
+      DISTRIBUTION_ID: REPLACE_AFTER_APPLY # terraform output frontend_distribution_id
+      APP_URL: https://app-hc.agroconnect.space
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Hashed files first, kept for a year and never deleted: a phone still on the previous index.html can
+      # still load its scripts. Then everything else with no-cache (index.html, sw.js, manifest, icons), so a
+      # release is picked up on the next open. Order matters: index.html never points at a file not yet there.
+      # ponytail: old hashed files pile up (a few hundred KB per release); add a lifecycle rule if it ever matters.
+      - name: Upload
+        run: |
+          set -euo pipefail
+          aws s3 sync dist/assets "s3://$BUCKET/assets" --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync dist "s3://$BUCKET" --delete --exclude "assets/*" --cache-control "no-cache"
+
+      - name: Clear the CDN copy
+        run: |
+          set -euo pipefail
+          ID=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*" \
+            --query Invalidation.Id --output text)
+          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$ID"
+
+      # The page, a client-side route (served index.html by the CloudFront function) and the service worker.
+      - name: Smoke test the live PWA
+        run: |
+          set -euo pipefail
+          for path in / /login /sw.js /manifest.webmanifest; do
+            curl -fsS -o /dev/null -w "%{http_code} $path\n" "$APP_URL$path"
+          done

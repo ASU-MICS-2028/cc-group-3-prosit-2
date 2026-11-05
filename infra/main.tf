@@ -20,6 +20,21 @@ provider "aws" {
   }
 }
 
+# CloudFront certificates must live in us-east-1 (frontend module).
+provider "aws" {
+  alias   = "us_east_1"
+  region  = "us-east-1"
+  profile = "ashesi-dev"
+  default_tags {
+    tags = {
+      Project   = var.project
+      Env       = var.env
+      ManagedBy = "terraform"
+      Team      = "highlanders"
+    }
+  }
+}
+
 locals {
   name = "${var.project}-${var.env}"
 }
@@ -155,6 +170,14 @@ module "events" {
   functions_dir = "${path.root}/../functions"
 }
 
+# ---------- frontend (the PWA: private S3 + CloudFront, D-033) ----------
+module "frontend" {
+  source      = "./modules/frontend"
+  providers   = { aws = aws, aws.us_east_1 = aws.us_east_1 }
+  name_prefix = local.name
+  hostname    = var.app_hostname
+}
+
 # ---------- sign-in token key (D-026) ----------
 # Terraform owns only the empty container; the value ({"secret": "<32+ random chars>"}) is put out-of-band
 # (infra/README.md), so it never enters git or Terraform state.
@@ -173,6 +196,8 @@ module "cicd" {
   ecr_repository_arns    = concat([module.ecr.repository_arn], [for r in module.ecr_call : r.repository_arn])
   asg_name               = module.compute.asg_name
   call_instance_id       = local.call_enabled ? module.call[0].instance_id : ""
+  frontend_bucket_arn    = module.frontend.bucket_arn
+  frontend_dist_arn      = module.frontend.distribution_arn
 }
 
 # ---------- observability (SNS topic + CloudWatch alarms + monthly budget) ----------
