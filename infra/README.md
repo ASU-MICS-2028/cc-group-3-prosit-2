@@ -61,15 +61,17 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
 
 ## DNS (at Hostinger, not in Terraform)
 
-`agroconnect.space` is registered at Hostinger. HealthConnect uses six records there (the two `app-hc` ones are for the PWA, D-033: `app-hc` CNAME → the CloudFront domain from `terraform output frontend_cname_target`, plus its certificate CNAME from `frontend_cert_validation_records`):
+`agroconnect.space` is registered at Hostinger. HealthConnect uses six records there:
 
 | Name | Type | Points to |
 |---|---|---|
 | `api-hc` | CNAME | the ALB (`terraform output alb_dns`) |
 | `call-hc` | CNAME | the ALB |
 | `_….api-hc`, `_….call-hc` | CNAME | ACM validation (`terraform output cert_validation_records`) |
+| `app-hc` | CNAME | CloudFront, the PWA (`terraform output frontend_cname_target`, D-033) |
+| `_….app-hc` | CNAME | ACM validation, us-east-1 (`terraform output frontend_cert_validation_records`) |
 
-If the ALB or the certificate is recreated, update these by hand, or `terraform apply` will wait on certificate
+If the ALB, the distribution or a certificate is recreated, update these by hand, or `terraform apply` will wait on certificate
 validation until it times out.
 
 ## First-time bring-up
