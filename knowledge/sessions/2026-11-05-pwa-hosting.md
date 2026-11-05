@@ -24,7 +24,13 @@ frontend.
 | Amplify Hosting | Second build system and build-minute charges for the same result |
 | **S3 + CloudFront** | Chosen: ~$0 (free tier), no servers, edge in Lagos |
 
+## Applied (Eugene's OK, 5 Nov)
+- Certificate first, its CNAME at Hostinger, then `-target=module.frontend -target=module.cicd`: 8 added, 1 changed,
+  0 destroyed (alarm-email subscriptions left out on purpose). `app-hc` CNAME → `d1k3ighjzsa8hl.cloudfront.net`.
+- First upload by hand with the pipeline's commands. Checks in `evidence/cicd/outputs_pwa_hosting.txt`: routes 200,
+  security headers, hashed files immutable, http → https, bucket 403 directly, TLS 1.1 refused, served from Lagos
+  (LOS50), service worker active in Chrome.
+- A missing file answers 403, not 404: CloudFront may read the bucket but not list it. Still never `index.html`.
+
 ## Still to do
-- Apply (needs Eugene's OK), publish the certificate CNAME and `app-hc` CNAME at Hostinger, put the distribution id
-  in `ci.yml`, first deploy, evidence in `evidence/cicd/`.
 - When the app leaves its mock server: CORS on the API for `app-hc`, or route `/api/*` through CloudFront.

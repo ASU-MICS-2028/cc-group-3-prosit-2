@@ -61,7 +61,7 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
 
 ## DNS (at Hostinger, not in Terraform)
 
-`agroconnect.space` is registered at Hostinger. HealthConnect uses four records there:
+`agroconnect.space` is registered at Hostinger. HealthConnect uses six records there (the two `app-hc` ones are for the PWA, D-033: `app-hc` CNAME → the CloudFront domain from `terraform output frontend_cname_target`, plus its certificate CNAME from `frontend_cert_validation_records`):
 
 | Name | Type | Points to |
 |---|---|---|

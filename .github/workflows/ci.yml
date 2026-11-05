@@ -397,7 +397,7 @@ jobs:
       cancel-in-progress: false
     env:
       BUCKET: healthconnect-dev-frontend
-      DISTRIBUTION_ID: REPLACE_AFTER_APPLY # terraform output frontend_distribution_id
+      DISTRIBUTION_ID: E2DDTG0STZ3U3H # terraform output frontend_distribution_id
       APP_URL: https://app-hc.agroconnect.space
     defaults:
       run:
