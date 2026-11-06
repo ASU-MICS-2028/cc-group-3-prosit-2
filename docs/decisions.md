@@ -38,7 +38,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-005: Act 843 is the governing law; HIPAA is only a reference checklist
 
-- **Date:** 2026-10-18 · **Status:** Accepted
+- **Date:** 2026-10-18 · **Status:** Replaced by D-028
 - **Decision:** We design for Ghana's Act 843 and cite it. Where the brief says "HIPAA-compliant", we treat HIPAA (a US law) as a checklist of good controls, and say so.
 - **Why:** HIPAA doesn't apply in Ghana; claiming "HIPAA compliance" would be inaccurate.
 
@@ -56,7 +56,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-008: Build the foundation; design the rest
 
-- **Date:** 2026-10-18 · **Status:** Accepted
+- **Date:** 2026-10-18 · **Status:** Replaced by D-029
 - **Decision:** Build the offline CHV app, the FHIR-shaped patient API, audit logging and the security controls properly, and one telemedicine slice in Lab 7. Design and document the rest (biometrics, voice, surveillance, ML, insurance). Scope table: [`PLAN.md`](../PLAN.md).
 - **Why:** The brief is far bigger than four weeks. Depth on the parts the labs grade beats a thin attempt at everything.
 - **Gave up:** most of brief weeks 3 and 4 as working features.
@@ -280,3 +280,11 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** We collect no real patient data, which answers the open question in D-028. Field testing uses team members or consenting volunteers with made-up patients. To make the synthetic data believable, we may use **published regional figures** from the [DHS Program API](https://api.dhsprogram.com/) (Ghana 2022 DHS, which covers the 16 current regions), cited in the code or data file that uses them. We don't use DHS individual-level files.
 - **Why:** Real records would need a partner facility, ethics approval, Act 843 steps and a private store, and we have no ethics approval (D-004) and no time for it. Regional percentages identify nobody and come from a public API, so they are safe in a public repo. [DHS's terms of use](https://dhsprogram.com/data/terms-of-use.cfm) (read 2026-11-06) forbid re-distributing micro-level data, "directly or within any tool/dashboard", which is why we keep to the published figures. They cover downloaded datasets and don't mention the API's figures, so we still cite the source.
 - **Gave up:** testing on real records. The report explains the choice and what real data would require. DHS figures are survey percentages from 2022, not live case counts, so **anything derived from them is labelled as synthetic** wherever it is shown, including the dashboard.
+
+## D-035: One API with route modules, not sixteen services
+
+- **Date:** 2026-11-06 · **Status:** Proposed (Joseph; Eugene to confirm, it's his hosting decision) · **Changes:** the services list in PLAN Phase 6
+- **Affects:** everyone building a feature (add a route module, not a new service), Eugene (nothing new to host), Perfect (one API address)
+- **Decision:** The new backend features (SVC-1 to SVC-16) are route modules inside `patient-record-service`, sharing its database, sign-in, audit and deployment. Partner systems stay behind a small adapter with a mock mode. The event functions stay as they are.
+- **Why:** We have one week. Sixteen services would need sixteen pipelines, images and health checks, and would strain the servers and the budget for no gain at our traffic. Each module can still be split out later, and the report describes that split as the target design.
+- **Gave up:** independent scaling and deployment per service, and isolation: a bad deploy or a crash affects every feature. A larger target architecture goes in the report as design, not build.
