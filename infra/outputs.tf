@@ -11,6 +11,28 @@ output "cert_validation_records" {
   value       = module.alb.cert_validation_records
 }
 
+output "app_url" {
+  value = "https://${var.app_hostname}"
+}
+
+output "frontend_cert_validation_records" {
+  description = "Publish these CNAMEs at Hostinger so the PWA certificate issues (D-033)"
+  value       = module.frontend.cert_validation_records
+}
+
+output "frontend_cname_target" {
+  description = "CNAME app_hostname to this at Hostinger"
+  value       = module.frontend.distribution_domain
+}
+
+output "frontend_bucket" {
+  value = module.frontend.bucket_name
+}
+
+output "frontend_distribution_id" {
+  value = module.frontend.distribution_id
+}
+
 output "ecr_repo_url" {
   value = module.ecr.repository_url
 }

@@ -54,7 +54,7 @@ locals {
 }
 
 # Least privilege: push to our image repositories, pin the image tag, refresh our one auto scaling group,
-# and restart the container on the call server. Every action names its resource except the ones AWS only
+# upload the PWA to its bucket and invalidate its CDN, and restart the container on the call server. Every action names its resource except the ones AWS only
 # allows on "*" (the ECR login token and the Describe calls).
 data "aws_iam_policy_document" "gha_deploy" {
   statement {
@@ -85,6 +85,19 @@ data "aws_iam_policy_document" "gha_deploy" {
     # CI pins the deployed image tag here; a rollback rewrites it.
     actions   = ["ssm:PutParameter"]
     resources = [aws_ssm_parameter.app_image_tag.arn]
+  }
+  statement {
+    # Upload the PWA build (sync --delete lists, writes and removes files) and clear the CDN's copy.
+    actions   = ["s3:ListBucket"]
+    resources = [var.frontend_bucket_arn]
+  }
+  statement {
+    actions   = ["s3:PutObject", "s3:DeleteObject"]
+    resources = ["${var.frontend_bucket_arn}/*"]
+  }
+  statement {
+    actions   = ["cloudfront:CreateInvalidation", "cloudfront:GetInvalidation"]
+    resources = [var.frontend_dist_arn]
   }
   dynamic "statement" {
     # Redeploy the call server: re-run its boot script (pull the new image, restart the container) through SSM.

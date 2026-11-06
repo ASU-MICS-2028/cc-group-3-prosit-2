@@ -1,0 +1,41 @@
+# PWA hosting checks (D-033), 2026-11-05T11:23:12Z
+## DNS
+d1k3ighjzsa8hl.cloudfront.net.
+## pages (code, content-type, cache-control)
+200 text/html | /
+200 text/html | /login
+200 text/html | /app/today
+200 text/javascript | /sw.js
+200 application/manifest+json | /manifest.webmanifest
+200 text/javascript | /assets/index-k4qcIixY.js
+403 application/xml | /nope.js   (a missing file is an error, never index.html; 403 not 404 because CloudFront may read but not list the bucket)
+## headers on /
+HTTP/2 200 
+cache-control: no-cache
+x-cache: RefreshHit from cloudfront
+x-amz-cf-pop: LOS50-P4
+alt-svc: h3=":443"; ma=86400
+x-xss-protection: 1; mode=block
+x-frame-options: SAMEORIGIN
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000
+## hashed asset cache-control
+cache-control: public,max-age=31536000,immutable
+## plain http redirects
+301 -> https://app-hc.agroconnect.space/
+## bucket not public (direct S3 GET)
+403
+## TLS 1.1 refused
+000
+refused (curl exit 35)
+## edge serving this request (LOS = Lagos)
+x-amz-cf-pop: LOS50-P4
+## in a real browser (Chrome), https://app-hc.agroconnect.space/
+redirected to /login, secure context: true, service worker: active, cache hc-v1-shell saved (offline start ready)
+screenshot: evidence/cicd/pwa-live-login.jpg (test-mode people only)
+## how it got there (2026-11-05, Eugene's OK)
+terraform apply -target=module.frontend.aws_acm_certificate.site      -> 1 added
+validation CNAME + app-hc CNAME -> d1k3ighjzsa8hl.cloudfront.net at Hostinger (only new records; others untouched)
+terraform apply -target=module.frontend -target=module.cicd           -> 8 added, 1 changed, 0 destroyed
+first upload by hand with the pipeline's own commands (s3 sync x2, invalidation /*); next ones from Actions

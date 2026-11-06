@@ -265,6 +265,14 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** Referrals, visits, prescriptions and emergencies all pass between people, so the receiver's phone must be able to get them. The app only hides screens; the server must enforce who may read what (Lab 6 lesson).
 - **Gave up:** simplicity (a second direction of sync with its own bookmark); a download of everything about a patient is wider than a single request would need, to be narrowed later by purpose (D-014).
 
+## D-033: The PWA is static files on S3 behind CloudFront, deployed by the pipeline
+
+- **Date:** 2026-11-05 · **Status:** Proposed (Eugene; Perfect reviews, it is where the app lives)
+- **Affects:** Perfect (every merge to `frontend/` goes live at `https://app-hc.agroconnect.space` in a few minutes), Eugene (`infra/modules/frontend`, the `deploy PWA` job), Joseph (when the app calls the real API it is a different origin, so the API needs CORS for `app-hc`, or `/api/*` gets routed through CloudFront)
+- **Decision:** `npm run build` makes plain files, so they are served with no servers: a **private S3 bucket** that only CloudFront may read (Origin Access Control), **CloudFront** with the African edges (`PriceClass_200`), an **ACM certificate in us-east-1** (CloudFront takes no other region), TLS 1.2+, the AWS managed security headers (HSTS, nosniff, frame-options) and a tiny **CloudFront Function** that sends app routes (`/login`, `/app/...`) `index.html` while real files 404 normally. On a merge to `main` that changes `frontend/`, the pipeline tests and builds it, uploads the hashed files first (cached a year, never deleted, so a phone on the old version still loads), then `index.html`, `sw.js` and the rest with `no-cache`, clears the CDN and smoke-tests `/`, `/login`, `/sw.js`.
+- **Why:** Cheapest and simplest that is correct: about **$0/month** at our traffic (CloudFront's always-free tier is 1 TB and 10 million requests a month; S3 storage is pennies), nothing to patch, and an edge in Lagos is closer to Ghana than our servers in Cape Town. HTTPS was the blocker for the FB-2 to FB-4 phone checks (fingerprint, microphone, install, offline start all need a secure origin). Serving the files from the API containers would tie a frontend release to an 8-minute server swap and spend server time on files; Amplify Hosting adds build minutes and a second CI for the same result.
+- **Gave up:** a WAF (about $8/month, nothing to protect on public static files; accepted in `.trivyignore.yaml`); same-origin API calls for now (CORS or a `/api/*` route when the app stops using its mock server); a few hundred KB of old hashed files kept per release.
+
 ## D-034: Patients stay synthetic; published DHS regional figures make them realistic
 
 - **Date:** 2026-11-06 · **Status:** Accepted (Joseph; reaffirms D-004)

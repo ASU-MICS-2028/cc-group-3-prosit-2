@@ -17,8 +17,11 @@ misconfigurations:
     paths: ["infra/modules/events/main.tf", "infra/modules/observability/main.tf"]
     statement: "SNS topics carry appointment ids and masked phones / alarm text. Customer-managed KMS encryption is L6-B1b."
   - id: AVD-AWS-0132
-    paths: ["infra/bootstrap/main.tf", "infra/modules/storage/main.tf"]
-    statement: "Buckets are encrypted with SSE-S3 already; a customer-managed KMS key is L6-B1b."
+    paths: ["infra/bootstrap/main.tf", "infra/modules/storage/main.tf", "infra/modules/frontend/main.tf"]
+    statement: "Buckets are encrypted with SSE-S3 already; a customer-managed KMS key is L6-B1b. The frontend bucket holds only the public build of the PWA."
   - id: AVD-AWS-0031
     paths: ["infra/modules/ecr/main.tf"]
     statement: "Deploys pin the immutable git SHA tag in SSM; the mutable `latest` tag is kept only for the call server and first boot. Make tags immutable once the call server is retired (SVC-3)."
+  - id: AVD-AWS-0011
+    paths: ["infra/modules/frontend/main.tf"]
+    statement: "The CDN serves only the PWA's public static files (no forms, no data; patient data stays encrypted on the phone and goes to the API on the ALB). A WAF costs about $8/month plus per-request fees for nothing to protect here. Revisit if /api is ever routed through CloudFront."

@@ -73,6 +73,13 @@ alarms and budget, and the Lab 7 call server) is described as code in `infra/` a
     the server only needs `node`); the load balancer passing malformed headers on; and the load balancer allowed to
     send traffic anywhere (now only inside our network). The GitHub deploy role used to accept any branch of
     the repo; now only `main` can deploy, and each permission names the one resource it may touch.
+15. **The PWA goes online (D-033), 2026-11-05:** Perfect's app is plain files after `npm run build`, so it needs no
+    server. They sit in a private S3 bucket that only CloudFront can read, and CloudFront serves them at
+    `https://app-hc.agroconnect.space` from edges in Africa. The certificate has to be made in `us-east-1` (CloudFront
+    only reads certificates from there), so Terraform has a second AWS provider for that one resource. The app uses
+    its own routes (`/login`, `/app/...`) that are not files, so a tiny CloudFront Function hands those `index.html`;
+    anything with a dot in the name is a real file and 404s if missing, so a missing script never comes back as a web
+    page. A merge to `frontend/` now builds, uploads and clears the CDN in about two minutes. Cost: about $0.
 
 ## 3. Why we did it this way
 
@@ -216,6 +223,11 @@ built with `--platform linux/amd64`.
 - **A local `npm update` can rewrite the whole lockfile** if your npm is a different version from the one that
   made it (on 30 Oct it dropped the `libc` markers that tell the Alpine image which native files to install). Look
   at `git diff --stat` on the lockfile; a one-package fix should change a handful of lines.
+- **The PWA and the API are different origins.** Today the app talks to its mock server, so nothing breaks. The day
+  it calls `api-hc`, the browser needs CORS from the API for `https://app-hc.agroconnect.space`, or we route
+  `/api/*` through CloudFront to the ALB (same origin, no CORS). Decide with Joseph before that PR.
+- **A new release reaches phones on the next open, not instantly.** `index.html` and `sw.js` are `no-cache`, but
+  the service worker serves the saved app first when offline; that is the point of offline start.
 - **Main runs that wait in line can be replaced.** GitHub keeps one waiting run per branch; when several PRs merge
   at once, the older waiting runs are cancelled. On 30 Oct #43's call page deploy was skipped this way (harmless:
   a test tool). Fix: `what changed` compares with the last *green* main run, not the previous commit, so the next
