@@ -143,7 +143,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-018: A fourth stated purpose: public health reporting, aggregated and anonymised only
 
-- **Date:** 2026-10-21 · **Status:** Accepted (team vote, recorded 2026-11-06)
+- **Date:** 2026-10-21 · **Status:** Accepted (team vote 2026-10-31: 4 yes, 0 no)
 - **Affects:** everyone: the Lab 6 report, the data residency design (L5-C1/C2), the Lab 8 defence
 - **Decision:** HealthConnect's stated purposes become: triage support, appointment scheduling, health advisory, and **public health reporting limited to aggregated, anonymised counts** (e.g. "42 fever cases in Volta this month"), never individual records.
 - **Why:** The data minimisation pass found that the real reasons for collecting `region` (planning resources, seeing where illnesses are more common) are reporting, which wasn't a stated purpose. Under Act 843 an unstated purpose can't justify collection. Stating it, and limiting it to aggregates, also matches the residency rule that only anonymised aggregates cross borders.
@@ -226,7 +226,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-028: We design for Act 843 as the law and the HIPAA Security Rule as the safeguards
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote, recorded 2026-11-06) · **Replaces:** D-005
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no) · **Replaces:** D-005
 - **Affects:** everyone; Perfect (consent, PIN lock, device encryption), Joseph (access control, audit), Eugene (encryption, backup), Elise (data minimisation)
 - **Decision:** Act 843 is the legal basis for every health-data decision. We also design against the HIPAA Security Rule's safeguard groups (access control, audit controls, integrity, person authentication, transmission security, backup) and map each to a control in the report. We write "designed against HIPAA safeguards", never "HIPAA-compliant" or "certified".
 - **Why:** The brief asks for HIPAA compliance (p.2, p.7, p.9) and the rubric scores it, but HIPAA is a US law and doesn't apply in Ghana. Using both is accurate and scores.
@@ -234,7 +234,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-029: The full brief is in scope: built breadth first, with sandbox mode for partner systems
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote, recorded 2026-11-06) · **Replaces:** D-008
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Eugene confirmed the AWS budget 2026-11-01) · **Replaces:** D-008
 - **Affects:** everyone; Perfect (all screens), Joseph (splits the new backend services), Eugene (hosting and cost of the services)
 - **Decision:** Every requirement in Weeks 1–4 is Build, Build (sandbox), Design or Process, as listed in [`REQUIREMENTS-CHECKLIST.md`](../REQUIREMENTS-CHECKLIST.md); nothing is "deferred". We build in the 11 steps of [`PLAN.md`](../PLAN.md) Phase 6, breadth first: a basic screen for every role before depth anywhere, and each step proven on a real phone before the next starts. Services that need a partner system (NHIS, DHIS2, WHO, hospitals, pharmacies, SMS, payments) get a real interface and a labelled mock mode. Must-implement items on p.3 (prescription fraud checks, emergency escalation) are core.
 - **Why:** The scope changed: the brief's weeks have passed and the whole brief must be shown. Partner systems can't be reached by a student team, so a mock with the real interface is the honest way.
@@ -251,7 +251,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-031: Patient data on the phone is locked by a passphrase; the PIN only guards the screen
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote, recorded 2026-11-06)
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31)
 - **Affects:** Perfect (PWA lock and set-up screens), Joseph (the real auth-service must later be able to bring a person's data back after a wipe), everyone writing the security part of the report
 - **Decision:** Records saved on the phone are encrypted with a random key. That key is locked with a **passphrase of at least 10 characters** (PBKDF2-SHA256, 600,000 rounds), typed only when the app starts cold (after a restart). A **4 to 6 digit PIN** opens the 5-minute screen lock while the key is still in memory. Fingerprint (staff) works only for that screen lock. Wrong PINs and wrong passphrases share one count of **five tries; the fifth wipes that person's local data** (key, PIN, fingerprint, database) and signs them out. Anything not yet sent is lost, until the real login service can restore it.
 - **Why:** A 4 to 6 digit PIN has only 10,000 possibilities, so anyone who copies the phone's storage could open the data. A long passphrase makes that guess impractical, and typing it rarely keeps it usable for volunteers. The wipe limits guessing on a lost phone. The brief's target is zero breaches (p.7).
