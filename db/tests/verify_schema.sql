@@ -183,3 +183,111 @@ UPDATE audit_trail SET actor = :spec;
 DELETE FROM audit_trail;
 \echo 'SHOULD FAIL: truncate the audit trail'
 TRUNCATE audit_trail;
+
+-- =============================================================================
+-- 004: full-brief core (final sprint, E-M)
+-- =============================================================================
+SET app.user_id = '99999999-9999-9999-9999-999999999999';  -- act as the admin
+
+\echo '--- 004: new roles ---'
+\echo 'SHOULD PASS: add a pharmacist, a traditional healer and a health centre admin'
+INSERT INTO practitioners (full_name, role) VALUES
+  ('Efua Darko', 'pharmacist'),
+  ('Nana Yaw Asare', 'traditional_healer'),
+  ('Akosua Frimpong', 'health_centre_admin');
+\echo 'SHOULD FAIL: a role that does not exist'
+INSERT INTO practitioners (full_name, role) VALUES ('Nobody', 'wizard');
+
+\echo '--- 004: patient logins ---'
+\echo 'SHOULD PASS: a patient login for Ama, tied to her own record'
+INSERT INTO practitioners (full_name, role, patient_id) VALUES ('Ama Owusu (login)', 'patient', :ama);
+\echo 'SHOULD FAIL: a patient login tied to no patient record'
+INSERT INTO practitioners (full_name, role) VALUES ('Floating patient', 'patient');
+\echo 'SHOULD FAIL: a nurse account tied to a patient record'
+INSERT INTO practitioners (full_name, role, patient_id) VALUES ('Nurse with a patient link', 'nurse', :kofi);
+\echo 'SHOULD FAIL: a second login for the same patient'
+INSERT INTO practitioners (full_name, role, patient_id) VALUES ('Ama again', 'patient', :ama);
+\echo 'SHOULD FAIL: a patient login for a patient that does not exist'
+INSERT INTO practitioners (full_name, role, patient_id) VALUES ('Ghost', 'patient', 'dddddddd-0000-0000-0000-000000000099');
+
+\echo '--- 004: facilities ---'
+\set ho_chps '''f0000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: add a CHPS compound and a pharmacy'
+INSERT INTO facilities (id, name, type, region, district) VALUES
+  (:ho_chps, 'Sokode CHPS Compound', 'chps', 'Volta', 'Ho Municipal'),
+  ('f0000000-0000-0000-0000-000000000002', 'Ho Community Pharmacy', 'pharmacy', 'Volta', 'Ho Municipal');
+\echo 'SHOULD PASS: put the CHV in the CHPS compound'
+UPDATE practitioners SET facility_id = :ho_chps WHERE id = :chv;
+SELECT p.full_name, f.name AS facility FROM practitioners p JOIN facilities f ON f.id = p.facility_id;
+\echo 'SHOULD FAIL: a facility type that does not exist'
+INSERT INTO facilities (name, type, region) VALUES ('Mystery place', 'spaceport', 'Volta');
+\echo 'SHOULD FAIL: a facility with no region'
+INSERT INTO facilities (name, type) VALUES ('Nowhere Clinic', 'clinic');
+\echo 'SHOULD FAIL: link a health worker to a facility that does not exist'
+UPDATE practitioners SET facility_id = 'f0000000-0000-0000-0000-000000000099' WHERE id = :spec;
+\echo 'SHOULD FAIL: delete a facility (switch it off instead)'
+DELETE FROM facilities WHERE id = :ho_chps;
+\echo 'SHOULD PASS: switch a facility off, and the change is in the history'
+UPDATE facilities SET active = false WHERE id = 'f0000000-0000-0000-0000-000000000002';
+SELECT table_name, action, changed_fields FROM audit_trail WHERE table_name = 'facilities' ORDER BY id;
+
+\echo '--- 004: referrals ---'
+SET app.user_id = '11111111-1111-1111-1111-111111111111';  -- the CHV refers
+\set ref1 '''e0000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: refer Kofi (active consent) to the specialist, urgent, with the reason for the priority'
+INSERT INTO referrals (id, patient_id, consent_id, to_practitioner_id, reason, priority, priority_reason)
+VALUES (:ref1, :kofi, :c_kofi, :spec, 'Fever and rash for 5 days', 'urgent', 'temperature above 39 C');
+\echo 'SHOULD PASS: refer Kofi to a facility instead of a person'
+INSERT INTO referrals (patient_id, consent_id, to_facility_id, reason, priority)
+VALUES (:kofi, :c_kofi, :ho_chps, 'Follow-up visit', 'routine');
+\echo 'SHOULD FAIL: Ama''s clinical consent was withdrawn'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority)
+VALUES (:ama, :c_ama, :spec, 'Headache', 'soon');
+\echo 'SHOULD FAIL: a reminders-only consent is not consent for clinical care'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority)
+VALUES (:ama, :c_sms, :spec, 'Headache', 'soon');
+\echo 'SHOULD FAIL: Ama referred using Kofi''s (active) consent: a consent only covers its own patient'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority)
+VALUES (:ama, :c_kofi, :spec, 'Cough', 'routine');
+\echo 'SHOULD FAIL: a referral that goes nowhere (no person, no facility)'
+INSERT INTO referrals (patient_id, consent_id, reason, priority)
+VALUES (:kofi, :c_kofi, 'Cough', 'routine');
+\echo 'SHOULD FAIL: a priority word the app does not know'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority)
+VALUES (:kofi, :c_kofi, :spec, 'Cough', 'whenever');
+SET app.user_id = '22222222-2222-2222-2222-222222222222';  -- the specialist answers
+\echo 'SHOULD PASS: the specialist accepts the referral; the history shows who changed the status'
+UPDATE referrals SET status = 'accepted' WHERE id = :ref1;
+SELECT r.status, p.full_name AS updated_by FROM referrals r JOIN practitioners p ON p.id = r.updated_by WHERE r.id = :ref1;
+\echo 'SHOULD FAIL: delete a referral (cancel it instead)'
+DELETE FROM referrals WHERE id = :ref1;
+
+\echo '--- 004: emergencies ---'
+SET app.user_id = '11111111-1111-1111-1111-111111111111';  -- the CHV presses the button
+\set em1 '''e1000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: raise an emergency for Ama, even though her consent was withdrawn (implied consent)'
+INSERT INTO emergencies (id, patient_id, facility_id, description)
+VALUES (:em1, :ama, :ho_chps, 'Heavy bleeding after delivery');
+\echo 'SHOULD PASS: raise one for someone not registered yet'
+INSERT INTO emergencies (location_note, description) VALUES ('House behind the market, Sokode', 'Child not breathing well');
+\echo 'SHOULD PASS: nobody answered, so it goes up a level'
+UPDATE emergencies SET escalation_level = 1, escalated_at = now() WHERE id = :em1;
+\echo 'SHOULD FAIL: escalated again without a new time (the old time would hide when it happened)'
+UPDATE emergencies SET escalation_level = 2 WHERE id = :em1;
+\echo 'SHOULD FAIL: the level goes down (hiding that nobody answered)'
+UPDATE emergencies SET escalation_level = 0 WHERE id = :em1;
+\echo 'SHOULD FAIL: acknowledged without saying who'
+UPDATE emergencies SET status = 'acknowledged' WHERE id = :em1;
+SET app.user_id = '22222222-2222-2222-2222-222222222222';  -- the specialist responds
+\echo 'SHOULD PASS: the specialist acknowledges it'
+UPDATE emergencies SET status = 'acknowledged', acknowledged_by = :spec, acknowledged_at = now() WHERE id = :em1;
+\echo 'SHOULD FAIL: resolved without a time'
+UPDATE emergencies SET status = 'resolved' WHERE id = :em1;
+\echo 'SHOULD PASS: resolved, and the history shows every step'
+UPDATE emergencies SET status = 'resolved', resolved_at = now() WHERE id = :em1;
+SELECT a.action, a.changed_fields, p.full_name AS by FROM audit_trail a JOIN practitioners p ON p.id = a.actor
+WHERE a.table_name = 'emergencies' AND a.row_id = :em1 ORDER BY a.id;
+\echo 'SHOULD FAIL: change a resolved emergency (it is closed)'
+UPDATE emergencies SET description = 'Changed afterwards' WHERE id = :em1;
+\echo 'SHOULD FAIL: delete an emergency (cancel it instead)'
+DELETE FROM emergencies WHERE id = :em1;
