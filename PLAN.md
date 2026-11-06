@@ -146,7 +146,7 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 
 | ID | Task | Due | Tier | Evidence |
 |---|---|---|---|---|
-| D-035 | Confirm or change the one-API decision, today, because it blocks everyone | Fri 6 | 1 | Status in `docs/decisions.md` |
+| D-035 | Confirm or change the one-API decision, today, because it blocks everyone | Fri 6 | 1 | ✅ Accepted 6 Nov (approved in #49), status in `docs/decisions.md` |
 | E1 | Run migration 004 on RDS and keep deploys working as PRs merge. Watch the first automatic PWA deploy | Sat 7, then daily | 1 | `evidence/final/E1-migration.txt`, the Actions run |
 | L6-B1b | Customer-managed KMS key, `rds.force_ssl`, HTTPS-only bucket policy | Sat 7 | 1 | `evidence/final/L6-B1b-*.txt` |
 | L6-X | Why the Lab 5 failover dropped requests; fix or explain | Sun 8 | 1 | `learnings/infra.md` |

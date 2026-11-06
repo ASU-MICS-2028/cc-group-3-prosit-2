@@ -25,7 +25,7 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 
 | Task | Due | Tier | Status |
 |---|---|---|---|
-| D-035 Confirm or change "one API, not sixteen services" | Fri 6 | 1 | 🟢 Ready, blocks everyone |
+| D-035 Confirm or change "one API, not sixteen services" | Fri 6 | 1 | ✅ Confirmed 6 Nov (approved in #49) |
 | E1 Run migration 004 on RDS, keep deploys working, watch the first automatic PWA deploy | Sat 7, then daily | 1 | ⛔ Needs migration 004 |
 | L6-B1b KMS key, `rds.force_ssl`, HTTPS-only bucket | Sat 7 | 1 | 🟢 Ready |
 | L6-X Why the failover dropped requests; L8-C resource audit | Sun 8 | 1, 2 | 🟢 Ready |

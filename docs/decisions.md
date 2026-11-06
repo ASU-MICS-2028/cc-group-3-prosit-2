@@ -283,7 +283,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-035: One API with route modules, not sixteen services
 
-- **Date:** 2026-11-06 · **Status:** Proposed (Joseph; Eugene to confirm, it's his hosting decision) · **Changes:** the services list in PLAN Phase 6
+- **Date:** 2026-11-06 · **Status:** Accepted (confirmed by Eugene, 2026-11-06: no new hosting needed) · **Changes:** the services list in PLAN Phase 6
 - **Affects:** everyone building a feature (add a route module, not a new service), Eugene (nothing new to host), Perfect (one API address)
 - **Decision:** The new backend features (SVC-1 to SVC-16) are route modules inside `patient-record-service`, sharing its database, sign-in, audit and deployment. Partner systems stay behind a small adapter with a mock mode. The event functions stay as they are.
 - **Why:** We have one week. Sixteen services would need sixteen pipelines, images and health checks, and would strain the servers and the budget for no gain at our traffic. Each module can still be split out later, and the report describes that split as the target design.
