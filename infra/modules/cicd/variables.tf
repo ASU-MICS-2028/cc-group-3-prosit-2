@@ -28,6 +28,16 @@ variable "asg_name" {
   description = "The one auto scaling group CI may refresh"
 }
 
+variable "frontend_bucket_arn" {
+  type        = string
+  description = "Bucket CI uploads the PWA build to"
+}
+
+variable "frontend_dist_arn" {
+  type        = string
+  description = "CloudFront distribution CI may invalidate after an upload"
+}
+
 variable "call_instance_id" {
   type        = string
   description = "Call server CI may redeploy through SSM; empty when the call server is off"

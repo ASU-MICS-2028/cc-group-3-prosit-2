@@ -79,6 +79,12 @@ variable "call_hostname" {
   default     = "call-hc.agroconnect.space"
 }
 
+variable "app_hostname" {
+  description = "FQDN the PWA (frontend/) is served at through CloudFront (D-033)"
+  type        = string
+  default     = "app-hc.agroconnect.space"
+}
+
 variable "alarm_email_addresses" {
   description = "Emails subscribed to the CloudWatch alarm SNS topic and the AWS Budgets notifications. Set these in terraform.tfvars (gitignored); each recipient must confirm the SNS email before alarms arrive."
   type        = list(string)
