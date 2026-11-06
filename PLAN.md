@@ -79,7 +79,7 @@ The whole brief is in scope. Every requirement, page by page, is in [`REQUIREMEN
 | Partnership integration, cloud health platform choice, multi-country residency | Design | report |
 | Open-source modules, community engagement, field testing | Process | report |
 | PROSIT 2.5 AgriHealth link | ⚪ Optional | — |
-| Real patient data | **Never** in this repo (D-004; see the open question in D-028) | — |
+| Real patient data | **Never** in this repo or the app (D-004, D-034) | — |
 
 ### Roles (eight)
 
@@ -301,7 +301,7 @@ None of these exist in the repo yet except SVC-0. Each one is real code with a m
 | SVC-5 | `services/notification-service` | SMS reminders and outbreak alerts, in the patient's language; consumes `appointment.created` events | Logs instead of sending | FB-4, FB-7 |
 | SVC-6 | `services/prescription-service` | Issue a signed prescription code, verify, one-time dispense, fraud rules (duplicates, rate, licence), pharmacy lookup | Sandbox pharmacy | FB-6 |
 | SVC-7 | `services/referral-service` | Referral and automatic priority rules, emergency raise/acknowledge, escalation timers | Rules in config (signed off by the medical partner) | FB-5 |
-| SVC-8 | `services/surveillance-service` | Aggregate cases (anonymised, D-018), baseline outbreak rule, district map data, forecasts | Seeded synthetic cases | FB-7 |
+| SVC-8 | `services/surveillance-service` | Aggregate cases (anonymised, D-018), baseline outbreak rule, district map data, forecasts | Seeded synthetic cases, shaped by published DHS regional figures (D-034) | FB-7 |
 | SVC-9 | `services/decision-support-service` | Symptom checklist to ranked possibilities, "decision support, not diagnosis" | Rule table | FB-7 |
 | SVC-10 | `services/community-programs-service` | Surveys (build, answer), pregnancy and child records, visit schedules | none needed | FB-7 |
 | SVC-11 | `services/learning-service` | Lesson library, course modules, quiz, certificates | Seeded lessons | FB-8 |
@@ -316,7 +316,7 @@ None of these exist in the repo yet except SVC-0. Each one is real code with a m
 - **Real sync API (Joseph):** the PWA now also *downloads* (D-032). `patient-record-service` needs a download endpoint (records since a bookmark, filtered by the caller's role, as `mockServer.ts` does) and must refuse two booked visits for one specialist at the same time with 409 `double_booked` (the table already has the constraint; `POST /appointments` already returns it). The PWA's "Send" and "Download" use the `SyncApi` interface in `frontend/src/data/sync.ts`.
 - **Payments (Joseph):** the consultation fee and insurance premiums use the votex365 payments code that already exists from Prosit 1. We do **not** mock it. Joseph integrates it as `payments-service` (SVC-4) and tells Perfect the endpoints; the PWA's pay screens are waiting for that.
 
-- **Data:** synthetic only for now (D-004 stands). No real patient data in the repo or the app.
+- **Data:** synthetic only (D-004, D-034). No real patient data in the repo or the app. Published DHS regional figures may shape the synthetic data.
 - **Backend lead (Joseph/Elise):** the database must change for this build. Add the roles `pharmacist`, `traditional_healer`, `health_centre_admin` to the `practitioners.role` check, and add tables for prescriptions, referrals and emergencies, surveys and answers, pregnancies and child records, courses and certificates, insurance plans and enrolments, stock, and facilities. Each is a new migration (never edit an applied one) with the `db/tests` cases. The PWA will not wait for these: it saves on the phone first and uses mock mode.
 - **Payments:** `payments-service` wraps the Prosit 1 votex365 test-mode integration, not Flutterwave.
 

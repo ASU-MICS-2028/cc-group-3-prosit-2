@@ -230,7 +230,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Affects:** everyone; Perfect (consent, PIN lock, device encryption), Joseph (access control, audit), Eugene (encryption, backup), Elise (data minimisation)
 - **Decision:** Act 843 is the legal basis for every health-data decision. We also design against the HIPAA Security Rule's safeguard groups (access control, audit controls, integrity, person authentication, transmission security, backup) and map each to a control in the report. We write "designed against HIPAA safeguards", never "HIPAA-compliant" or "certified".
 - **Why:** The brief asks for HIPAA compliance (p.2, p.7, p.9) and the rubric scores it, but HIPAA is a US law and doesn't apply in Ghana. Using both is accurate and scores.
-- **Gave up:** D-005's "reference checklist only" wording. Open question: the checklist mentions collecting real patient data with consent, but D-004 (synthetic data only, public repo) still stands. Real data would need ethics approval and a private store, and is not decided here.
+- **Gave up:** D-005's "reference checklist only" wording. Open question: the checklist mentions collecting real patient data with consent, but D-004 (synthetic data only, public repo) still stands. Real data would need ethics approval and a private store. Settled by D-034: we stay synthetic.
 
 ## D-029: The full brief is in scope: built breadth first, with sandbox mode for partner systems
 
@@ -264,3 +264,11 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** Besides sending, every sync also **downloads** the records the signed-in person is allowed to see that others created, resuming from a bookmark so nothing is fetched twice. The **server** decides what each role may download: a person always gets what they created (so a replaced phone gets its data back); a CHV also gets what others added about their patients; a doctor gets the visits booked with them and those patients' records; other roles get nothing until a rule is written for them. Two booked visits for one specialist at the same time are refused for good (409 `double_booked`, D-017) and the phone shows the person why. In test mode the browser's mock server follows the same rules.
 - **Why:** Referrals, visits, prescriptions and emergencies all pass between people, so the receiver's phone must be able to get them. The app only hides screens; the server must enforce who may read what (Lab 6 lesson).
 - **Gave up:** simplicity (a second direction of sync with its own bookmark); a download of everything about a patient is wider than a single request would need, to be narrowed later by purpose (D-014).
+
+## D-034: Patients stay synthetic; published DHS regional figures make them realistic
+
+- **Date:** 2026-11-06 · **Status:** Accepted (Joseph; reaffirms D-004)
+- **Affects:** everyone; whoever builds `surveillance-service` (SVC-8) and the seed data, Joseph (the report says what real data would need)
+- **Decision:** We collect no real patient data, which answers the open question in D-028. Field testing uses team members or consenting volunteers with made-up patients. To make the synthetic data believable, we may use **published regional figures** from the [DHS Program API](https://api.dhsprogram.com/) (Ghana 2022 DHS, which covers the 16 current regions), cited in the code or data file that uses them. We don't use DHS individual-level files.
+- **Why:** Real records would need a partner facility, ethics approval, Act 843 steps and a private store, and we have no ethics approval (D-004) and no time for it. Regional percentages identify nobody and come from a public API, so they are safe in a public repo. DHS's terms of use couldn't be read when this was written, so check them before publishing anything built on these figures.
+- **Gave up:** testing on real records, and possibly marks for the brief's "real patient data with consent" item. The report explains the choice and what real data would require. DHS figures are survey percentages from 2022, not live case counts, so the dashboard must label anything derived from them as synthetic.
