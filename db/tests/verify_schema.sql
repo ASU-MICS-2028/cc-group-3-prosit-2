@@ -291,3 +291,57 @@ WHERE a.table_name = 'emergencies' AND a.row_id = :em1 ORDER BY a.id;
 UPDATE emergencies SET description = 'Changed afterwards' WHERE id = :em1;
 \echo 'SHOULD FAIL: delete an emergency (cancel it instead)'
 DELETE FROM emergencies WHERE id = :em1;
+
+\echo '--- 004: prescriptions ---'
+\set pharm '''33333333-3333-3333-3333-333333333333'''
+\set rx1   '''a1000000-0000-0000-0000-000000000001'''
+\set rx2   '''a1000000-0000-0000-0000-000000000002'''
+SET app.user_id = '99999999-9999-9999-9999-999999999999';
+INSERT INTO practitioners (id, full_name, role, facility_id)
+VALUES (:pharm, 'Kwame Pharmacist', 'pharmacist', 'f0000000-0000-0000-0000-000000000002');
+
+SET app.user_id = '11111111-1111-1111-1111-111111111111';  -- the CHV
+\echo 'SHOULD FAIL: a CHV cannot prescribe'
+INSERT INTO prescriptions (patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:kofi, :c_kofi, 'Amoxicillin 500 mg capsule', '1 capsule', '3 times a day', 5, 15, 'CHVTRY01', now() + interval '30 days');
+
+SET app.user_id = '22222222-2222-2222-2222-222222222222';  -- the specialist
+\echo 'SHOULD PASS: the specialist prescribes for Kofi'
+INSERT INTO prescriptions (id, patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:rx1, :kofi, :c_kofi, 'Amoxicillin 500 mg capsule', '1 capsule', '3 times a day', 5, 15, 'HCRX7Q2K', now() + interval '30 days');
+\echo 'SHOULD FAIL: Ama''s consent was withdrawn'
+INSERT INTO prescriptions (patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:ama, :c_ama, 'Paracetamol 500 mg', '2 tablets', 'every 6 hours', 3, 24, 'HCRXAMA1', now() + interval '30 days');
+\echo 'SHOULD FAIL: the same verification code twice'
+INSERT INTO prescriptions (patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:kofi, :c_kofi, 'Paracetamol 500 mg', '2 tablets', 'every 6 hours', 3, 24, 'HCRX7Q2K', now() + interval '30 days');
+\echo 'SHOULD FAIL: a quantity of zero'
+INSERT INTO prescriptions (patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:kofi, :c_kofi, 'Paracetamol 500 mg', '2 tablets', 'every 6 hours', 3, 0, 'HCRXZERO', now() + interval '30 days');
+\echo 'SHOULD FAIL: already expired when written'
+INSERT INTO prescriptions (patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:kofi, :c_kofi, 'Paracetamol 500 mg', '2 tablets', 'every 6 hours', 3, 24, 'HCRXOLD1', now() - interval '1 day');
+\echo 'SHOULD FAIL: change the medicine after writing it'
+UPDATE prescriptions SET quantity = 150 WHERE id = :rx1;
+
+\echo 'SHOULD FAIL: the specialist marks it dispensed (only a pharmacist can)'
+UPDATE prescriptions SET status = 'dispensed', dispensed_by = :spec, dispensed_at = now() WHERE id = :rx1;
+SET app.user_id = '33333333-3333-3333-3333-333333333333';  -- the pharmacist
+\echo 'SHOULD FAIL: dispensed without saying who'
+UPDATE prescriptions SET status = 'dispensed' WHERE id = :rx1;
+\echo 'SHOULD PASS: the pharmacist dispenses it'
+UPDATE prescriptions SET status = 'dispensed', dispensed_by = :pharm, dispensed_at = now(),
+  dispensed_facility_id = 'f0000000-0000-0000-0000-000000000002' WHERE id = :rx1;
+\echo 'SHOULD FAIL: dispense the same prescription a second time'
+UPDATE prescriptions SET status = 'dispensed', dispensed_by = :pharm, dispensed_at = now() WHERE id = :rx1;
+
+SET app.user_id = '22222222-2222-2222-2222-222222222222';
+\echo 'SHOULD PASS: a prescription that expires in 1 second'
+INSERT INTO prescriptions (id, patient_id, consent_id, medication, dose, frequency, duration_days, quantity, verification_code, expires_at)
+VALUES (:rx2, :kofi, :c_kofi, 'ORS sachet', '1 sachet', 'after each loose stool', 2, 6, 'HCRXSOON', clock_timestamp() + interval '1 second');
+SELECT pg_sleep(2);
+SET app.user_id = '33333333-3333-3333-3333-333333333333';
+\echo 'SHOULD FAIL: dispense it after it expired'
+UPDATE prescriptions SET status = 'dispensed', dispensed_by = :pharm, dispensed_at = now() WHERE id = :rx2;
+\echo 'SHOULD FAIL: delete a prescription (cancel it instead)'
+DELETE FROM prescriptions WHERE id = :rx2;

@@ -1,0 +1,320 @@
+# Lab 6 Part C: schema tests (db/tests/run_tests.sh)
+# Run at: 2026-11-06 07:31 UTC
+# Server: 16.15 (Debian 16.15-1.pgdg13+2)
+# Migrations: 001_initial_schema.sql 002_loinc_reference.sql 003_audit_trail.sql 004_full_brief_core.sql 
+
+Database: hc_test on 172.18.0.2/32 as postgres
+applying: 001_initial_schema.sql
+applying: 002_loinc_reference.sql
+applying: 003_audit_trail.sql
+applying: 004_full_brief_core.sql
+4 migration(s) applied.
+--- D-015: audit columns ---
+SHOULD FAIL: write with no acting user set
+psql:db/tests/verify_schema.sql:23: ERROR:  No acting user set. Run  SET LOCAL app.user_id = '<practitioner uuid>'  before writing.
+CONTEXT:  PL/pgSQL function current_actor() line 6 at RAISE
+PL/pgSQL function stamp_audit_columns() line 5 at assignment
+SHOULD PASS: created_by / updated_by stamped as the admin, not supplied by the client
+  full_name   | created_by_admin | updated_by_admin 
+--------------+------------------+------------------
+ Abena Mensah | t                | t
+
+--- D-011: client-generated UUID, retried upload ---
+SHOULD PASS: first upload of Ama
+SHOULD PASS: retry of the same upload is recognised, not duplicated (0 rows inserted)
+ ama_rows 
+----------
+        1
+
+SHOULD FAIL: malformed id
+psql:db/tests/verify_schema.sql:47: ERROR:  invalid input syntax for type uuid: "not-a-uuid"
+LINE 1: INSERT INTO patients (id, full_name) VALUES ('not-a-uuid', '...
+                                                     ^
+--- patients column checks ---
+SHOULD FAIL: phone not in E.164
+psql:db/tests/verify_schema.sql:53: ERROR:  new row for relation "patients" violates check constraint "patients_phone_check"
+DETAIL:  Failing row contains (c4ba0757-5e4f-4ae1-b75c-bb1a01d56c5a, Bad Phone, 0200000001, null, f, null, GH, null, null, 2026-11-06 07:31:29.272308+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.272308+00, 11111111-1111-1111-1111-111111111111).
+SHOULD FAIL: gender outside FHIR AdministrativeGender
+psql:db/tests/verify_schema.sql:55: ERROR:  new row for relation "patients" violates check constraint "patients_gender_check"
+DETAIL:  Failing row contains (b2a834d4-eb4d-4f0e-8ea1-aa95a1785348, Bad Gender, null, null, f, F, GH, null, null, 2026-11-06 07:31:29.272693+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.272693+00, 11111111-1111-1111-1111-111111111111).
+--- consents ---
+--- DATA-002: LOINC lookup + plausibility ---
+SHOULD PASS: Ama, temperature 36.8 under her own consent
+SHOULD FAIL: code not on the permitted list
+psql:db/tests/verify_schema.sql:69: ERROR:  insert or update on table "observations" violates foreign key constraint "observations_loinc_code_fkey"
+DETAIL:  Key (loinc_code)=(blood_pressure) is not present in table "loinc_codes".
+SHOULD FAIL: 368 °C typed instead of 36.8
+psql:db/tests/verify_schema.sql:72: ERROR:  Body temperature of 368 °C is outside the plausible range (25 to 45). Check for a typing error.
+HINT:  implausible_value
+CONTEXT:  PL/pgSQL function observations_before_insert() line 31 at RAISE
+--- D-012 guard 1: composite foreign key ---
+SHOULD FAIL: Ama's reading under Kofi's consent
+psql:db/tests/verify_schema.sql:77: ERROR:  insert or update on table "observations" violates foreign key constraint "observations_consent_id_patient_id_fkey"
+DETAIL:  Key (consent_id, patient_id)=(cccccccc-0000-0000-0000-00000000000b, aaaaaaaa-0000-0000-0000-000000000001) is not present in table "consents".
+SHOULD FAIL: consent id that does not exist
+psql:db/tests/verify_schema.sql:80: ERROR:  insert or update on table "observations" violates foreign key constraint "observations_consent_id_patient_id_fkey"
+DETAIL:  Key (consent_id, patient_id)=(53873f4b-b2b1-462d-abd8-4f046d189c64, aaaaaaaa-0000-0000-0000-000000000001) is not present in table "consents".
+--- D-012 guard 2: trigger ---
+SHOULD FAIL: SMS-reminder consent used for a clinical reading
+psql:db/tests/verify_schema.sql:85: ERROR:  Consent cccccccc-0000-0000-0000-00000000000c covers "appointment_reminders", not clinical care. Obtain clinical-care consent before recording.
+CONTEXT:  PL/pgSQL function observations_before_insert() line 11 at RAISE
+SHOULD FAIL: reading taken before consent was given
+psql:db/tests/verify_schema.sql:88: ERROR:  Reading taken at 2026-09-20 10:00:00+00 is before consent cccccccc-0000-0000-0000-00000000000a was given at 2026-10-01 09:00:00+00.
+CONTEXT:  PL/pgSQL function observations_before_insert() line 23 at RAISE
+Ama withdraws consent in December; the specialist records it
+SHOULD PASS: created_by is still the CHV, updated_by is now the specialist
+ created_by_chv | updated_by_specialist | updated_at_set 
+----------------+-----------------------+----------------
+ t              | t                     | t
+
+SHOULD PASS (silently ignored): attempt to rewrite created_by / created_at
+ created_by_unchanged | created_at_unchanged | updated_by_specialist 
+----------------------+----------------------+-----------------------
+ t                    | t                    | t
+
+SHOULD FAIL: January reading -> "withdrawn on 05 Dec 2026. Obtain new consent"
+psql:db/tests/verify_schema.sql:105: ERROR:  Consent cccccccc-0000-0000-0000-00000000000a was withdrawn on 05 Dec 2026. Obtain new consent before recording.
+HINT:  consent_withdrawn
+CONTEXT:  PL/pgSQL function observations_before_insert() line 17 at RAISE
+SHOULD PASS: October reading is still there
+ loinc_code | value |      effective_at      
+------------+-------+------------------------
+ 8310-5     |  36.8 | 2026-10-15 10:00:00+00
+
+--- consents are append-only ---
+SHOULD FAIL: delete a consent
+psql:db/tests/verify_schema.sql:111: ERROR:  Consent records cannot be deleted. Record a withdrawal by setting withdrawn_at.
+CONTEXT:  PL/pgSQL function consents_guard() line 4 at RAISE
+SHOULD FAIL: change a withdrawn consent
+psql:db/tests/verify_schema.sql:113: ERROR:  Consent cccccccc-0000-0000-0000-00000000000a was already withdrawn on 2026-12-05 12:00:00+00; it cannot be changed. Record a new consent instead.
+CONTEXT:  PL/pgSQL function consents_guard() line 10 at RAISE
+SHOULD FAIL: rewrite given_at on an active consent
+psql:db/tests/verify_schema.sql:115: ERROR:  Only withdrawn_at may be set on an existing consent.
+CONTEXT:  PL/pgSQL function consents_guard() line 18 at RAISE
+--- observations are corrected, not deleted ---
+SHOULD FAIL: delete an observation
+psql:db/tests/verify_schema.sql:119: ERROR:  observations rows cannot be deleted.
+HINT:  Correct an observation by setting status = 'entered-in-error'.
+CONTEXT:  PL/pgSQL function forbid_delete() line 3 at RAISE
+SHOULD FAIL: truncate observations
+psql:db/tests/verify_schema.sql:121: ERROR:  observations cannot be truncated.
+CONTEXT:  PL/pgSQL function forbid_truncate() line 3 at RAISE
+--- appointments (Lab 7 Part A) ---
+SHOULD PASS: book Kofi with the specialist
+ status | created_by_chv 
+--------+----------------
+ booked | t
+
+SHOULD PASS: no end time sent -> defaults to 30 minutes
+  length  
+----------
+ 00:30:00
+
+SHOULD FAIL: double-booking the specialist at 10:15 (overlaps 10:00-10:30)
+psql:db/tests/verify_schema.sql:131: ERROR:  conflicting key value violates exclusion constraint "appointments_specialist_id_tstzrange_excl"
+DETAIL:  Key (specialist_id, tstzrange(starts_at, ends_at))=(22222222-2222-2222-2222-222222222222, ["2027-01-15 10:15:00+00","2027-01-15 10:45:00+00")) conflicts with existing key (specialist_id, tstzrange(starts_at, ends_at))=(22222222-2222-2222-2222-222222222222, ["2027-01-15 10:00:00+00","2027-01-15 10:30:00+00")).
+SHOULD PASS: back-to-back slot at 10:30 is fine
+SHOULD PASS: after Kofi cancels, his 10:00 slot can be rebooked
+SHOULD FAIL: ends before it starts
+psql:db/tests/verify_schema.sql:141: ERROR:  new row for relation "appointments" violates check constraint "appointments_check"
+DETAIL:  Failing row contains (bfd7df26-2a37-4ac5-a0dc-a926e8c5b368, bbbbbbbb-0000-0000-0000-000000000002, 22222222-2222-2222-2222-222222222222, 2027-02-01 10:00:00+00, 2027-02-01 09:00:00+00, booked, 2026-11-06 07:31:29.287804+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.287804+00, 11111111-1111-1111-1111-111111111111).
+SHOULD FAIL: specialist who does not exist
+psql:db/tests/verify_schema.sql:144: ERROR:  insert or update on table "appointments" violates foreign key constraint "appointments_specialist_id_fkey"
+DETAIL:  Key (specialist_id)=(9efa2941-9338-452c-92cd-c24deb5fd138) is not present in table "practitioners".
+--- access_log (Lab 6 Part D) ---
+SHOULD PASS: log a read of Ama, and a probe of a patient id that does not exist
+SHOULD FAIL: edit the audit log
+psql:db/tests/verify_schema.sql:152: ERROR:  access_log is append-only; UPDATE is not allowed.
+CONTEXT:  PL/pgSQL function access_log_append_only() line 3 at RAISE
+SHOULD FAIL: delete from the audit log
+psql:db/tests/verify_schema.sql:154: ERROR:  access_log is append-only; DELETE is not allowed.
+CONTEXT:  PL/pgSQL function access_log_append_only() line 3 at RAISE
+SHOULD FAIL: truncate the audit log
+psql:db/tests/verify_schema.sql:156: ERROR:  access_log cannot be truncated.
+CONTEXT:  PL/pgSQL function forbid_truncate() line 3 at RAISE
+ audit_rows_remaining 
+----------------------
+                    2
+
+--- D-015: audit_trail ---
+Ama changes her phone number (identity field)
+Ama's October reading is marked entered-in-error (clinical field)
+SHOULD PASS: Ama's full history. Phone and name show as [redacted]; region, consent and readings show real values
+ id |  table_name  | action |                                            changed_fields                                             |                 old_values                 |                                                                                                                                                        new_values                                                                                                                                                        |      actor      | db_role  
+----+--------------+--------+-------------------------------------------------------------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------+----------
+  4 | patients     | insert | {birth_date_estimated,country_code,date_of_birth,full_name,gender,id,phone,preferred_language,region} |                                            | {"id": "aaaaaaaa-0000-0000-0000-000000000001", "phone": "[redacted]", "gender": "female", "region": "Volta", "full_name": "[redacted]", "country_code": "GH", "date_of_birth": "[redacted]", "preferred_language": "ewe", "birth_date_estimated": false}                                                                 | Abena Mensah    | postgres
+  6 | consents     | insert | {given_at,given_by,id,patient_id,purpose,recorded_by}                                                 |                                            | {"id": "cccccccc-0000-0000-0000-00000000000a", "purpose": "clinical_care", "given_at": "2026-10-01T09:00:00+00:00", "given_by": "patient", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111"}                                                                  | Abena Mensah    | postgres
+  8 | consents     | insert | {given_at,given_by,id,patient_id,purpose,recorded_by}                                                 |                                            | {"id": "cccccccc-0000-0000-0000-00000000000c", "purpose": "appointment_reminders", "given_at": "2026-10-01T09:00:00+00:00", "given_by": "patient", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111"}                                                          | Abena Mensah    | postgres
+  9 | observations | insert | {consent_id,effective_at,id,loinc_code,patient_id,recorded_by,status,value}                           |                                            | {"id": "42b4aa19-28d0-47cc-8c16-7c88f1ee6120", "value": 36.8, "status": "final", "consent_id": "cccccccc-0000-0000-0000-00000000000a", "loinc_code": "8310-5", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "recorded_by": "11111111-1111-1111-1111-111111111111", "effective_at": "2026-10-15T10:00:00+00:00"} | Abena Mensah    | postgres
+ 10 | consents     | update | {withdrawn_at}                                                                                        | {"withdrawn_at": null}                     | {"withdrawn_at": "2026-12-05T12:00:00+00:00"}                                                                                                                                                                                                                                                                            | Dr. Yaw Boateng | postgres
+ 12 | appointments | insert | {ends_at,id,patient_id,specialist_id,starts_at,status}                                                |                                            | {"id": "38a1ff64-a30f-48d6-81a3-12fd04d8db87", "status": "booked", "ends_at": "2027-01-15T11:00:00+00:00", "starts_at": "2027-01-15T10:30:00+00:00", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "specialist_id": "22222222-2222-2222-2222-222222222222"}                                                      | Abena Mensah    | postgres
+ 14 | appointments | insert | {ends_at,id,patient_id,specialist_id,starts_at,status}                                                |                                            | {"id": "9955b19f-1235-48f0-b4d6-0f8cbfaa9faf", "status": "booked", "ends_at": "2027-01-15T10:30:00+00:00", "starts_at": "2027-01-15T10:00:00+00:00", "patient_id": "aaaaaaaa-0000-0000-0000-000000000001", "specialist_id": "22222222-2222-2222-2222-222222222222"}                                                      | Abena Mensah    | postgres
+ 15 | patients     | update | {phone,region}                                                                                        | {"phone": "[redacted]", "region": "Volta"} | {"phone": "[redacted]", "region": "Greater Accra"}                                                                                                                                                                                                                                                                       | Abena Mensah    | postgres
+ 16 | observations | update | {status}                                                                                              | {"status": "final"}                        | {"status": "entered-in-error"}                                                                                                                                                                                                                                                                                           | Abena Mensah    | postgres
+
+SHOULD PASS: exactly 1 patient update in history (the phone change); the ignored created_by rewrite left none
+ patient_update_rows 
+---------------------
+                   1
+
+SHOULD FAIL: edit the audit trail
+psql:db/tests/verify_schema.sql:181: ERROR:  audit_trail is append-only; UPDATE is not allowed.
+CONTEXT:  PL/pgSQL function forbid_change_append_only() line 3 at RAISE
+SHOULD FAIL: delete from the audit trail
+psql:db/tests/verify_schema.sql:183: ERROR:  audit_trail is append-only; DELETE is not allowed.
+CONTEXT:  PL/pgSQL function forbid_change_append_only() line 3 at RAISE
+SHOULD FAIL: truncate the audit trail
+psql:db/tests/verify_schema.sql:185: ERROR:  audit_trail cannot be truncated.
+CONTEXT:  PL/pgSQL function forbid_truncate() line 3 at RAISE
+--- 004: new roles ---
+SHOULD PASS: add a pharmacist, a traditional healer and a health centre admin
+SHOULD FAIL: a role that does not exist
+psql:db/tests/verify_schema.sql:199: ERROR:  new row for relation "practitioners" violates check constraint "practitioners_role_check"
+DETAIL:  Failing row contains (41ce9699-9107-4c5a-85b4-5264f7bee556, Nobody, wizard, null, t, 2026-11-06 07:31:29.293925+00, 99999999-9999-9999-9999-999999999999, 2026-11-06 07:31:29.293925+00, 99999999-9999-9999-9999-999999999999, null, null).
+--- 004: patient logins ---
+SHOULD PASS: a patient login for Ama, tied to her own record
+SHOULD FAIL: a patient login tied to no patient record
+psql:db/tests/verify_schema.sql:205: ERROR:  new row for relation "practitioners" violates check constraint "practitioners_patient_login_check"
+DETAIL:  Failing row contains (60113e42-fca6-425a-b8c6-1ddc7cdba67b, Floating patient, patient, null, t, 2026-11-06 07:31:29.29468+00, 99999999-9999-9999-9999-999999999999, 2026-11-06 07:31:29.29468+00, 99999999-9999-9999-9999-999999999999, null, null).
+SHOULD FAIL: a nurse account tied to a patient record
+psql:db/tests/verify_schema.sql:207: ERROR:  new row for relation "practitioners" violates check constraint "practitioners_patient_login_check"
+DETAIL:  Failing row contains (39cc4ba7-0e34-4359-8b6d-f5177c14f08b, Nurse with a patient link, nurse, null, t, 2026-11-06 07:31:29.295048+00, 99999999-9999-9999-9999-999999999999, 2026-11-06 07:31:29.295048+00, 99999999-9999-9999-9999-999999999999, bbbbbbbb-0000-0000-0000-000000000002, null).
+SHOULD FAIL: a second login for the same patient
+psql:db/tests/verify_schema.sql:209: ERROR:  duplicate key value violates unique constraint "practitioners_patient_id_key"
+DETAIL:  Key (patient_id)=(aaaaaaaa-0000-0000-0000-000000000001) already exists.
+SHOULD FAIL: a patient login for a patient that does not exist
+psql:db/tests/verify_schema.sql:211: ERROR:  insert or update on table "practitioners" violates foreign key constraint "practitioners_patient_id_fkey"
+DETAIL:  Key (patient_id)=(dddddddd-0000-0000-0000-000000000099) is not present in table "patients".
+--- 004: facilities ---
+SHOULD PASS: add a CHPS compound and a pharmacy
+SHOULD PASS: put the CHV in the CHPS compound
+  full_name   |       facility       
+--------------+----------------------
+ Abena Mensah | Sokode CHPS Compound
+
+SHOULD FAIL: a facility type that does not exist
+psql:db/tests/verify_schema.sql:223: ERROR:  new row for relation "facilities" violates check constraint "facilities_type_check"
+DETAIL:  Failing row contains (417a2733-2569-41b9-9c3a-48597095ef75, Mystery place, spaceport, Volta, null, t, 2026-11-06 07:31:29.298169+00, 99999999-9999-9999-9999-999999999999, 2026-11-06 07:31:29.298169+00, 99999999-9999-9999-9999-999999999999).
+SHOULD FAIL: a facility with no region
+psql:db/tests/verify_schema.sql:225: ERROR:  null value in column "region" of relation "facilities" violates not-null constraint
+DETAIL:  Failing row contains (1f57b3a1-684b-4a35-9868-eab270100a6c, Nowhere Clinic, clinic, null, null, t, 2026-11-06 07:31:29.298487+00, 99999999-9999-9999-9999-999999999999, 2026-11-06 07:31:29.298487+00, 99999999-9999-9999-9999-999999999999).
+SHOULD FAIL: link a health worker to a facility that does not exist
+psql:db/tests/verify_schema.sql:227: ERROR:  insert or update on table "practitioners" violates foreign key constraint "practitioners_facility_id_fkey"
+DETAIL:  Key (facility_id)=(f0000000-0000-0000-0000-000000000099) is not present in table "facilities".
+SHOULD FAIL: delete a facility (switch it off instead)
+psql:db/tests/verify_schema.sql:229: ERROR:  facilities rows cannot be deleted.
+HINT:  Switch it off instead: set active = false.
+CONTEXT:  PL/pgSQL function forbid_delete_with_hint() line 3 at RAISE
+SHOULD PASS: switch a facility off, and the change is in the history
+ table_name | action |            changed_fields             
+------------+--------+---------------------------------------
+ facilities | insert | {active,district,id,name,region,type}
+ facilities | insert | {active,district,id,name,region,type}
+ facilities | update | {active}
+
+--- 004: referrals ---
+SHOULD PASS: refer Kofi (active consent) to the specialist, urgent, with the reason for the priority
+SHOULD PASS: refer Kofi to a facility instead of a person
+SHOULD FAIL: Ama's clinical consent was withdrawn
+psql:db/tests/verify_schema.sql:245: ERROR:  Consent cccccccc-0000-0000-0000-00000000000a was withdrawn. Obtain new consent first.
+HINT:  consent_withdrawn
+CONTEXT:  PL/pgSQL function require_clinical_consent() line 11 at RAISE
+SHOULD FAIL: a reminders-only consent is not consent for clinical care
+psql:db/tests/verify_schema.sql:248: ERROR:  Consent cccccccc-0000-0000-0000-00000000000c covers "appointment_reminders", not clinical care.
+CONTEXT:  PL/pgSQL function require_clinical_consent() line 7 at RAISE
+SHOULD FAIL: Ama referred using Kofi's (active) consent: a consent only covers its own patient
+psql:db/tests/verify_schema.sql:251: ERROR:  insert or update on table "referrals" violates foreign key constraint "referrals_consent_id_patient_id_fkey"
+DETAIL:  Key (consent_id, patient_id)=(cccccccc-0000-0000-0000-00000000000b, aaaaaaaa-0000-0000-0000-000000000001) is not present in table "consents".
+SHOULD FAIL: a referral that goes nowhere (no person, no facility)
+psql:db/tests/verify_schema.sql:254: ERROR:  new row for relation "referrals" violates check constraint "referrals_check"
+DETAIL:  Failing row contains (b96e63c2-badf-4508-bd17-58173fda5730, bbbbbbbb-0000-0000-0000-000000000002, cccccccc-0000-0000-0000-00000000000b, null, null, Cough, routine, null, pending, 2026-11-06 07:31:29.303405+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.303405+00, 11111111-1111-1111-1111-111111111111).
+SHOULD FAIL: a priority word the app does not know
+psql:db/tests/verify_schema.sql:257: ERROR:  new row for relation "referrals" violates check constraint "referrals_priority_check"
+DETAIL:  Failing row contains (f77f0ce8-ea66-4a0c-a695-bc965e253015, bbbbbbbb-0000-0000-0000-000000000002, cccccccc-0000-0000-0000-00000000000b, 22222222-2222-2222-2222-222222222222, null, Cough, whenever, null, pending, 2026-11-06 07:31:29.303744+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.303744+00, 11111111-1111-1111-1111-111111111111).
+SHOULD PASS: the specialist accepts the referral; the history shows who changed the status
+  status  |   updated_by    
+----------+-----------------
+ accepted | Dr. Yaw Boateng
+
+SHOULD FAIL: delete a referral (cancel it instead)
+psql:db/tests/verify_schema.sql:263: ERROR:  referrals rows cannot be deleted.
+HINT:  Cancel it instead: set status = 'cancelled'.
+CONTEXT:  PL/pgSQL function forbid_delete_with_hint() line 3 at RAISE
+--- 004: emergencies ---
+SHOULD PASS: raise an emergency for Ama, even though her consent was withdrawn (implied consent)
+SHOULD PASS: raise one for someone not registered yet
+SHOULD PASS: nobody answered, so it goes up a level
+SHOULD FAIL: escalated again without a new time (the old time would hide when it happened)
+psql:db/tests/verify_schema.sql:276: ERROR:  Escalating to level 2 needs a new escalated_at time.
+CONTEXT:  PL/pgSQL function emergencies_guard() line 13 at RAISE
+SHOULD FAIL: the level goes down (hiding that nobody answered)
+psql:db/tests/verify_schema.sql:278: ERROR:  The escalation level cannot go down (1 to 0).
+CONTEXT:  PL/pgSQL function emergencies_guard() line 8 at RAISE
+SHOULD FAIL: acknowledged without saying who
+psql:db/tests/verify_schema.sql:280: ERROR:  new row for relation "emergencies" violates check constraint "emergencies_check"
+DETAIL:  Failing row contains (e1000000-0000-0000-0000-000000000001, aaaaaaaa-0000-0000-0000-000000000001, f0000000-0000-0000-0000-000000000001, null, Heavy bleeding after delivery, acknowledged, 1, 2026-11-06 07:31:29.306597+00, null, null, null, 2026-11-06 07:31:29.305149+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.307734+00, 11111111-1111-1111-1111-111111111111).
+SHOULD PASS: the specialist acknowledges it
+SHOULD FAIL: resolved without a time
+psql:db/tests/verify_schema.sql:285: ERROR:  new row for relation "emergencies" violates check constraint "emergencies_check1"
+DETAIL:  Failing row contains (e1000000-0000-0000-0000-000000000001, aaaaaaaa-0000-0000-0000-000000000001, f0000000-0000-0000-0000-000000000001, null, Heavy bleeding after delivery, resolved, 1, 2026-11-06 07:31:29.306597+00, 22222222-2222-2222-2222-222222222222, 2026-11-06 07:31:29.308267+00, null, 2026-11-06 07:31:29.305149+00, 11111111-1111-1111-1111-111111111111, 2026-11-06 07:31:29.308676+00, 22222222-2222-2222-2222-222222222222).
+SHOULD PASS: resolved, and the history shows every step
+ action |                         changed_fields                          |       by        
+--------+-----------------------------------------------------------------+-----------------
+ insert | {description,escalation_level,facility_id,id,patient_id,status} | Abena Mensah
+ update | {escalated_at,escalation_level}                                 | Abena Mensah
+ update | {acknowledged_at,acknowledged_by,status}                        | Dr. Yaw Boateng
+ update | {resolved_at,status}                                            | Dr. Yaw Boateng
+
+SHOULD FAIL: change a resolved emergency (it is closed)
+psql:db/tests/verify_schema.sql:291: ERROR:  Emergency e1000000-0000-0000-0000-000000000001 is resolved and closed; it cannot be changed.
+CONTEXT:  PL/pgSQL function emergencies_guard() line 4 at RAISE
+SHOULD FAIL: delete an emergency (cancel it instead)
+psql:db/tests/verify_schema.sql:293: ERROR:  emergencies rows cannot be deleted.
+HINT:  A false alarm is set to status = 'cancelled'.
+CONTEXT:  PL/pgSQL function forbid_delete_with_hint() line 3 at RAISE
+--- 004: prescriptions ---
+SHOULD FAIL: a CHV cannot prescribe
+psql:db/tests/verify_schema.sql:306: ERROR:  Only a doctor or specialist can prescribe (this account is chv).
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 8 at RAISE
+SHOULD PASS: the specialist prescribes for Kofi
+SHOULD FAIL: Ama's consent was withdrawn
+psql:db/tests/verify_schema.sql:314: ERROR:  Consent cccccccc-0000-0000-0000-00000000000a was withdrawn. Obtain new consent first.
+HINT:  consent_withdrawn
+CONTEXT:  PL/pgSQL function require_clinical_consent() line 11 at RAISE
+SHOULD FAIL: the same verification code twice
+psql:db/tests/verify_schema.sql:317: ERROR:  duplicate key value violates unique constraint "prescriptions_verification_code_key"
+DETAIL:  Key (verification_code)=(HCRX7Q2K) already exists.
+SHOULD FAIL: a quantity of zero
+psql:db/tests/verify_schema.sql:320: ERROR:  new row for relation "prescriptions" violates check constraint "prescriptions_quantity_check"
+DETAIL:  Failing row contains (bb3664d4-fb13-43bb-ac2f-5607460d2b32, bbbbbbbb-0000-0000-0000-000000000002, cccccccc-0000-0000-0000-00000000000b, Paracetamol 500 mg, 2 tablets, every 6 hours, 3, 0, null, HCRXZERO, 2026-12-06 07:31:29.313663+00, active, null, null, null, 2026-11-06 07:31:29.313663+00, 22222222-2222-2222-2222-222222222222, 2026-11-06 07:31:29.313663+00, 22222222-2222-2222-2222-222222222222).
+SHOULD FAIL: already expired when written
+psql:db/tests/verify_schema.sql:323: ERROR:  A new prescription must expire in the future.
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 12 at RAISE
+SHOULD FAIL: change the medicine after writing it
+psql:db/tests/verify_schema.sql:325: ERROR:  What was prescribed cannot be edited. Cancel it and write a new prescription.
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 41 at RAISE
+SHOULD FAIL: the specialist marks it dispensed (only a pharmacist can)
+psql:db/tests/verify_schema.sql:328: ERROR:  Only a pharmacist can dispense (dispensed_by is a specialist).
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 33 at RAISE
+SHOULD FAIL: dispensed without saying who
+psql:db/tests/verify_schema.sql:331: ERROR:  Say who dispensed it: set dispensed_by to the pharmacist.
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 28 at RAISE
+SHOULD PASS: the pharmacist dispenses it
+SHOULD FAIL: dispense the same prescription a second time
+psql:db/tests/verify_schema.sql:336: ERROR:  Prescription a1000000-0000-0000-0000-000000000001 is already dispensed and closed; it cannot be dispensed or changed again.
+HINT:  already_dispensed
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 19 at RAISE
+SHOULD PASS: a prescription that expires in 1 second
+ pg_sleep 
+----------
+ 
+
+SHOULD FAIL: dispense it after it expired
+psql:db/tests/verify_schema.sql:345: ERROR:  Prescription a1000000-0000-0000-0000-000000000002 expired on 2026-11-06 07:31:30.316682+00; it cannot be dispensed.
+HINT:  expired
+CONTEXT:  PL/pgSQL function prescriptions_guard() line 24 at RAISE
+SHOULD FAIL: delete a prescription (cancel it instead)
+psql:db/tests/verify_schema.sql:347: ERROR:  prescriptions rows cannot be deleted.
+HINT:  Cancel it instead: set status = 'cancelled'.
+CONTEXT:  PL/pgSQL function forbid_delete_with_hint() line 3 at RAISE
+57 deny checks, 30 allow checks, 0 problems

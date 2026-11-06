@@ -7,6 +7,7 @@
 --   2. Facilities, and which facility each health worker belongs to
 --   3. Referrals (FHIR ServiceRequest), with priority and consent
 --   4. Emergencies: raised, acknowledged, escalated, resolved
+--   5. Prescriptions (FHIR MedicationRequest): dispensed once only
 --
 -- The phone app names some roles differently (healer, facility_admin, ghs,
 -- clinician); the API translates between the app's names and these.
@@ -216,5 +217,108 @@ CREATE TRIGGER emergencies_audit_trail_trg
 CREATE TRIGGER emergencies_no_delete_trg
   BEFORE DELETE ON emergencies
   FOR EACH ROW EXECUTE FUNCTION forbid_delete_with_hint('A false alarm is set to status = ''cancelled''.');
+
+-- ---------------------------------------------------------------------------
+-- 5. Prescriptions (FHIR MedicationRequest)
+-- The brief's must-implement fraud checks, split by who can do them best:
+--   database (here): only a doctor or specialist prescribes; only a pharmacist
+--     dispenses; a prescription is dispensed ONCE, never after it expires,
+--     and is closed after that; never deleted.
+--   API (Joseph): flags for a person to look at, such as the same medicine
+--     twice for one patient, or too many prescriptions from one prescriber.
+--     They're warnings, not blocks: a patient can genuinely need both.
+-- ---------------------------------------------------------------------------
+CREATE TABLE prescriptions (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),  -- D-011
+  patient_id            UUID NOT NULL REFERENCES patients(id),
+  consent_id            UUID NOT NULL,
+  medication            TEXT NOT NULL,                                -- e.g. 'Amoxicillin 500 mg capsule'
+  dose                  TEXT NOT NULL,                                -- e.g. '1 capsule'
+  frequency             TEXT NOT NULL,                                -- e.g. '3 times a day'
+  duration_days         INTEGER NOT NULL CHECK (duration_days BETWEEN 1 AND 365),
+  quantity              INTEGER NOT NULL CHECK (quantity > 0),
+  instructions          TEXT,
+  verification_code     TEXT NOT NULL UNIQUE CHECK (length(verification_code) >= 8),  -- shown as a QR code
+  expires_at            TIMESTAMPTZ NOT NULL,
+  status                TEXT NOT NULL DEFAULT 'active'
+                        CHECK (status IN ('active', 'dispensed', 'cancelled', 'expired')),
+  dispensed_by          UUID REFERENCES practitioners(id),
+  dispensed_at          TIMESTAMPTZ,
+  dispensed_facility_id UUID REFERENCES facilities(id),
+  created_at            TIMESTAMPTZ NOT NULL,
+  created_by            UUID NOT NULL REFERENCES practitioners(id),   -- the prescriber
+  updated_at            TIMESTAMPTZ NOT NULL,
+  updated_by            UUID NOT NULL REFERENCES practitioners(id),
+
+  FOREIGN KEY (consent_id, patient_id) REFERENCES consents (id, patient_id),   -- D-012
+  CHECK (status <> 'dispensed' OR (dispensed_by IS NOT NULL AND dispensed_at IS NOT NULL))
+);
+
+-- Fast lookups for the API's duplicate check and the patient's medicine list.
+CREATE INDEX prescriptions_patient_idx ON prescriptions (patient_id, status);
+
+CREATE FUNCTION prescriptions_guard() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+  actor_role  TEXT;
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    SELECT role INTO actor_role FROM practitioners WHERE id = current_actor();
+    IF actor_role IS DISTINCT FROM 'doctor' AND actor_role IS DISTINCT FROM 'specialist' THEN
+      RAISE EXCEPTION 'Only a doctor or specialist can prescribe (this account is %).', coalesce(actor_role, 'unknown')
+        USING ERRCODE = 'insufficient_privilege';
+    END IF;
+    IF NEW.expires_at <= now() THEN
+      RAISE EXCEPTION 'A new prescription must expire in the future.' USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  -- UPDATE
+  IF OLD.status IN ('dispensed', 'cancelled', 'expired') THEN
+    RAISE EXCEPTION 'Prescription % is already % and closed; it cannot be dispensed or changed again.', OLD.id, OLD.status
+      USING ERRCODE = 'check_violation', HINT = 'already_' || OLD.status;
+  END IF;
+  IF NEW.status = 'dispensed' THEN
+    IF OLD.expires_at <= now() THEN
+      RAISE EXCEPTION 'Prescription % expired on %; it cannot be dispensed.', OLD.id, OLD.expires_at
+        USING ERRCODE = 'check_violation', HINT = 'expired';
+    END IF;
+    IF NEW.dispensed_by IS NULL THEN
+      RAISE EXCEPTION 'Say who dispensed it: set dispensed_by to the pharmacist.'
+        USING ERRCODE = 'check_violation';
+    END IF;
+    SELECT role INTO actor_role FROM practitioners WHERE id = NEW.dispensed_by;
+    IF actor_role IS DISTINCT FROM 'pharmacist' THEN
+      RAISE EXCEPTION 'Only a pharmacist can dispense (dispensed_by is a %).', coalesce(actor_role, 'unknown account')
+        USING ERRCODE = 'insufficient_privilege';
+    END IF;
+  END IF;
+  -- What was prescribed can't be edited afterwards: cancel and write a new one.
+  IF (NEW.patient_id, NEW.medication, NEW.dose, NEW.frequency, NEW.duration_days, NEW.quantity, NEW.verification_code)
+     IS DISTINCT FROM
+     (OLD.patient_id, OLD.medication, OLD.dose, OLD.frequency, OLD.duration_days, OLD.quantity, OLD.verification_code) THEN
+    RAISE EXCEPTION 'What was prescribed cannot be edited. Cancel it and write a new prescription.'
+      USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER prescriptions_consent_trg
+  BEFORE INSERT ON prescriptions
+  FOR EACH ROW EXECUTE FUNCTION require_clinical_consent();
+CREATE TRIGGER prescriptions_guard_trg
+  BEFORE INSERT OR UPDATE ON prescriptions
+  FOR EACH ROW EXECUTE FUNCTION prescriptions_guard();
+CREATE TRIGGER prescriptions_audit_trg
+  BEFORE INSERT OR UPDATE ON prescriptions
+  FOR EACH ROW EXECUTE FUNCTION stamp_audit_columns();
+CREATE TRIGGER prescriptions_audit_trail_trg
+  AFTER INSERT OR UPDATE OR DELETE ON prescriptions
+  FOR EACH ROW EXECUTE FUNCTION audit_row_change();
+CREATE TRIGGER prescriptions_no_delete_trg
+  BEFORE DELETE ON prescriptions
+  FOR EACH ROW EXECUTE FUNCTION forbid_delete_with_hint('Cancel it instead: set status = ''cancelled''.');
 
 COMMIT;

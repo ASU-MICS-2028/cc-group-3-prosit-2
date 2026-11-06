@@ -44,6 +44,22 @@ The database stores patients, their vital signs, their consent, health workers a
    Why DynamoDB and not our Postgres: the functions run outside the private network, and the lab wants them
    independent of the main database. Why not SQS's own deduplication: it only remembers for 5 minutes.
 
+7. **Migration 004: the full-brief core (final sprint, task E-M part 1).** `db/migrations/004_full_brief_core.sql`:
+   - **New roles:** `pharmacist`, `traditional_healer`, `health_centre_admin`, `patient`. A `patient` login must point at
+     its own patient record (`practitioners.patient_id`, one login per patient); no other role may have one.
+   - **`facilities`** (CHPS compound, health centre, clinic, hospital, pharmacy) and `practitioners.facility_id`, so a
+     health centre admin can be limited to their own facility. Switched off with `active = false`, never deleted.
+   - **`referrals`** (FHIR ServiceRequest): to a person and/or a facility; priority is `emergency`, `urgent`, `soon` or
+     `routine` (the app's words), with `priority_reason` saying why. Needs active clinical-care consent.
+   - **`emergencies`**: raised → acknowledged → resolved (or cancelled), with an escalation level. **No consent check**:
+     in an emergency, care goes ahead on implied consent. The level never goes down, each step up records a new time,
+     and a closed emergency can't be changed. The escalation *timer* is the API's job.
+   - **`prescriptions`** (FHIR MedicationRequest): only a doctor or specialist prescribes; only a pharmacist dispenses;
+     **dispensed once**, never after it expires; what was prescribed can't be edited (cancel and write a new one).
+   - All new tables stamp who/when, write to `audit_trail`, and refuse `DELETE` with a hint saying what to do instead.
+   Tests: `db/tests/run_tests.sh` → **57 deny checks, 30 allow checks, 0 problems**
+   (`evidence/final/E-M-schema-tests.txt`).
+
 ## 3. Why we did it this way
 
 | Choice | Why | Rejected |
@@ -131,6 +147,14 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 
 ## 6. What will bite us
 
+- **Role names differ between the app and the database.** The app says `healer`, `facility_admin`, `ghs`, `clinician`,
+  `platform_admin`; the database says `traditional_healer`, `health_centre_admin`, `ghs_official`, and `nurse` /
+  `doctor` / `specialist`, `admin`. The API translates. A wrong name is refused by the database, not silently stored.
+- **Duplicate-prescription and "too many prescriptions" checks are not in the database.** They're warnings for a person
+  (a patient can genuinely need both), so the API flags them. The database only blocks the hard rules (dispense once).
+- **Prescriptions are written only by `doctor` or `specialist`.** If nurses should prescribe some medicines in Ghana,
+  that's a new migration.
+
 - **Every write must say who is acting.** The API must run each request in one transaction that starts with `SELECT set_config('app.user_id', '<practitioner uuid>', true)`. Using `pool.query()` alone sends statements on random connections, and the database will refuse the write with *"No acting user set"*. The user id must come from the verified login, never a request header.
 - **Lab 7's starter code won't work unchanged:** the column is `starts_at` (not `time`) and ids are UUIDs (not `1`, `2`).
 - **A double-booking or withdrawn consent comes back as a database error.** The API should turn it into a clear 409 / 403, not a 500.
@@ -170,6 +194,9 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 | DynamoDB | AWS's serverless key–value database: you store items by a key and pay per request, with no server to run |
 | Conditional write | A write that only happens if a condition holds ("only if this id isn't there yet"); the database checks and writes in one step, so two at once can't both succeed |
 | TTL (time to live) | A date on an item after which DynamoDB deletes it by itself |
+| CHPS compound | Ghana's village health post (Community-based Health Planning and Services) |
+| Implied consent | In an emergency, care goes ahead without asking first, because there's no time or the patient can't answer |
+| Trigger (before/after) | A trigger can compare the row before and after a change, which a CHECK rule can't; we use it for "the level never goes down" |
 | Act 843 | Ghana's Data Protection Act, 2012: the law our data handling must follow |
 
 ## 8. Lines ready for the report

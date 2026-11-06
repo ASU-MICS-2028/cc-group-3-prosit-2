@@ -162,7 +162,7 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 
 | ID | Task | Due | Tier | Evidence |
 |---|---|---|---|---|
-| E-M | Migration 004: the new roles (`pharmacist`, `traditional_healer`, `health_centre_admin`) and tables for prescriptions, referrals, emergencies, surveys, pregnancies and children, courses, insurance, stock, facilities. Tested with `db/migrate.sh`, never editing an applied file | Sat 7 | 1 | `evidence/final/E-M-schema-tests.txt` |
+| E-M | Migration 004: the new roles (`pharmacist`, `traditional_healer`, `health_centre_admin`) and tables for prescriptions, referrals, emergencies, surveys, pregnancies and children, courses, insurance, stock, facilities. Tested with `db/migrate.sh`, never editing an applied file | Sat 7 | 1 | `evidence/final/E-M-schema-tests.txt` · **🔄 Part 1 in PR (6 Nov):** `004` = roles (+ `patient` logins, Joseph's request), facilities, referrals, emergencies, prescriptions; 57 deny / 30 allow / 0 problems. Part 2 (`005`: surveys, pregnancies and children, courses, insurance, stock) on Sat 7 |
 | S8 | Shared vocabulary in `knowledge/` (short: roles and data resources) | Sat 7 | 2 | Merged |
 | FB-7a | SVC-8: surveillance: synthetic cases shaped by DHS regional figures (cited, labelled synthetic, D-034), dashboard, district map, explainable outbreak rule, official confirms, alert in test mode | Mon 9 | 1 | `evidence/final/FB-7-outbreak-*.png` |
 | FB-7b | Surveys, maternal and child records with reminders, symptom decision support ("not a diagnosis"), forecasts labelled as estimates | Tue 10 | 2 | `evidence/final/FB-7-*.png` |
