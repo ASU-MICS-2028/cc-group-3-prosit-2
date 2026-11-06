@@ -43,7 +43,7 @@ Access is role-based and enforced on the server, not only hidden in the UI (p.2)
 | Role-based access for worker levels | Roles above, server-enforced | Build |
 | Audit trails for all access/changes | Every read/write logged (who, what, when); audit viewer for admins | Build |
 | Secure backup and sync | Encrypted sync with conflict handling; automated database backups (cloud) | Build (cloud lead) |
-| Real patient data with consent; Dodowa CHV training; traditional healer and community leader engagement | Consent flow in app; field testing and engagement documented | Process + Build |
+| Real patient data with consent; Dodowa CHV training; traditional healer and community leader engagement | Consent flow in app; field testing with synthetic patients and engagement documented; no real patient data (D-034) | Process + Build |
 | Choose and justify: cloud health platform (HealthLake / Azure Health / GCP Healthcare API) | Team decision, justified in report | Design (cloud lead) |
 | FHIR-compliant records | Patient, Observation (vitals), Media (photos), Encounter, Appointment, ServiceRequest (referral), MedicationRequest (prescription) resources | Build |
 | OAuth 2.0 / JWT, encryption | JWT access + refresh tokens, roles in claims | Build |

@@ -1,6 +1,6 @@
 # Build checklist: the full-brief PWA (Phase 6)
 
-**Tick a box when the thing works on a real phone, not when the code is written.** Progress is counted by `npm run progress` (in `frontend/`).
+**Tick a box when the thing works on the live app or a real phone and its evidence is saved, not when the code is written.** Progress is counted by `npm run progress` (in `frontend/`).
 The task owners and blockers live in [`PLAN.md`](./PLAN.md) (Phase 6); the brief page for every requirement is in [`REQUIREMENTS-CHECKLIST.md`](./REQUIREMENTS-CHECKLIST.md). This file is only the tick-list, so if the two ever disagree, PLAN.md wins.
 
 Legend: `[x]` done · `[ ]` to do · 🔄 being worked on now · 🧪 mock/sandbox (labelled "Test mode")
@@ -13,7 +13,7 @@ Legend: `[x]` done · `[ ]` to do · 🔄 being worked on now · 🧪 mock/sandb
 - [x] Full-brief plan, eight roles, services list (PLAN Phase 6)
 - [x] D-028 (Act 843 + HIPAA safeguards) and D-029 (full brief in scope) written
 - [x] Fonts and licences in `frontend/public/fonts/`
-- [ ] Teammates confirm D-028 and D-029 (then mark D-005 and D-008 as Replaced)
+- [x] Teammates confirm D-028 and D-029 (D-005 and D-008 marked as Replaced)
 
 ## FB-1 Tokens and component gallery ✅ merged (PR #27)
 - [x] `tokens.css` with every colour, size, radius, font
@@ -128,7 +128,7 @@ Legend: `[x]` done · `[ ]` to do · 🔄 being worked on now · 🧪 mock/sandb
 - [ ] Load test: 1,000 users, 50,000 records (with Eugene)
 - [ ] Screenshots for every role
 
-## Backend services to build (owners to be split by Joseph) 🧪
+## Backend modules to build (D-035; owners in the final sprint) 🧪
 - [ ] SVC-0 patient-record-service: extend (observations, consents, sync, roles migration)
 - [ ] SVC-1 auth-service
 - [ ] SVC-2 media-service
