@@ -40,7 +40,8 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 
 | Task | Due | Tier | Status |
 |---|---|---|---|
-| E-M Migration 004: new roles and tables | Sat 7 | 1 | 🟢 Ready, blocks others |
+| E-M part 1 (`004`): roles, patient logins, facilities, referrals, emergencies, prescriptions | Fri 6 | 1 | 🔄 In PR |
+| E-M part 2 (`005`): surveys, pregnancies and children, courses, insurance, stock | Sat 7 | 2 | 🟢 Ready |
 | S8 Shared vocabulary in `knowledge/` | Sat 7 | 2 | 🟢 Ready |
 | FB-7a Surveillance: DHS-shaped synthetic cases, dashboard, map, outbreak rule, alert | Mon 9 | 1 | 🟢 Ready |
 | FB-7b Surveys, maternal and child, decision support, forecasts | Tue 10 | 2 | 🟢 Ready |
