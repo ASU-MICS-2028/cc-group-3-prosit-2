@@ -79,11 +79,131 @@ The whole brief is in scope. Every requirement, page by page, is in [`REQUIREMEN
 | Partnership integration, cloud health platform choice, multi-country residency | Design | report |
 | Open-source modules, community engagement, field testing | Process | report |
 | PROSIT 2.5 AgriHealth link | ⚪ Optional | — |
-| Real patient data | **Never** in this repo (D-004; see the open question in D-028) | — |
+| Real patient data | **Never** in this repo or the app (D-004, D-034) | — |
 
 ### Roles (eight)
 
 CHV · patient · doctor / nurse / specialist · pharmacist · traditional healer · GHS official · health centre admin · platform admin. Access is enforced on the server, not only hidden in the UI. Today the database knows six (`chv`, `nurse`, `doctor`, `specialist`, `ghs_official`, `admin`) plus `system`; FB-2 adds `pharmacist`, `traditional_healer` and `health_centre_admin` with a new migration.
+
+---
+
+## Final sprint: 6 to 13 Nov (one week to finish Lab 8 and Prosit 2)
+
+**Goal:** Lab 8 submitted, the midsem (Thu 12 Nov) written, every brief requirement met or honestly marked, and the final report and presentation handed in. **Fri 13 Nov is our working deadline; Joseph confirms the real date (X1).**
+
+### Sprint rules
+
+1. **Build in parallel.** This replaces Phase 6's "one step at a time" rule; there isn't time for it. One branch and one PR per feature.
+2. **A feature is done when it works on the live app or API and its evidence is saved.** Tick it in `BUILD-CHECKLIST.md` in the same PR.
+3. **Evidence as you go:** [`evidence/final/`](./evidence/README.md#final-sprint-evidence), named `<task>-<what>`. Nothing is re-shot at the end.
+4. **Approve within 3 hours.** Post the PR link in the group. Any teammate who sees it first reviews it.
+5. **Check-in:** by 21:00 every day, three lines in the group: done, next, stuck. Stuck for over an hour? Say so straight away.
+6. **Every PR** updates the `learnings/` note and the AI log, as usual. Synthetic data only (D-034).
+7. **Say what's real.** Anything running on a mock or on rules we chose ourselves is labelled "Test mode", and the report says so. No medical partner has signed off our thresholds, so they are marked as illustrative.
+
+### What comes first, and what gets cut
+
+| Tier | What | Real API? | If it's not working by the freeze |
+|---|---|---|---|
+| **1. Must have** | Lab 8; login and real sync; emergency escalation and prescription fraud checks (the brief's "must implement"); surveillance with outbreak detection; load test; security fixes; report | Yes | Fix it first, and move people onto it |
+| **2. Should have** | Mobile-money fee and premiums, recording and QA list, surveys, maternal and child, decision support, insurance | Where it's quick; otherwise the app's mock server, labelled | Keep what works; the report marks it as basic |
+| **3. If time allows** | Learning, healers, supply chain, SDG 3 dashboard, exports, Twi and other languages | Mock is fine | The basic screen stays; the report gives the design and the reason |
+
+**Freeze: Tue 10 Nov, 23:59.** After that: only bug fixes, evidence and the report.
+
+### Calendar
+
+| Day | By the end of the day |
+|---|---|
+| **Fri 6** | Everyone has read their tasks. PR #49 merged. X1 questions sent. D-035 confirmed by Eugene. L8-A3 answers started |
+| **Sat 7** | Foundations merged: migration 004, login, CORS, real sync. Phone checks done on the live app. L6-B1b done |
+| **Sun 8** | Lab 8 prep finished and rehearsed. Tier 1 features in PR. Load test script ready |
+| **Mon 9** | Tier 1 merged. Tier 2 in PR. First load test run. Teach-back session 1 |
+| **Tue 10** | Tier 2 merged, Tier 3 as far as it gets. Second load test. **Freeze at 23:59** |
+| **Wed 11** | Full demo run on the live app. All evidence in. Report sections to Joseph by 18:00. Then revision: teach-back session 2 |
+| **Thu 12** | **Midsem. No project work before it.** Bring a calculator |
+| **Fri 13** | Joseph finishes the report; presentation rehearsed once with a fallback recording; peer assessment signed; submitted |
+
+The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the revised diagrams (L8-B2) follow straight after it, and are due by the end of Week 8.
+
+### Joseph: API, payments, prescriptions, report
+
+| ID | Task | Due | Tier | Evidence |
+|---|---|---|---|---|
+| X1 | Ask the facilitator: final report and presentation due dates and format; Lab 8 session date and partner team; Week 9 lab handout; are the weekly 500-word reports and the 1,000-word milestone required? Record the answers here | Fri 6 | 1 | `docs/decisions.md` or this file |
+| L7-R | Submit the Lab 7 report if it hasn't gone in yet; mark it done | Fri 6 | 1 | PDF in Drive |
+| J1 | SVC-1: `POST /auth/login` with test users and refresh, all eight roles in tokens, CORS for `app-hc` | Sat 7 | 1 | `evidence/final/J1-login-roles.txt` (including a wrong-role 403) |
+| J2 | Real sync: upload, role-filtered download (D-032), 409 on double booking | Sat 7 | 1 | `evidence/final/J2-sync.txt` |
+| L8-A2 | Commit the script in `docs/peer-review.md`; rehearse it once, timed | Sun 8 | 1 | Script in the repo |
+| L8-A3 | Collate everyone's answers; list the questions we'll ask the partner team (30% of the grade) | Sun 8 | 1 | `docs/peer-review.md` |
+| FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused |
+| SVC-4 | Fee and premiums through votex365 test mode; share the endpoints with Perfect | Mon 9 | 2 | `evidence/final/SVC-4-*.png` |
+| FB-9a | Insurance plans, enrolment, premium, NHIS check (sandbox) | Tue 10 | 2 | `evidence/final/FB-9-insurance-*.png` |
+| FB-10a | Platform admin: users, roles, audit viewer, revenue view | Tue 10 | 3 | `evidence/final/FB-10-admin-*.png` |
+| F1 | Edit the final report: outline Sun 8, sections in Wed 11, finished Fri 13. Also writes the Act 843 part and the project story | Fri 13 | 1 | Report PDF |
+
+### Eugene: cloud, security, load test
+
+| ID | Task | Due | Tier | Evidence |
+|---|---|---|---|---|
+| D-035 | Confirm or change the one-API decision, today, because it blocks everyone | Fri 6 | 1 | Status in `docs/decisions.md` |
+| E1 | Run migration 004 on RDS and keep deploys working as PRs merge. Watch the first automatic PWA deploy | Sat 7, then daily | 1 | `evidence/final/E1-migration.txt`, the Actions run |
+| L6-B1b | Customer-managed KMS key, `rds.force_ssl`, HTTPS-only bucket policy | Sat 7 | 1 | `evidence/final/L6-B1b-*.txt` |
+| L6-X | Why the Lab 5 failover dropped requests; fix or explain | Sun 8 | 1 | `learnings/infra.md` |
+| L8-C | Pre-midterm resource audit (`pre_midterm_audit.sh`) with a one-line cleanup note | Sun 8 | 2 | `evidence/lab8/outputs_C_audit.txt` |
+| E2 | Load test: 1,000 concurrent users and 50,000 synthetic records. Script Sun, runs Mon and Tue; fix the first bottleneck found | Tue 10 | 1 | `evidence/final/E2-load-*.txt`, CloudWatch screenshots |
+| E3 | 99.7% uptime case: health checks, alarms, a restore from backup actually tested | Tue 10 | 1 | `evidence/final/E3-*.png` |
+| SVC-2 | Media: presigned S3 uploads with size limits, for photos, voice notes, images and lessons | Mon 9 | 2 | `evidence/final/SVC-2-*.txt` |
+| FB-8 | Education library, offline download, training modules, quiz, certificate (S3 for the files; Perfect checks the screens) | Tue 10 | 3 | `evidence/final/FB-8-*.png` |
+| E4 | Lab 9 / CI/CD evidence: pipeline runs, scan results, a deploy from a merge, per the handout | Wed 11 | 1 | `evidence/lab9/` |
+| R-E | Report: architecture as built, cost and budget, load test results, TURN, cloud health platform choice, backup and uptime | Wed 11 | 1 | Section sent to Joseph |
+
+### Elise: data, public health, exports
+
+| ID | Task | Due | Tier | Evidence |
+|---|---|---|---|---|
+| E-M | Migration 004: the new roles (`pharmacist`, `traditional_healer`, `health_centre_admin`) and tables for prescriptions, referrals, emergencies, surveys, pregnancies and children, courses, insurance, stock, facilities. Tested with `db/migrate.sh`, never editing an applied file | Sat 7 | 1 | `evidence/final/E-M-schema-tests.txt` |
+| S8 | Shared vocabulary in `knowledge/` (short: roles and data resources) | Sat 7 | 2 | Merged |
+| FB-7a | SVC-8: surveillance: synthetic cases shaped by DHS regional figures (cited, labelled synthetic, D-034), dashboard, district map, explainable outbreak rule, official confirms, alert in test mode | Mon 9 | 1 | `evidence/final/FB-7-outbreak-*.png` |
+| FB-7b | Surveys, maternal and child records with reminders, symptom decision support ("not a diagnosis"), forecasts labelled as estimates | Tue 10 | 2 | `evidence/final/FB-7-*.png` |
+| FB-9b | Healer directory and consented referral; stock, low-stock alert, redistribution | Tue 10 | 3 | `evidence/final/FB-9-*.png` |
+| FB-10b | SDG 3 dashboard; FHIR, DHIS2 and WHO exports (sandbox) | Tue 10 | 3 | `evidence/final/FB-10-exports-*` |
+| L8-B3 | Written peer review, 200 words, from everyone's notes: one strength, one risk, one question; names the team | End of Week 8 | 1 | `evidence/lab8/lab8-peer-review.pdf` |
+| R-L | Report: FHIR mapping, data minimisation, HIPAA safeguard-to-control mapping (D-028), the DHS data, why synthetic (D-034), community engagement | Wed 11 | 1 | Section sent to Joseph |
+
+### Perfect: the app, on real phones
+
+| ID | Task | Due | Tier | Evidence |
+|---|---|---|---|---|
+| P1 | Phone checks on `https://app-hc.agroconnect.space`: install, offline start, fingerprint, voice notes, airplane-mode demo. Tick everything in `BUILD-CHECKLIST.md` FB-2, FB-3 and FB-4 that now works, so the progress bars are true | Sat 7 | 1 | `evidence/final/P1-*.png`, airplane-mode video in Drive |
+| P2 | Point the app at the real login and sync when J1 and J2 land, keeping mock mode as a switch | Sun 8 | 1 | `evidence/final/P2-real-sync.png` |
+| FB-5 | Referrals with automatic priority; emergency button, auto-escalation timeline, offline Call and SMS (with SVC-7 endpoints) | Mon 9 | 1 | `evidence/final/FB-5-*.png`, an unacknowledged emergency escalating |
+| L8-B2 | Before and after diagrams, right after the Lab 8 session; also redraw the PWA box as built (S3 + CloudFront) **before** the session | Session day | 1 | `evidence/lab8/B1-before.png`, `B2-after.png` |
+| FB-4b | Recording with both-side consent and a visible indicator; QA review list; fee screen on SVC-4 | Tue 10 | 2 | `evidence/final/FB-4-*.png` |
+| FB-10c | Health centre admin sees only their own facility | Tue 10 | 3 | `evidence/final/FB-10-facility-*.png` |
+| FB-11 | Language switch on every screen, English and Twi complete, other three files ready; 200% text size | Tue 10 | 3 | `evidence/final/FB-11-*.png` |
+| UI | Check teammates' screens against the design system when they come up for review | Daily | 1 | PR reviews |
+| F2 | Screenshots for every role; demo script and fallback recording; rework the progress deck into the final presentation, with Joseph | Wed 11 and Fri 13 | 1 | `evidence/final/F2-role-*.png`, deck in Drive |
+| R-P | Report: PWA, offline design, WebRTC under 2G and 3G, accessibility and languages, patient fingerprint design | Wed 11 | 1 | Section sent to Joseph |
+
+### Everyone
+
+| ID | Task | Due |
+|---|---|---|
+| L8-A3 | Answer the four questions for your area in `docs/peer-review.md`: Eugene on 10× load, Joseph and Eugene on the weakest security link, Perfect and Joseph on the network dropping mid-consultation, Elise and Joseph on the database being unreachable, everyone on likely open questions | Sun 8 |
+| L8-B1 | The Lab 8 session: present, answer, review the partner team, take notes. Be able to explain every part: 60% of the grade is live | Session day |
+| L8-X | Teach-back sessions, one hour each: walk the others through your `learnings/` note. Use the Prosit 2 review sheet (Joseph shares it) and the three Week 8 practice scenarios | Mon 9, Wed 11 |
+| F3 | Peer assessment and AI disclosure sign-off | Fri 13 |
+
+### Risks in this sprint
+
+| Risk | What we do about it |
+|---|---|
+| Too much for one week: over 100 checklist items are open | Tiers and the Tue freeze. Nobody starts Tier 3 while their Tier 1 is unfinished |
+| Exam revision gets crowded out | Teach-back counts as sprint work. No project work on Thu before the exam |
+| Migration 004 or login is late, and blocks everyone | Build against the app's mock server meanwhile; move to the real API when they land |
+| The partner system or payment test account is unavailable | Test mode, labelled. Report says so |
+| AWS spend during the load test | Eugene watches the $50 and $100 alarms; scale back down straight after each run |
 
 ---
 
@@ -155,7 +275,7 @@ CHV · patient · doctor / nurse / specialist · pharmacist · traditional heale
 | ID | Task | Owner | Blocked by | Status | Done when |
 |---|---|---|---|---|---|
 | L6-C1 | FHIR-aligned schema migrations: UUID ids, LOINC code + UCUM unit on observations, consent required before writes, append-only `access_log` | Elise | — | ✅ Done | `db/migrations/*.sql` applies cleanly to an empty Postgres (`db/tests/run_tests.sh`: 25 deny, 14 allow, 0 problems) |
-| L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | ✅ Done (D-018 still needs the team vote) | `docs/fhir-mapping.md` |
+| L6-C2 | FHIR mapping + gaps + data minimisation (one justification per `patients` column under Act 843) | Elise | L6-C1 | ✅ Done (D-018 accepted by team vote) | `docs/fhir-mapping.md` |
 | L6-A1 | `healthconnect-service` IAM role + least-privilege policy (only its own secret, bucket, logs, ECR) | Eugene | L5-B1 | ✅ Done in the lab environment (Eugene, 25 Oct) | `evidence/lab6/iam-policy.json` + Figures 1–5 of the report |
 | L6-A2 | Run allow/deny checks (allowed: our secret; denied: delete DB, AgroConnect's secret) + "what it protects against" paragraph | Eugene (covered for Perfect) | L6-A1 | ✅ Done in the lab environment (Eugene, 25 Oct) | Allow (`SELECT 1`) and deny (`DeleteDBCluster`) in Figure 5 |
 | L6-B1 | Encryption build: customer-managed KMS key, S3 policy denying non-HTTPS, HSTS header, `rds.force_ssl` on | Eugene | L5-B1, S5 | ✅ Done in the lab environment (Eugene, 25 Oct); the HealthConnect build is L6-B1b | Figures 6–12 |
@@ -271,11 +391,11 @@ After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It gets its own phase 
 
 ## Phase 6: Full-brief build, breadth first (D-029)
 
-**Status: approved by Perfect on 30 Oct (teammates still to confirm D-028 and D-029). Deadline: the weekend of 31 Oct–1 Nov, so each step is basic first.** The order is fixed: **each step must work on the owner's real phone before the next starts.** Steps FB-1 to FB-11 are the PWA (Perfect). The backend services each step needs are listed below the table; Joseph splits them with the backend lead. Every service has its own folder, a Dockerfile, `/health`, `/ready` and a mock/sandbox mode, and follows the rules in [`backend/AGENTS.md`](./backend/AGENTS.md) (UUIDs from the client, audited writes, no health data in logs).
+**Status: approved by team vote (D-028, D-029). Now run by the [final sprint](#final-sprint-6-to-13-nov-one-week-to-finish-lab-8-and-prosit-2), which sets the owners, order and dates; the steps below still say what each one must do.** Steps FB-1 to FB-11 are the PWA (Perfect). The backend services each step needs are listed below the table; Joseph splits them with the backend lead. Every service has its own folder, a Dockerfile, `/health`, `/ready` and a mock/sandbox mode, and follows the rules in [`backend/AGENTS.md`](./backend/AGENTS.md) (UUIDs from the client, audited writes, no health data in logs).
 
 | ID | Step | Owner | Blocked by | Status | Done when (every step: tested on a phone, including offline, and a screenshot in `evidence/`) |
 |---|---|---|---|---|---|
-| FB-0 | Approve this plan, D-028 and D-029; `frontend/public/fonts/` has the two `.woff2` files and licences | Everyone | — | ✅ Done for Perfect (30 Oct; fonts are in); teammates confirm in the PR | Team OK in the PR |
+| FB-0 | Approve this plan, D-028 and D-029; `frontend/public/fonts/` has the two `.woff2` files and licences | Everyone | — | ✅ Done (team vote; fonts are in) | Team vote |
 | FB-1 | `frontend/` scaffold (Vite + TypeScript, service worker), `tokens.css`, `/dev/gallery` with **every component in DESIGN-SYSTEM v0.2** in every state | Perfect | FB-0 | ✅ Done 30 Oct (PR #27; checked on a phone). Service worker comes with FB-3 | Gallery reviewed and approved on a 360 px phone; contrast and Twi test strings pass |
 | FB-2 | Auth for all eight roles (login, refresh, PIN app lock, **WebAuthn fingerprint for staff**), role-based navigation, **every screen for every role present** (basic is fine) | Perfect + SVC-1 | FB-1 | ✅ Merged (PR #28). Still to check on a real phone: fingerprint over https | Each role signs in on a phone and sees only its own tabs; a wrong-role API call returns 403 |
 | FB-3 | Patient records offline: register, consent (voice/visual), vitals, photos, voice notes, history; FHIR-shaped, encrypted on the device (WebCrypto, key from the PIN), synced with conflict handling, audit-logged | Perfect + SVC-0, SVC-2 | FB-2 | ✅ Merged (PR #40). Still to check on a real phone: voice notes, offline start and install (need https); airplane-mode evidence | Airplane-mode demo: record, reconnect, sync, "Needs attention" conflict resolved; audit rows exist |
@@ -290,7 +410,7 @@ After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It gets its own phase 
 
 ### Backend services to create
 
-None of these exist in the repo yet except SVC-0. Each one is real code with a mock mode (`MODE=mock`), so the PWA never waits for a partner system. Owners are open: **Joseph to split with the backend lead.** Folder names are under `services/`.
+**D-035:** these are route modules inside `patient-record-service`, not sixteen separate services, so the folder column is now a module name. Owners are in the final sprint. Partner systems keep a mock mode (`MODE=mock`), so the PWA never waits for them.
 
 | ID | Folder | What it does (its interface) | Mock / sandbox | Needed by |
 |---|---|---|---|---|
@@ -302,7 +422,7 @@ None of these exist in the repo yet except SVC-0. Each one is real code with a m
 | SVC-5 | `services/notification-service` | SMS reminders and outbreak alerts, in the patient's language; consumes `appointment.created` events | Logs instead of sending | FB-4, FB-7 |
 | SVC-6 | `services/prescription-service` | Issue a signed prescription code, verify, one-time dispense, fraud rules (duplicates, rate, licence), pharmacy lookup | Sandbox pharmacy | FB-6 |
 | SVC-7 | `services/referral-service` | Referral and automatic priority rules, emergency raise/acknowledge, escalation timers | Rules in config (signed off by the medical partner) | FB-5 |
-| SVC-8 | `services/surveillance-service` | Aggregate cases (anonymised, D-018), baseline outbreak rule, district map data, forecasts | Seeded synthetic cases | FB-7 |
+| SVC-8 | `services/surveillance-service` | Aggregate cases (anonymised, D-018), baseline outbreak rule, district map data, forecasts | Seeded synthetic cases, shaped by published DHS regional figures (D-034) | FB-7 |
 | SVC-9 | `services/decision-support-service` | Symptom checklist to ranked possibilities, "decision support, not diagnosis" | Rule table | FB-7 |
 | SVC-10 | `services/community-programs-service` | Surveys (build, answer), pregnancy and child records, visit schedules | none needed | FB-7 |
 | SVC-11 | `services/learning-service` | Lesson library, course modules, quiz, certificates | Seeded lessons | FB-8 |
@@ -317,11 +437,11 @@ None of these exist in the repo yet except SVC-0. Each one is real code with a m
 - **Real sync API (Joseph):** the PWA now also *downloads* (D-032). `patient-record-service` needs a download endpoint (records since a bookmark, filtered by the caller's role, as `mockServer.ts` does) and must refuse two booked visits for one specialist at the same time with 409 `double_booked` (the table already has the constraint; `POST /appointments` already returns it). The PWA's "Send" and "Download" use the `SyncApi` interface in `frontend/src/data/sync.ts`.
 - **Payments (Joseph):** the consultation fee and insurance premiums use the votex365 payments code that already exists from Prosit 1. We do **not** mock it. Joseph integrates it as `payments-service` (SVC-4) and tells Perfect the endpoints; the PWA's pay screens are waiting for that.
 
-- **Data:** synthetic only for now (D-004 stands). No real patient data in the repo or the app.
+- **Data:** synthetic only (D-004, D-034). No real patient data in the repo or the app. Published DHS regional figures may shape the synthetic data.
 - **Backend lead (Joseph/Elise):** the database must change for this build. Add the roles `pharmacist`, `traditional_healer`, `health_centre_admin` to the `practitioners.role` check, and add tables for prescriptions, referrals and emergencies, surveys and answers, pregnancies and child records, courses and certificates, insurance plans and enrolments, stock, and facilities. Each is a new migration (never edit an applied one) with the `db/tests` cases. The PWA will not wait for these: it saves on the phone first and uses mock mode.
 - **Payments:** `payments-service` wraps the Prosit 1 votex365 test-mode integration, not Flutterwave.
 
-**Infrastructure effect (note for Eugene):** sixteen more containers behind one load balancer would strain the $400 budget and the instances we run. Before FB-3 we decide whether they run as path-routed containers on the existing fleet, a few merged services, or locally only for the demo. Each new resource goes in the cost tracker.
+**Infrastructure effect:** D-035 keeps this on the existing fleet. Each new resource goes in the cost tracker.
 
 ## Phase 5: Prosit 2 final package
 

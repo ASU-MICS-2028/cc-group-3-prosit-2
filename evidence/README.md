@@ -22,3 +22,14 @@ What each lab needs, file by file, is in that lab's **"Deliverables checklist" i
 
 Before committing, check that no output contains a password, secret ARN value, access key or real personal data.
 Account IDs and resource IDs are fine.
+
+## Final sprint evidence
+
+Everything for the final report goes in `evidence/final/`, named `<task>-<what>`: `FB-5-emergency-escalated.png`, `E2-load-1000-users.txt`. The tasks and their files are in the [final sprint](../PLAN.md#final-sprint-6-to-13-nov-one-week-to-finish-lab-8-and-prosit-2).
+
+- **Capture it when the feature first works**, in the same PR, and tick `BUILD-CHECKLIST.md`.
+- **For each feature, show it working and one way it can fail**: the second dispense refused, the wrong role getting a 403.
+- **Say which mode it ran in:** live API or Test mode.
+- **Only made-up patients on screen.**
+- **Videos, and anything showing our faces, go in the Drive** (`prosit 2/Final/`), never in this public repo. Put the file name in your PR.
+
