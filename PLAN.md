@@ -139,7 +139,7 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 | FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused · 🔄 In PR 7 Nov (D-038); screens in Test mode, API tested locally |
 | SVC-4 | Fee and premiums through votex365 test mode; share the endpoints with Perfect | Mon 9 | 2 | `evidence/final/SVC-4-*.png` · 🔄 In PR 7 Nov (D-039); simulated until a votex365 test key is set |
 | FB-9a | Insurance plans, enrolment, premium, NHIS check (sandbox) | Tue 10 | 2 | `evidence/final/FB-9-insurance-*.png` |
-| FB-10a | Platform admin: users, roles, audit viewer, revenue view | Tue 10 | 3 | `evidence/final/FB-10-admin-*.png` |
+| FB-10a | Platform admin: users, roles, audit viewer, revenue view | Tue 10 | 3 | `evidence/final/FB-10-admin-*.png` · 🔄 In PR 7 Nov; screens in Test mode, API tested locally |
 | F1 | Edit the final report: outline Sun 8, sections in Wed 11, finished Fri 13. Also writes the Act 843 part and the project story | Fri 13 | 1 | Report PDF |
 
 ### Eugene: cloud, security, load test
