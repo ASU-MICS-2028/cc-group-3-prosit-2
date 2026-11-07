@@ -21,6 +21,10 @@ export interface Config {
   appointmentTopicArn: string | null
   /** Comma-separated websites allowed to call from a browser, e.g. a laptop's dev server. Unset: the live app only. */
   corsOrigins?: string[]
+  /** votex365 test keys in Secrets Manager, JSON { api_key, webhook_secret }. Unset: every payment is simulated. */
+  votexSecretArn: string | null
+  votexBaseUrl: string
+  paymentReturnUrl: string
   /** AUTH_RATE_PER_MINUTE: raise it for a load test from one machine. */
   authRatePerMinute?: number
 }
@@ -38,6 +42,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     jwtSecret: env.JWT_SECRET || null,
     jwtSecretArn: env.JWT_SECRET_ARN || null,
     appointmentTopicArn: env.APPOINTMENT_TOPIC_ARN || null,
+    votexSecretArn: env.VOTEX_SECRET_ARN || null,
+    votexBaseUrl: env.VOTEX_BASE_URL || 'https://utilities.votex365.com/api/v1/partner',
+    paymentReturnUrl: env.PAYMENT_RETURN_URL || 'https://app-hc.agroconnect.space/',
     ...(Number(env.AUTH_RATE_PER_MINUTE) > 0 ? { authRatePerMinute: Number(env.AUTH_RATE_PER_MINUTE) } : {}),
     ...(env.CORS_ORIGINS ? { corsOrigins: env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean) } : {}),
   }
