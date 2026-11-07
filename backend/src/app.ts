@@ -6,6 +6,7 @@ import type { Db } from './db.js'
 import type { EventPublisher } from './events.js'
 import { logger } from './logging.js'
 import type { CheckoutProvider } from './votex.js'
+import { adminRoutes } from './routes/admin.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
@@ -84,6 +85,7 @@ export function createApp(ctx: Ctx): Express {
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
   paymentRoutes(app, ctx)
+  adminRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {

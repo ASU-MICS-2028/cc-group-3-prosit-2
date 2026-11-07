@@ -6,6 +6,7 @@ import { DateStrip, TimeSlots } from "../components/schedule";
 import { CallScreen, EscalationTimeline, PreCall, PriorityBadge, RangeFlag, VitalCard } from "../components/clinical";
 import { DispensedList, ImageViewer, Medicines, Prescribe, Verify } from "./prescriptions";
 import { PayFee } from "./payments";
+import { Audit, Revenue, Users } from "./admin";
 import { DAYS, Heading, KV, Rows, SLOTS, TestMode, Tiles, go, sync, type ScreenDef } from "./kit";
 
 /* ---------------- Patient ---------------- */
@@ -113,10 +114,11 @@ export const facility: Record<string, ScreenDef> = {
 
 /* ---------------- Platform admin ---------------- */
 export const platform: Record<string, ScreenDef> = {
-  "platform.users": { title: "Users", render: () => (<><Rows items={[{ name: "Ama Serwaa", role: "chv" }, { name: "Dr. Kofi Mensah", role: "clinician" }]} /><PrimaryButton>Add a user</PrimaryButton></>) },
-  "platform.roles": { title: "Roles", caption: "What each role can reach", render: () => (<><KV k="chv" v="patients, vitals, referrals" /><KV k="clinician" v="history, prescriptions" /><KV k="pharmacist" v="prescriptions only" /><KV k="ghs" v="anonymised totals only" /></>) },
-  "platform.audit": { title: "Audit log", render: () => (<><Rows items={[{ name: "Dr. Kofi Mensah", role: "Read patient record", hours: "Today 8:02 am" }, { name: "Ama Serwaa", role: "Added vitals", hours: "Today 7:58 am" }]} /><p className="caption">Test mode: sample rows. The live log is read from the database.</p></>) },
-  "platform.settings": { title: "Settings", render: () => (<><KV k="Emergency escalation after" v="5 minutes" /><KV k="Reminder language" v="Patient's own" /><Chip selected>Test mode on</Chip></>) },
+  "platform.users": { title: "Users", render: () => <Users /> },
+  "platform.roles": { title: "Roles", caption: "What each role should reach", render: () => (<><KV k="CHV" v="Their patients, vitals, referrals" /><KV k="Patient" v="Their own record and bookings" /><KV k="Doctor, nurse, specialist" v="Patients with a visit with them" /><KV k="Pharmacist" v="Prescriptions only" /><KV k="Traditional healer" v="Patients referred with consent" /><KV k="GHS official" v="Anonymised totals only" /><KV k="Health centre admin" v="Their own facility" /><KV k="Platform admin" v="Users, audit, revenue; no health records" /><p className="caption">This is the design. The server checks each person's role on every request. Some per-patient and per-facility limits are still being built.</p></>) },
+  "platform.audit": { title: "Audit log", caption: "Who did what. No health data", render: () => <Audit /> },
+  "platform.settings": { title: "Settings", render: () => (<><KV k="Emergency escalation after" v="5 minutes" /><KV k="Reminder language" v="Patient's own" /><Chip selected>Test mode on</Chip><SecondaryButton onClick={() => go("platform.revenue")}>Revenue</SecondaryButton></>) },
+  "platform.revenue": { title: "Revenue", caption: "Successful payments only", render: () => <Revenue /> },
 };
 
 
