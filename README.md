@@ -19,7 +19,7 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 | SVC-4 Fee and premiums through votex365 test mode | Mon 9 | 2 | 🟢 Ready |
 | FB-9a Insurance, NHIS check (sandbox) | Tue 10 | 2 | ⛔ Needs migration 004 |
 | FB-10a Platform admin, audit viewer, revenue view | Tue 10 | 3 | 🟢 Ready |
-| F1 Final report (outline Sun 8, finished Fri 13) | Fri 13 | 1 | 🟢 Ready |
+| F1 Final report (outline Sun 8, finished Fri 13) | Fri 13 | 1 | 🔄 Draft in Drive, `prosit 2/Final/`; waiting on sections by Wed 11 |
 
 ### Eugene
 
