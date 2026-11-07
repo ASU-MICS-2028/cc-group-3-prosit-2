@@ -31,6 +31,10 @@ Built in five steps (25 Oct), each tested before the next:
 5. **`GET /patients/:id`** (`src/routes/patients.ts`). Every attempt is logged: found, unknown, malformed id, wrong
    role, or not signed in.
 
+### If the database is unreachable (7 Nov)
+
+A connection attempt gives up after 5 seconds, and a query after 15. The API then answers **503** with `Retry-After: 15`, not a hang and not a 500. `/health` stays 200 on purpose: the servers are fine, and pulling them all from the load balancer would only turn "no database" into "no API". `/ready` answers 503. **Perfect:** treat a 503 from sync as `NetworkError`, so the phone keeps its records and tries again.
+
 ## 3. Why it works this way
 
 - **The database is the last line of defence.** Even if the API had a bug, Postgres would still refuse a write with no

@@ -1,7 +1,7 @@
 import express, { type Express, type NextFunction, type Request, type Response } from 'express'
 import helmet from 'helmet'
 import { pinoHttp } from 'pino-http'
-import type { Db } from './db.js'
+import { isDatabaseOutage, type Db } from './db.js'
 import type { EventPublisher } from './events.js'
 import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
@@ -48,6 +48,10 @@ export function createApp(ctx: Ctx): Express {
     const type = (error as { type?: string }).type
     if (type === 'entity.parse.failed') return void res.status(400).json({ error: 'invalid_json', message: 'Body must be JSON' })
     if (type === 'entity.too.large') return void res.status(413).json({ error: 'too_large', message: 'The request body is too large' })
+    if (isDatabaseOutage(error)) {
+      logger.error({ err: error }, 'database unreachable')
+      return void res.status(503).set('Retry-After', '15').json({ error: 'unavailable', message: 'The service is briefly unavailable. Your data is safe on your phone; try again soon' })
+    }
     logger.error({ err: error }, 'unexpected error')
     res.status(500).json({ error: 'server_error', message: 'Unexpected error' })
   })
