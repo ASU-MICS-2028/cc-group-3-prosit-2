@@ -11,7 +11,6 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 | Task | Due | Tier | Status |
 |---|---|---|---|
 | X1 Ask the facilitator: final dates and format, Lab 8 session and partner team, Week 9 handout | Fri 6 | 1 | 🟢 Ready |
-| L7-R Submit the Lab 7 report if not yet in | Fri 6 | 1 | 🟢 Ready |
 | J1 Login, eight roles in tokens, CORS for the app | Sat 7 | 1 | 🟢 Ready |
 | J2 Real sync: upload, role-filtered download, 409 on double booking | Sat 7 | 1 | 🟢 Ready |
 | L8-A2 Rehearse the walkthrough, timed; L8-A3 Eugene and Elise add their parts | Sun 8 | 1 | 🔄 In PR |
