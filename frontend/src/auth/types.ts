@@ -1,6 +1,6 @@
 import type { Role } from "./roles";
 
-export type User = { id: string; name: string; role: Role; facility?: string };
+export type User = { id: string; name: string; role: Role; facility?: string; patientId?: string };
 export type Session = { token: string; user: User; mode: "test" | "live" };
 
 /** The real auth-service (SVC-1) will implement this same interface. */
