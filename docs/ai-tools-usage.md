@@ -49,6 +49,7 @@
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J1: sign-in routes, password hashing, role translation, CORS, migration `006`, seed script, tests | Joseph set the scope and decisions; 26 new tests cover wrong input, lockout, reuse and wrong roles; run against Postgres 16, evidence in `evidence/final/J1-login-roles.txt` |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J2: sync routes, migration `007`, tests | 35 new tests cover retries, conflicts, races, double booking, wrong roles and paging; they caught a refused push being logged with no patient, now fixed; run against Postgres 16, evidence in `evidence/final/J2-sync.txt` |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | FB-6: prescription routes, fraud checks, migration `008`, pharmacist, doctor and patient screens, image viewer | 36 API and 10 app tests; the flow driven in a real browser and each screenshot looked at, which found a broken image, fixed in the shared code; evidence in `evidence/final/FB-6-*` |
+| 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | SVC-4: payments API from the Prosit 1 votex365 client, migration `009`, payment screen | 24 API and 10 app tests; driven in a real browser, which caught a render loop, now fixed; **not** run against the real votex365, because no key was available |
 
 ## Sign-off
 

@@ -5,9 +5,11 @@ import { pinoHttp } from 'pino-http'
 import type { Db } from './db.js'
 import type { EventPublisher } from './events.js'
 import { logger } from './logging.js'
+import type { CheckoutProvider } from './votex.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
+import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
 import { prescriptionRoutes } from './routes/prescriptions.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
@@ -20,6 +22,8 @@ export interface Ctx {
   events: EventPublisher
   /** Websites allowed to call this API from a browser (CORS). Defaults to the live app. */
   corsOrigins?: string[]
+  /** votex365 checkout; null means every payment is simulated, and the app says so. */
+  checkout?: CheckoutProvider | null
   /** Sign-in calls allowed per minute from one address, per server. Defaults to 60; the load test raises it. */
   authRatePerMinute?: number
 }
@@ -51,6 +55,7 @@ export function createApp(ctx: Ctx): Express {
   })
   // Photos and voice notes come through sync, so that one path takes more.
   app.use('/sync/push', syncBodyParser)
+  app.use('/webhooks/votex365', webhookBodyParser)
   app.use(express.json({ limit: '100kb' }))
 
   // Liveness, checked by the ALB. Names the instance so the load-balancing demo shows who answered.
@@ -78,6 +83,7 @@ export function createApp(ctx: Ctx): Express {
   patientRoutes(app, ctx)
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
+  paymentRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {

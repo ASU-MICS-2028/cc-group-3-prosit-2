@@ -16,7 +16,7 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 | J2 Real sync: upload, role-filtered download, 409 on double booking | Sat 7 | 1 | 🔄 In PR; live check needs migrations on RDS |
 | L8-A2 Commit and rehearse the walkthrough; L8-A3 collate answers and our questions for the partner team | Sun 8 | 1 | 🟢 Ready |
 | FB-6 Prescriptions, fraud checks, pharmacist screen, image sharing | Mon 9 | 1 | 🔄 In PR; live check after E1 and P2 |
-| SVC-4 Fee and premiums through votex365 test mode | Mon 9 | 2 | 🟢 Ready |
+| SVC-4 Fee and premiums through votex365 test mode | Mon 9 | 2 | 🔄 In PR, simulated until the test key is set |
 | FB-9a Insurance, NHIS check (sandbox) | Tue 10 | 2 | ⛔ Needs migration 004 |
 | FB-10a Platform admin, audit viewer, revenue view | Tue 10 | 3 | 🟢 Ready |
 | F1 Final report (outline Sun 8, finished Fri 13) | Fri 13 | 1 | 🟢 Ready |

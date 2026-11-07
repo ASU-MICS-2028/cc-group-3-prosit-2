@@ -1,0 +1,30 @@
+SVC-4 evidence: fees through the payments API.
+Mode: LOCAL API, SIMULATED payments: no votex365 key was available here, so no call reached votex365 and no money moved.
+The real votex365 client, its signature check and the checkout flow are tested against a stand-in (backend/test/payments.test.ts).
+Date: 2026-11-07T00:58:37Z
+
+Patient books their own visit: HTTP 201
+
+== Rules ==
+Bad network                                              HTTP 400  {"error": "invalid_request", "message": "network must be mtn, telecel or airteltigo", "field": "network"}
+Bad phone number                                         HTTP 400  {"error": "invalid_request", "message": "Phone numbers must look like +233241234567", "field": "phone"}
+A GHS official tries to pay                              HTTP 403  {"error": "forbidden", "message": "You can only pay for yourself or your own patients"}
+
+== A failure, then success, without double charging ==
+Number ending in 0000: fails, not charged                HTTP 201  {"amount": 25, "currency": "GHS", "status": "failed", "simulated": true, "testMode": true}
+Caller asks to pay 0.01: amount comes from the server    HTTP 201  {"amount": 25, "currency": "GHS", "status": "pending", "simulated": true, "testMode": true}
+A second payment for the same visit                      HTTP 409  {"error": "already_paid", "message": "This visit has already been paid for, or a payment is in progress"}
+
+== Receipts ==
+  consultation_fee 25 GHS pending simulated
+  consultation_fee 25 GHS failed simulated
+
+== The webhook: with no key set it is switched off ==
+HTTP 404
+
+== The phone number isn't stored ==
+2 payments; rows containing the phone: 0
+
+== Backend test suite ==
+ Test Files  9 passed (9)
+      Tests  156 passed (156)

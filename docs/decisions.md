@@ -315,3 +315,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** A patient can genuinely need the same medicine twice, so a hard block would stop real care; the person at the counter decides, and it's on record. Fraud checks can't run offline, so an offline prescription could be dispensed twice at two pharmacies. We have no access to the GMDC register or a pharmacy network.
 - **Trade-off:** A doctor with no signal can't issue a prescription. The thresholds are illustrative, and no regulator or medical partner has reviewed them.
 - **Check:** `evidence/final/FB-6-api.txt`, `evidence/final/FB-6-*.png`.
+
+## D-039: Payments through votex365, simulated and labelled until a test key is set
+
+- **Date:** 2026-11-07 · **Status:** Accepted (Joseph, API owner) · **Builds on:** D-035
+- **Affects:** Perfect (the fee screen is built), Eugene (the secret and its permission), anyone demoing payments
+- **Decision:** The API uses the Prosit 1 votex365 client: hosted checkout and a signed webhook. Without `VOTEX_SECRET_ARN`, every payment is simulated, and the API and the app both say so. Amounts are set on the server; the phone number isn't stored.
+- **Why:** The money path should be real code rather than a mock, but the demo mustn't depend on a partner's key or uptime. A simulated payment that's clearly labelled is honest; one presented as real isn't.
+- **Trade-off:** Until a test key is set, nothing has run against votex365 from this project. The example prices aren't based on anything.
+- **Check:** `evidence/final/SVC-4-api.txt`, `evidence/final/SVC-4-*.png`.

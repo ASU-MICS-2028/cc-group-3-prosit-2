@@ -116,7 +116,7 @@ export class MockServer implements SyncApi {
     const patients = this.visibleTo(actor);
     const items = [...this.store]
       .filter(([, s]) => (s.seq ?? 0) > since)
-      .filter(([id, s]) => s.owner === actor.userId || (s.patientId != null && patients.has(s.patientId)) || patients.has(id) || (actor.role === "clinician" && s.resource.resourceType === "Appointment" && appointmentPractitionerId(s.resource as Appointment) === actor.userId))
+      .filter(([id, s]) => s.owner === actor.userId || (actor.role === "patient" && s.patientId === actor.userId) || (s.patientId != null && patients.has(s.patientId)) || patients.has(id) || (actor.role === "clinician" && s.resource.resourceType === "Appointment" && appointmentPractitionerId(s.resource as Appointment) === actor.userId))
       .sort((a, b) => (a[1].seq ?? 0) - (b[1].seq ?? 0));
     const page = items.slice(0, PAGE);
     const cursor = page.length ? (page[page.length - 1][1].seq ?? since) : (items.length === 0 ? Math.max(since, this.seq) : since);
