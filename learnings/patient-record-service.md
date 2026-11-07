@@ -179,6 +179,14 @@ Until then, nothing has been tested against the real votex365. The client is the
 
 **Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/FB-10-admin-*.png`.
 
+### Insurance (FB-9a, 7 Nov): screens only so far
+
+**Built:** the patient's `patient.insurance` screen in Test mode (`frontend/src/screens/insurance.tsx`): choose a plan, pay the premium through `PayForm`, and check an NHIS number against a pretend register. An 8-digit number ending in 0 is expired, in 9 is unknown, anything else is active.
+
+**Not built: the API.** It waits for the insurance tables in Elise's E-M part 2 (`005`), so we don't end up with two sets. In live mode the screen says plainly that it isn't connected. When `005` lands: add plan, enrolment and NHIS routes, and add an `insurance_premium` purpose to `paymentRoutes` that gets the price from the enrolment. Until that's in, `POST /payments` refuses a premium in live mode.
+
+**What isn't real:** the plans, the prices and the NHIS check. We have no insurer as a partner and no access to NHIS.
+
 ## 3. Why it works this way
 
 - **The database is the last line of defence.** Even if the API had a bug, Postgres would still refuse a write with no

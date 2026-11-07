@@ -51,6 +51,7 @@
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | FB-6: prescription routes, fraud checks, migration `008`, pharmacist, doctor and patient screens, image viewer | 36 API and 10 app tests; the flow driven in a real browser and each screenshot looked at, which found a broken image, fixed in the shared code; evidence in `evidence/final/FB-6-*` |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | SVC-4: payments API from the Prosit 1 votex365 client, migration `009`, payment screen | 24 API and 10 app tests; driven in a real browser, which caught a render loop, now fixed; **not** run against the real votex365, because no key was available |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | FB-10a: admin API and screens (users, audit, revenue) | 13 API and 6 app tests; driven in a real browser; Joseph to check that the Roles screen's wording matches what's built |
+| 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | FB-9a: insurance screens in Test mode, sandbox NHIS check | 14 app tests; driven in a real browser; plans, prices and NHIS are made up and labelled |
 
 ## Sign-off
 
