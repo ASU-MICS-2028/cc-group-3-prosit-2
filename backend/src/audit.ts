@@ -9,7 +9,7 @@ import type { Queryable } from './db.js'
 export interface AccessEntry {
   accessedBy: string | null
   patientId: string | null
-  resourceType: 'Patient' | 'Observation' | 'Consent' | 'Appointment'
+  resourceType: 'Patient' | 'Observation' | 'Consent' | 'Appointment' | 'Media'
   action: 'read' | 'create' | 'update' | 'delete'
   outcome: 'success' | 'denied' | 'not_found' | 'error'
   sourceIp: string | null
