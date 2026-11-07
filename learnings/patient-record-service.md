@@ -60,6 +60,7 @@ routes keep working, and `/auth/login` answers 500 until the tables exist.
 - **Role names** are translated in one place, `src/roles.ts`. The API's own checks use database names.
 - **CORS** (telling browsers which websites may call us) allows only `https://app-hc.agroconnect.space`. Add a laptop with `CORS_ORIGINS=http://localhost:5173`. It doesn't replace sign-in.
 - **Every attempt** goes in `login_events`, which can't be changed afterwards.
+- **Rate limit:** 60 calls to `/auth` per minute from one address, per server, using `express-rate-limit`. **Eugene: a load test from one machine needs `AUTH_RATE_PER_MINUTE` raised, or it logs in once per test user beforehand.**
 
 **Not done:** a phone that loses the reply to a refresh has to sign in again. No password reset or self-service change yet (a re-seed resets test users). The lock is per account, not per IP, so someone could lock a known username on purpose.
 

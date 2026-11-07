@@ -45,7 +45,7 @@ describe.skipIf(!TEST_DATABASE_URL)('sign-in', () => {
     ;({ db, drop } = await freshDatabase())
     await seedTestUsers(db, PASSWORD)
     await seedTestUsers(db, PASSWORD) // running it twice is safe
-    const server = createApp({ db, instanceId: 'test', jwtKey: key, events: { publish: async () => {} } }).listen(0)
+    const server = createApp({ db, instanceId: 'test', jwtKey: key, events: { publish: async () => {} }, authRatePerMinute: 10_000 }).listen(0)
     await new Promise((r) => server.once('listening', r))
     url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
     close = () => server.close()
@@ -173,6 +173,21 @@ describe.skipIf(!TEST_DATABASE_URL)('sign-in', () => {
     const res = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'chv', password: PASSWORD }) })
     server.close()
     expect(res.status).toBe(503)
+  })
+
+  it('limits sign-in calls per address, leaving other routes alone', async () => {
+    const server = createApp({ db, instanceId: 'test', jwtKey: key, events: { publish: async () => {} }, authRatePerMinute: 3 }).listen(0)
+    await new Promise((r) => server.once('listening', r))
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+    const attempt = () => fetch(`${base}/auth/login`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'nobody', password: 'wrong-password' }) })
+    expect((await attempt()).status).toBe(401)
+    expect((await attempt()).status).toBe(401)
+    expect((await attempt()).status).toBe(401)
+    const limited = await attempt()
+    expect(limited.status).toBe(429)
+    expect((await limited.json() as { error: string }).error).toBe('too_many_requests')
+    expect((await fetch(`${base}/health`)).status).toBe(200)
+    server.close()
   })
 
   describe('wrong role, enforced on the server', () => {

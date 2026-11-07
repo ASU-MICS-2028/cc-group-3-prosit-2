@@ -60,4 +60,4 @@ HTTP/1.1 204 No Content
 
 == 9. Test suite ==
  Test Files  6 passed (6)
-      Tests  60 passed (60)
+      Tests  61 passed (61)
