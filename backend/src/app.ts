@@ -1,4 +1,5 @@
 import express, { type Express, type NextFunction, type Request, type Response } from 'express'
+import { rateLimit } from 'express-rate-limit'
 import helmet from 'helmet'
 import { pinoHttp } from 'pino-http'
 import type { Db } from './db.js'
@@ -18,6 +19,8 @@ export interface Ctx {
   events: EventPublisher
   /** Websites allowed to call this API from a browser (CORS). Defaults to the live app. */
   corsOrigins?: string[]
+  /** Sign-in calls allowed per minute from one address, per server. Defaults to 60; the load test raises it. */
+  authRatePerMinute?: number
 }
 
 const LIVE_APP = 'https://app-hc.agroconnect.space'
@@ -62,6 +65,13 @@ export function createApp(ctx: Ctx): Express {
     }
   })
 
+  // Password checks are slow on purpose, so unlimited sign-ins could tie up a server. The account lock doesn't
+  // cover guesses across many usernames; this does. 60, not 5: a whole clinic can share one address.
+  // ponytail: counted per server (two servers = up to double); move the count to a shared store if that matters.
+  app.use('/auth', rateLimit({
+    windowMs: 60_000, limit: ctx.authRatePerMinute ?? 60, standardHeaders: 'draft-8', legacyHeaders: false,
+    message: { error: 'too_many_requests', message: 'Too many sign-in attempts. Wait a minute and try again' },
+  }))
   authRoutes(app, ctx)
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
