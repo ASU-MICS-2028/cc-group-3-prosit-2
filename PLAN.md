@@ -134,8 +134,8 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 | L7-R | Submit the Lab 7 report if it hasn't gone in yet; mark it done | Fri 6 | 1 | PDF in Drive |
 | J1 | SVC-1: `POST /auth/login` with test users and refresh, all eight roles in tokens, CORS for `app-hc` | Sat 7 | 1 | `evidence/final/J1-login-roles.txt` (including a wrong-role 403) |
 | J2 | Real sync: upload, role-filtered download (D-032), 409 on double booking | Sat 7 | 1 | `evidence/final/J2-sync.txt` |
-| L8-A2 | Commit the script in `docs/peer-review.md`; rehearse it once, timed | Sun 8 | 1 | Script in the repo |
-| L8-A3 | Collate everyone's answers; list the questions we'll ask the partner team (30% of the grade) | Sun 8 | 1 | `docs/peer-review.md` |
+| L8-A2 | Commit the script in `docs/peer-review.md`; rehearse it once, timed | Sun 8 | 1 | Script in the repo · 🔄 Script done 7 Nov; rehearsal is for people |
+| L8-A3 | Collate everyone's answers; list the questions we'll ask the partner team (30% of the grade) | Sun 8 | 1 | `docs/peer-review.md` · 🔄 Joseph's parts and the questions done 7 Nov; Eugene's numbers and restore time to add |
 | FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused |
 | SVC-4 | Fee and premiums through votex365 test mode; share the endpoints with Perfect | Mon 9 | 2 | `evidence/final/SVC-4-*.png` |
 | FB-9a | Insurance plans, enrolment, premium, NHIS check (sandbox) | Tue 10 | 2 | `evidence/final/FB-9-insurance-*.png` |
