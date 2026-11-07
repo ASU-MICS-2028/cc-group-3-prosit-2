@@ -19,6 +19,10 @@ export interface Config {
   jwtSecretArn: string | null
   /** SNS topic for appointment events (Lab 7). Unset: appointments still save, events are not sent. */
   appointmentTopicArn: string | null
+  /** Comma-separated websites allowed to call from a browser, e.g. a laptop's dev server. Unset: the live app only. */
+  corsOrigins?: string[]
+  /** AUTH_RATE_PER_MINUTE: raise it for a load test from one machine. */
+  authRatePerMinute?: number
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -34,6 +38,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     jwtSecret: env.JWT_SECRET || null,
     jwtSecretArn: env.JWT_SECRET_ARN || null,
     appointmentTopicArn: env.APPOINTMENT_TOPIC_ARN || null,
+    ...(Number(env.AUTH_RATE_PER_MINUTE) > 0 ? { authRatePerMinute: Number(env.AUTH_RATE_PER_MINUTE) } : {}),
+    ...(env.CORS_ORIGINS ? { corsOrigins: env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean) } : {}),
   }
 }
 

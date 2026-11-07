@@ -13,7 +13,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export interface Actor {
   id: string
+  /** The database's name for the role (src/roles.ts translates it for the app). */
   role: string
+  /** Only on a patient's login: the one patient record it may open. */
+  patientId?: string
 }
 
 /** The signing key, or null when none is configured (then every protected request is refused). */
@@ -23,9 +26,9 @@ export function signingKey(secret: string | null): Uint8Array | null {
   return new TextEncoder().encode(secret)
 }
 
-/** Issues a token for a practitioner. Used by `npm run token` (no login screen yet) and by tests. */
-export function signToken(key: Uint8Array, practitionerId: string, expiresIn: string | number = '8h'): Promise<string> {
-  return new SignJWT({}).setProtectedHeader({ alg: 'HS256' }).setSubject(practitionerId).setIssuer(ISSUER)
+/** Issues a token for a practitioner. Used by `POST /auth/login`, `npm run token` and tests. The API never trusts `claims`; the app reads them. */
+export function signToken(key: Uint8Array, practitionerId: string, expiresIn: string | number = '8h', claims: Record<string, unknown> = {}): Promise<string> {
+  return new SignJWT(claims).setProtectedHeader({ alg: 'HS256' }).setSubject(practitionerId).setIssuer(ISSUER)
     .setIssuedAt().setExpirationTime(expiresIn).sign(key)
 }
 
@@ -59,10 +62,12 @@ export function requireActor(key: Uint8Array | null, db: Queryable, onRefused?: 
     if (!sub || !UUID.test(sub)) return deny('Your session is invalid. Sign in again')
 
     try {
-      const { rows } = await db.query('SELECT id, role FROM practitioners WHERE id = $1 AND active', [sub])
+      // SELECT *, not a list of columns: a deploy reaches the servers before its migration reaches RDS, and
+      // naming patient_id (migration 004) would refuse everyone in that gap.
+      const { rows } = await db.query('SELECT * FROM practitioners WHERE id = $1 AND active', [sub])
       const row = rows[0]
       if (!row) return deny('This account is not active')
-      res.locals.actor = { id: String(row.id), role: String(row.role) } satisfies Actor
+      res.locals.actor = { id: String(row.id), role: String(row.role), ...(row.patient_id ? { patientId: String(row.patient_id) } : {}) } satisfies Actor
       next()
     } catch (error) {
       next(error)
