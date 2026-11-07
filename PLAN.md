@@ -136,7 +136,7 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 | J2 | Real sync: upload, role-filtered download (D-032), 409 on double booking | Sat 7 | 1 | `evidence/final/J2-sync.txt` · 🔄 In PR 7 Nov, tested locally (D-037); live run after E1 |
 | L8-A2 | Commit the script in `docs/peer-review.md`; rehearse it once, timed | Sun 8 | 1 | Script in the repo |
 | L8-A3 | Collate everyone's answers; list the questions we'll ask the partner team (30% of the grade) | Sun 8 | 1 | `docs/peer-review.md` |
-| FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused |
+| FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused · 🔄 In PR 7 Nov (D-038); screens in Test mode, API tested locally |
 | SVC-4 | Fee and premiums through votex365 test mode; share the endpoints with Perfect | Mon 9 | 2 | `evidence/final/SVC-4-*.png` |
 | FB-9a | Insurance plans, enrolment, premium, NHIS check (sandbox) | Tue 10 | 2 | `evidence/final/FB-9-insurance-*.png` |
 | FB-10a | Platform admin: users, roles, audit viewer, revenue view | Tue 10 | 3 | `evidence/final/FB-10-admin-*.png` |

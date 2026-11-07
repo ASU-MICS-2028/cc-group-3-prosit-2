@@ -109,7 +109,7 @@ const VISIBLE = `(
 )`
 
 /** May this person add to, or see, this patient's records? */
-async function canReach(q: Queryable, actor: Actor, patientId: string): Promise<boolean> {
+export async function canReach(q: Queryable, actor: Actor, patientId: string): Promise<boolean> {
   if (actor.role === 'patient') return actor.patientId === patientId
   const { rows } = await q.query(
     `SELECT 1 FROM sync_records s WHERE s.patient_id = $4 AND ${VISIBLE} LIMIT 1`,

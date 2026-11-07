@@ -122,15 +122,16 @@ export function QrCode({ value }: { value: string }) {
   return <span className="qr" role="img" aria-label="Verification QR code" dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
-export type RxStatus = "issued" | "dispensed" | "cancelled";
+export type RxStatus = "issued" | "dispensed" | "cancelled" | "expired";
 const RX: Record<RxStatus, { copy: string; icon: IconName }> = {
   issued: { copy: "Issued", icon: "file-text" },
   dispensed: { copy: "Dispensed", icon: "check-circle" },
   cancelled: { copy: "Cancelled", icon: "x" },
+  expired: { copy: "Expired", icon: "warning" },
 };
 
-export function PrescriptionCard({ medicine, dose, duration, prescriber, licence, code, status }: {
-  medicine: string; dose: string; duration: string; prescriber: string; licence: string; code: string; status: RxStatus;
+export function PrescriptionCard({ medicine, dose, duration, prescriber, licence, code, qr, status }: {
+  medicine: string; dose: string; duration: string; prescriber: string; licence: string | null; code?: string; qr?: string; status: RxStatus;
 }) {
   const { copy, icon } = RX[status];
   return (
@@ -141,14 +142,14 @@ export function PrescriptionCard({ medicine, dose, duration, prescriber, licence
       </header>
       <p>{dose}</p>
       <p className="caption">{duration}</p>
-      <p className="caption">{prescriber} · Licence {licence}</p>
-      <footer className="rx-verify">
+      <p className="caption">{prescriber} · {licence ? `Licence ${licence}` : "No valid licence found"}</p>
+      {code && <footer className="rx-verify">
         <div>
           <span className="caption">Verification code</span>
           <span className="rx-code tabular">{code}</span>
         </div>
-        <QrCode value={`hc-rx:${code}`} />
-      </footer>
+        <QrCode value={qr ?? `hc-rx:${code}`} />
+      </footer>}
     </article>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MicButton, SecondaryButton, TextButton } from "../components/buttons";
 import { SyncBadge } from "../components/display";
 import { Icon } from "../components/icons";
@@ -13,9 +13,14 @@ const when = (iso: string) => new Date(iso).toLocaleString([], { day: "numeric",
 const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
 
 /** An object URL for stored bytes, released when the picture or player goes away. */
-function useObjectUrl(m: Media): string {
-  const url = useMemo(() => URL.createObjectURL(new Blob([fromBase64(m.content.data) as BlobPart], { type: m.content.contentType })), [m.content.data, m.content.contentType]);
-  useEffect(() => () => URL.revokeObjectURL(url), [url]);
+export function useObjectUrl(m: Media): string {
+  // Made inside the effect, so a re-run (React's StrictMode does one on purpose) makes a new address after freeing the old one.
+  const [url, setUrl] = useState("");
+  useEffect(() => {
+    const made = URL.createObjectURL(new Blob([fromBase64(m.content.data) as BlobPart], { type: m.content.contentType }));
+    setUrl(made);
+    return () => URL.revokeObjectURL(made);
+  }, [m.content.data, m.content.contentType]);
   return url;
 }
 

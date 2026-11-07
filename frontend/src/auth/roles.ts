@@ -45,7 +45,7 @@ export const TABS: Record<Role, TabDef[]> = {
   ],
   pharmacist: [
     { screen: "pharmacist.verify", label: "Verify", icon: "qr-code" },
-    { screen: "pharmacist.queue", label: "Queue", icon: "file-text" },
+    { screen: "pharmacist.queue", label: "Dispensed", icon: "file-text" },
     { screen: "pharmacist.stock", label: "Stock", icon: "pill" },
     { screen: "me", label: "Me", icon: "user" },
   ],
