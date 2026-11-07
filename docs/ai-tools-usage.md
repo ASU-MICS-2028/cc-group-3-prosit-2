@@ -55,3 +55,4 @@
 | Eugene Sewor | |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
+| 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J1: sign-in routes, password hashing, role translation, CORS, migration `006`, seed script, tests | Joseph set the scope and decisions; 26 new tests cover wrong input, lockout, reuse and wrong roles; run against Postgres 16, evidence in `evidence/final/J1-login-roles.txt` |

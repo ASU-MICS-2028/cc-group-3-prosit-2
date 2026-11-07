@@ -9,7 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest run",
-    "token": "tsx scripts/token.ts"
+    "token": "tsx scripts/token.ts",
+    "seed:test-users": "tsx scripts/seed-test-users.ts"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.1161.0",

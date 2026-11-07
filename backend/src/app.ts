@@ -5,6 +5,7 @@ import type { Db } from './db.js'
 import type { EventPublisher } from './events.js'
 import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
+import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
 
 export interface Ctx {
@@ -14,7 +15,11 @@ export interface Ctx {
   jwtKey: Uint8Array | null
   /** Where domain events go (SNS in AWS; a stand-in in tests). */
   events: EventPublisher
+  /** Websites allowed to call this API from a browser (CORS). Defaults to the live app. */
+  corsOrigins?: string[]
 }
+
+const LIVE_APP = 'https://app-hc.agroconnect.space'
 
 export function createApp(ctx: Ctx): Express {
   const app = express()
@@ -25,6 +30,20 @@ export function createApp(ctx: Ctx): Express {
   // One JSON line per request. Bodies are never logged: they will hold patient data.
   app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/ready' } }))
   app.use(helmet())
+  // CORS: tell browsers which websites may call us. It doesn't replace sign-in; only a browser obeys it.
+  const allowed = new Set(ctx.corsOrigins ?? [LIVE_APP])
+  app.use((req, res, next) => {
+    res.vary('Origin')
+    const origin = req.get('origin')
+    if (origin && allowed.has(origin)) {
+      res.set('Access-Control-Allow-Origin', origin)
+      res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.set('Access-Control-Max-Age', '600')
+    }
+    if (req.method === 'OPTIONS') return void res.status(204).end()
+    next()
+  })
   app.use(express.json({ limit: '100kb' }))
 
   // Liveness, checked by the ALB. Names the instance so the load-balancing demo shows who answered.
@@ -40,6 +59,7 @@ export function createApp(ctx: Ctx): Express {
     }
   })
 
+  authRoutes(app, ctx)
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
 

@@ -12,7 +12,7 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 |---|---|---|---|
 | X1 Ask the facilitator: final dates and format, Lab 8 session and partner team, Week 9 handout | Fri 6 | 1 | 🟢 Ready |
 | L7-R Submit the Lab 7 report if not yet in | Fri 6 | 1 | 🟢 Ready |
-| J1 Login, eight roles in tokens, CORS for the app | Sat 7 | 1 | 🟢 Ready |
+| J1 Login, eight roles in tokens, CORS for the app | Sat 7 | 1 | 🔄 In PR; live check needs 004 and 006 on RDS |
 | J2 Real sync: upload, role-filtered download, 409 on double booking | Sat 7 | 1 | 🟢 Ready |
 | L8-A2 Commit and rehearse the walkthrough; L8-A3 collate answers and our questions for the partner team | Sun 8 | 1 | 🟢 Ready |
 | FB-6 Prescriptions, fraud checks, pharmacist screen, image sharing | Mon 9 | 1 | ⛔ Needs migration 004 |
