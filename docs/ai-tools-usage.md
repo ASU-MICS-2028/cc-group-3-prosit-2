@@ -46,6 +46,7 @@
 | 2026-11-05 | Eugene | Claude Code | D-033 PWA hosting: compared serving from the API, Amplify and S3 + CloudFront; wrote `infra/modules/frontend` (private bucket, OAC, us-east-1 certificate, SPA routing function), the `deploy PWA` job and its deploy-role permissions; Trivy findings accepted with reasons; docs | Eugene asked for it; plan read line by line (adds only); actionlint and Trivy clean; build output checked (hashed files under `assets/`); apply only after Eugene's OK |
 | 2026-11-06 | Joseph Etse | Claude Code (Anthropic) | Recording the team votes: D-018, D-028, D-029, D-031 and the live D-027, D-030 marked Accepted in `docs/decisions.md`, with README and PLAN.md updated; drafting D-034 (synthetic data, DHS figures), D-035 and the final sprint plan | Votes taken from the group poll; read the diff; called the DHS API and saw 2022 figures for the current regions. Joseph read DHS's terms of use, and D-034 follows them |
 | 2026-11-06 | Elise Kennedy-Angbo | Claude Code (Anthropic) | Migration `004` (roles, patient logins, facilities, referrals, emergencies, prescriptions) and its tests; a local pgAdmin setup to view the database | Elise reviewed each table's design before it was written; every rule has a test both ways, and two tests that passed for the wrong reason were found and fixed; 57 deny / 30 allow / 0 problems on Postgres 16 |
+| 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J1: sign-in routes, password hashing, role translation, CORS, migration `006`, seed script, tests | Joseph set the scope and decisions; 26 new tests cover wrong input, lockout, reuse and wrong roles; run against Postgres 16, evidence in `evidence/final/J1-login-roles.txt` |
 
 ## Sign-off
 
@@ -55,4 +56,3 @@
 | Eugene Sewor | |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
-| 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J1: sign-in routes, password hashing, role translation, CORS, migration `006`, seed script, tests | Joseph set the scope and decisions; 26 new tests cover wrong input, lockout, reuse and wrong roles; run against Postgres 16, evidence in `evidence/final/J1-login-roles.txt` |
