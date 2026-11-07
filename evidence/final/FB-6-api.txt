@@ -57,8 +57,8 @@ Pharmacist tries to dispense it                      HTTP 409  {"error": "cancel
 (3 rows)
 
 == 9. Test suites ==
- Test Files  8 passed (8)
-      Tests  132 passed (132)
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
- Test Files  1 failed | 18 passed (19)
-      Tests  1 failed | 351 passed (352)
+Backend:  8 files, 132 tests, all passed.
+Frontend: 19 files, 352 tests. All passed in most runs. One test fails now and then:
+  visitsScreens.test.tsx, "after the CHV books and it is sent, the doctor's Today lists the visit".
+  It failed in this evidence run. It also fails on a clean copy of main (1 run in 10), so this work
+  didn't cause it. It's a timing problem in that test's sign-in steps, passed to Perfect.
