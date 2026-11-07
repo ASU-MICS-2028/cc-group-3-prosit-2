@@ -8,6 +8,7 @@ import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
+import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
 export interface Ctx {
   db: Db
@@ -47,6 +48,8 @@ export function createApp(ctx: Ctx): Express {
     if (req.method === 'OPTIONS') return void res.status(204).end()
     next()
   })
+  // Photos and voice notes come through sync, so that one path takes more.
+  app.use('/sync/push', syncBodyParser)
   app.use(express.json({ limit: '100kb' }))
 
   // Liveness, checked by the ALB. Names the instance so the load-balancing demo shows who answered.
@@ -72,6 +75,7 @@ export function createApp(ctx: Ctx): Express {
   authRoutes(app, ctx)
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
+  syncRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
