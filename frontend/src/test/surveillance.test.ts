@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Session } from "../auth/types";
-import { SurveillanceError, liveSurveillanceApi, mockSurveillanceApi, outbreakSignals } from "../data/surveillance";
+import { SurveillanceError, liveSurveillanceApi, mockSurveillanceApi, outbreakSignals, resetTestSurveillance } from "../data/surveillance";
 
 const as = (role: Session["user"]["role"], id = "u1"): Session => ({ token: "t", mode: "test", user: { id, name: "Test", role } });
 
@@ -52,6 +52,16 @@ describe("surveillance, test mode (FB-7a)", () => {
     expect(done.status).toBe("confirmed");
     expect(done.alert_sent_at).not.toBeNull();
     await expect(api.decide(a.id, "dismissed")).rejects.toMatchObject({ code: "already_decided" });
+  });
+
+  it("'start the demo again' brings the outbreak back as needing a decision", async () => {
+    const session = as("ghs");
+    const api = mockSurveillanceApi(session);
+    const [a] = await api.alerts();
+    await api.decide(a.id, "confirmed");
+    resetTestSurveillance(session);
+    const [again] = await api.alerts();
+    expect(again).toMatchObject({ district: "Ga East", status: "suggested", alert_sent_at: null });
   });
 
   it("dismissing sends nothing", async () => {

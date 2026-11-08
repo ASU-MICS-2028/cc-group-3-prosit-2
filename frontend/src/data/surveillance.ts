@@ -82,6 +82,11 @@ export function outbreakSignals(rows: Row[]): Omit<Alert, "id" | "status" | "dec
 const VIEWERS = new Set(["ghs", "platform_admin"]);
 const storeKey = (userId: string) => `hc.mock.surveillance.v1.${userId}`;
 
+/** Test mode only: forget this account's test decisions, so a demo can start again. Live data can't be reset. */
+export function resetTestSurveillance(session: Session): void {
+  try { localStorage.removeItem(storeKey(session.user.id)); } catch { /* storage blocked */ }
+}
+
 export function mockSurveillanceApi(session: Session): SurveillanceApi {
   const rows = syntheticRows();
   const allowed = () => { if (!VIEWERS.has(session.user.role)) throw new SurveillanceError("forbidden", "Only public health staff can see surveillance data."); };

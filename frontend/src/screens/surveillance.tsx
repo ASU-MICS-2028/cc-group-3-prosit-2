@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { PrimaryButton, SecondaryButton } from "../components/buttons";
+import { PrimaryButton, SecondaryButton, TextButton } from "../components/buttons";
 import { StateView } from "../components/display";
 import { PriorityBadge, VitalCard } from "../components/clinical";
 import { useSession } from "../auth/Session";
 import { useLoad } from "../data/DataProvider";
-import { SurveillanceError, surveillanceApiFor, type Alert, type Total } from "../data/surveillance";
+import { SurveillanceError, resetTestSurveillance, surveillanceApiFor, type Alert, type Total } from "../data/surveillance";
 import { Heading, Rows, type ScreenDef } from "./kit";
 
 /* GHS official: surveillance dashboard, map and outbreak alerts (FB-7a).
@@ -51,9 +51,15 @@ function DiseaseMap() {
   if (!all.data) return <StateView kind="loading" text="Loading the map…" />;
   const flagged = new Set((alerts.data ?? []).filter((a) => a.status !== "dismissed").map((a) => a.district));
   const districts = [...new Set(all.data.totals.map((t) => t.district))];
+  // Ranked by the AVERAGE per district, not the total: regions report from different numbers of
+  // districts (Greater Accra 4, the others 1), and a total would rank the region with more districts first.
   const byRegion = [...new Set(all.data.totals.map((t) => t.region))]
-    .map((r) => ({ region: r, cases: sum(all.data!.totals.filter((t) => t.region === r)) }))
-    .sort((a, b) => b.cases - a.cases);
+    .map((r) => {
+      const ts = all.data!.totals.filter((t) => t.region === r);
+      const n = new Set(ts.map((t) => t.district)).size;
+      return { region: r, perDistrict: Math.round(sum(ts) / n), districts: n };
+    })
+    .sort((a, b) => b.perDistrict - a.perDistrict);
   return (<>
     <Heading>{HOME_REGION}, by district</Heading>
     <div className="tile-grid">
@@ -64,8 +70,8 @@ function DiseaseMap() {
           {flagged.has(d) && <PriorityBadge priority="urgent" />}
         </div>))}
     </div>
-    <Heading>All 16 regions, most cases first</Heading>
-    <Rows items={byRegion.map((r) => ({ name: r.region, role: `${r.cases} cases this week` }))} />
+    <Heading>All 16 regions, busiest first</Heading>
+    <Rows items={byRegion.map((r) => ({ name: r.region, role: `${r.perDistrict} cases per district this week${r.districts > 1 ? ` (average of ${r.districts} districts)` : ""}` }))} />
     <p className="caption">Week of {fmtWeek(all.data.week_start)}. Districts with a possible outbreak are marked.</p>
     <Note />
   </>);
@@ -73,13 +79,18 @@ function DiseaseMap() {
 
 function OutbreakAlerts() {
   const api = useApi();
+  const { session } = useSession();
   const [version, setVersion] = useState(0);
   const [busy, setBusy] = useState<string>();
   const [problem, setProblem] = useState<string>();
   const alerts = useLoad(async () => api?.alerts(), [version]);
   if (alerts.error) return <StateView kind="error" text={alerts.error} />;
   if (!alerts.data) return <StateView kind="loading" text="Checking for outbreaks…" />;
-  if (alerts.data.length === 0) return <StateView kind="empty" text="No possible outbreaks this week." />;
+  // Test mode only: clear the test decisions so the demo outbreak needs a decision again.
+  const reset = session?.mode === "test"
+    ? <TextButton onClick={() => { resetTestSurveillance(session); setVersion((v) => v + 1); }}>Start the demo again (test mode)</TextButton>
+    : null;
+  if (alerts.data.length === 0) return <><StateView kind="empty" text="No possible outbreaks this week." />{reset}</>;
 
   async function decide(a: Alert, decision: "confirmed" | "dismissed") {
     if (!api || busy) return;
@@ -104,6 +115,7 @@ function OutbreakAlerts() {
           : null}
       </section>))}
     <Note />
+    {reset}
   </>);
 }
 
