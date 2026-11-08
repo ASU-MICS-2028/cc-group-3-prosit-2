@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { InsuranceError, insuranceApiFor, mockInsuranceApi, mockPremium, sandboxNhis } from "../data/insurance";
 import { mockPayApi } from "../data/payments";
 import type { Session } from "../auth/types";
@@ -39,7 +39,20 @@ describe("insurance in test mode", () => {
 });
 
 describe("insurance in live mode", () => {
-  it("says plainly that it isn't connected, rather than pretending", async () => {
-    await expect(insuranceApiFor({ ...session, mode: "live" }).plans()).rejects.toMatchObject({ code: "not_available" });
+  afterEach(() => vi.unstubAllGlobals());
+  it("calls the API with the sign-in token and the names it expects", async () => {
+    const f = vi.fn(async () => new Response(JSON.stringify({ id: "e1", planId: "family", since: "2026-11-08T00:00:00.000Z" }), { status: 200 }));
+    vi.stubGlobal("fetch", f);
+    expect((await insuranceApiFor({ ...session, mode: "live" }).enrol("family")).planId).toBe("family");
+    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toMatch(/\/insurance\/enrol$/);
+    expect(init.body).toBe(JSON.stringify({ plan_id: "family" }));
+    expect((init.headers as Record<string, string>).authorization).toBe("Bearer t");
+  });
+  it("shows the API's own refusal, and says so when there's no connection", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ error: "not_found", message: "That plan isn't available." }), { status: 404 })));
+    await expect(insuranceApiFor({ ...session, mode: "live" }).enrol("gold")).rejects.toMatchObject({ code: "not_found", message: "That plan isn't available." });
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("down"); }));
+    await expect(insuranceApiFor({ ...session, mode: "live" }).plans()).rejects.toMatchObject({ code: "offline" });
   });
 });

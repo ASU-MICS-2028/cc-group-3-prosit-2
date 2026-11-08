@@ -17,7 +17,7 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 | L8-A2 Commit and rehearse the walkthrough; L8-A3 collate answers and our questions for the partner team | Sun 8 | 1 | 🟢 Ready |
 | FB-6 Prescriptions, fraud checks, pharmacist screen, image sharing | Mon 9 | 1 | 🔄 In PR; live check after E1 and P2 |
 | SVC-4 Fee and premiums through votex365 test mode | Mon 9 | 2 | 🔄 In PR, simulated until the test key is set |
-| FB-9a Insurance, NHIS check (sandbox) | Tue 10 | 2 | 🔄 Screens in PR; API ⛔ needs Elise's `005` |
+| FB-9a Insurance, NHIS check (sandbox) | Tue 10 | 2 | 🔄 Screens and API in PR #60 (`011`) |
 | FB-10a Platform admin, audit viewer, revenue view | Tue 10 | 3 | 🔄 In PR |
 | F1 Final report (outline Sun 8, finished Fri 13) | Fri 13 | 1 | 🟢 Ready |
 

@@ -179,11 +179,16 @@ Until then, nothing has been tested against the real votex365. The client is the
 
 **Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/FB-10-admin-*.png`.
 
-### Insurance (FB-9a, 7 Nov): screens only so far
+### Insurance (FB-9a, 8 Nov)
 
-**Built:** the patient's `patient.insurance` screen in Test mode (`frontend/src/screens/insurance.tsx`): choose a plan, pay the premium through `PayForm`, and check an NHIS number against a pretend register. An 8-digit number ending in 0 is expired, in 9 is unknown, anything else is active.
+**Built:** the patient's `patient.insurance` screen (`frontend/src/screens/insurance.tsx`) and its API (`backend/src/routes/insurance.ts`, migration `011_insurance.sql`). Everything but the plan list is for patient logins only, and the patient comes from the login:
 
-**Not built: the API.** It waits for the insurance tables in Elise's E-M part 2 (`005`), so we don't end up with two sets. In live mode the screen says plainly that it isn't connected. When `005` lands: add plan, enrolment and NHIS routes, and add an `insurance_premium` purpose to `paymentRoutes` that gets the price from the enrolment. Until that's in, `POST /payments` refuses a premium in live mode.
+- `GET /insurance/plans`, `GET /insurance/mine` (an enrolment, or `null`)
+- `POST /insurance/enrol` with `{ plan_id }`: joins or changes plan, keeping the same enrolment id
+- `POST /insurance/nhis-check` with `{ member_number }`: a pretend register. An 8-digit number ending in 0 is expired, in 9 is unknown, anything else is active. The number isn't stored.
+- `POST /payments` with `purpose: "insurance_premium"` and the enrolment id as `subject_id`: the price comes from the plan. Premiums can repeat, one per payment id.
+
+The insurance tables were taken out of E-M part 2 and are `011`, so `010` stays free for the rest of it.
 
 **What isn't real:** the plans, the prices and the NHIS check. We have no insurer as a partner and no access to NHIS.
 

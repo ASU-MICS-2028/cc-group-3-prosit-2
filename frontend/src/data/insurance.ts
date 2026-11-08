@@ -21,7 +21,7 @@ export const PLANS: Plan[] = [
 const key = (userId: string) => `hc.mock.insurance.v1.${userId}`;
 const readEnrolment = (userId: string): Enrolment | null => { try { return JSON.parse(localStorage.getItem(key(userId)) ?? "null") as Enrolment | null; } catch { return null; } };
 
-/** The premium the test-mode payment charges: the server's job once the insurance API exists. */
+/** The premium the test-mode payment charges; in live mode the server works it out. */
 export function mockPremium(userId: string, enrolmentId: string): number | null {
   const e = readEnrolment(userId);
   return e?.id === enrolmentId ? PLANS.find((p) => p.id === e.planId)?.monthlyPremium ?? null : null;
@@ -51,8 +51,24 @@ export function mockInsuranceApi(session: Session): InsuranceApi {
   };
 }
 
-/** Live mode needs the insurance API, which waits for Elise's migration (E-M part 2). Until then it says so plainly. */
-const notYet = async (): Promise<never> => { throw new InsuranceError("not_available", "Insurance isn't connected to the live service yet."); };
-const liveInsuranceApi: InsuranceApi = { plans: notYet, mine: notYet, enrol: notYet, checkNhis: notYet };
+const API_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://api-hc.agroconnect.space";
 
-export const insuranceApiFor = (session: Session): InsuranceApi => (session.mode === "live" ? liveInsuranceApi : mockInsuranceApi(session));
+export function httpInsuranceApi(token: string, baseUrl = API_URL): InsuranceApi {
+  async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
+    let res: Response;
+    try {
+      res = await fetch(baseUrl + path, { method, headers: { authorization: `Bearer ${token}`, ...(body !== undefined ? { "content-type": "application/json" } : {}) }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
+    } catch { throw new InsuranceError("offline", "No connection. Try again when you have a signal."); }
+    const data = await res.json().catch(() => ({})) as { error?: string; message?: string };
+    if (!res.ok) throw new InsuranceError(data.error ?? "error", data.message ?? "We couldn't do that. Please try again.");
+    return data as T;
+  }
+  return {
+    plans: () => call("GET", "/insurance/plans"),
+    mine: () => call("GET", "/insurance/mine"),
+    enrol: (planId) => call("POST", "/insurance/enrol", { plan_id: planId }),
+    checkNhis: (memberNumber) => call("POST", "/insurance/nhis-check", { member_number: memberNumber }),
+  };
+}
+
+export const insuranceApiFor = (session: Session): InsuranceApi => (session.mode === "live" ? httpInsuranceApi(session.token) : mockInsuranceApi(session));

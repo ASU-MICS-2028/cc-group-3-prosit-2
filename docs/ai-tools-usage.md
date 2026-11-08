@@ -52,6 +52,7 @@
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | SVC-4: payments API from the Prosit 1 votex365 client, migration `009`, payment screen | 24 API and 10 app tests; driven in a real browser, which caught a render loop, now fixed; **not** run against the real votex365, because no key was available |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | FB-10a: admin API and screens (users, audit, revenue) | 13 API and 6 app tests; driven in a real browser; Joseph to check that the Roles screen's wording matches what's built |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | FB-9a: insurance screens in Test mode, sandbox NHIS check | 14 app tests; driven in a real browser; plans, prices and NHIS are made up and labelled |
+| 2026-11-08 | Joseph Etse | Claude Code (Anthropic) | FB-9a: insurance API and migration `011`, connected to the existing screens and to premium payments | 13 API and 2 new app tests against a local database; live mode not driven in a browser and not run on RDS; plans, prices and NHIS are made up and labelled |
 
 ## Sign-off
 

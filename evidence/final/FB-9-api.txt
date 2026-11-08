@@ -1,0 +1,27 @@
+FB-9a evidence: insurance through the API.
+Mode: LOCAL API on a fresh local database with every migration on this branch. Not on RDS. Synthetic data.
+The plans and prices are examples, the NHIS check is a sandbox, and the premium payment is simulated: no votex365 key, no money moved.
+Date: 2026-11-08T19:47:34.221Z 
+
+== Plans and enrolment ==
+Plans                                                      HTTP 200 [["community",10],["family",25]]
+Before joining                                             HTTP 200 null
+Join the Community plan                                    HTTP 200 {"planId":"community"}
+Join again: same enrolment, unchanged                      HTTP 200 {"sameAsBefore":true}
+Unknown plan                                               HTTP 404 {"error":"not_found","field":"plan_id","message":"That plan isn't available."}
+
+== Premium: the server sets the price ==
+Pay on Community, caller asks for 0.01                     HTTP 201 {"amount":10,"currency":"GHS","purpose":"insurance_premium","status":"pending","simulated":true,"testMode":true}
+Change to Family: same enrolment id                        HTTP 200 {"planId":"family","sameId":true}
+Pay on Family                                              HTTP 201 {"amount":25,"currency":"GHS","purpose":"insurance_premium","status":"pending","simulated":true,"testMode":true}
+
+== NHIS sandbox: number checked, not stored ==
+Member number 12345678                                     HTTP 200 "active"
+Member number 12345670                                     HTTP 200 "expired"
+Member number 12345679                                     HTTP 200 "not_found"
+Member number 123                                          HTTP 400 {"error":"invalid_request","field":"member_number","message":"An NHIS test number has 8 digits."}
+
+== Who may do what ==
+A doctor opens insurance                                   HTTP 403 {"error":"forbidden","message":"Only a patient can manage their own insurance"}
+Unknown enrolment                                          HTTP 404 {"error":"not_found","field":"subject_id","message":"Unknown enrolment"}
+Audit rows for the enrolment (join + change, not the repeat): 2
