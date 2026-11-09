@@ -8,6 +8,20 @@ ICS 534 Cloud Computing · PROSIT 2 · Joseph Etse · Eugene Sewor · Elise Kenn
 
 What runs where, as deployed in `af-south-1`. To edit, open [`docs/architecture-healthconnect.drawio`](docs/architecture-healthconnect.drawio) in draw.io. Infrastructure details: [`infra/README.md`](infra/README.md).
 
+## Try it live
+
+| What | Link | Notes |
+|---|---|---|
+| **The app** (PWA) | https://app-hc.agroconnect.space | Open on a phone or laptop; "Add to home screen" installs it, and it keeps working offline |
+| **Video call page** | https://call-hc.agroconnect.space | Open the same room link in two browsers; video goes directly between them |
+| **API health** | https://api-hc.agroconnect.space/health · [`/ready`](https://api-hc.agroconnect.space/ready) | `/ready` also checks the database |
+
+**Signing in:** one test account per role, all with synthetic data: `chv`, `patient`, `clinician`, `pharmacist`,
+`healer`, `ghs` (surveillance dashboard), `facility_admin`, `platform_admin`. The password is not in this public repo;
+the team shares it with the lecturer directly.
+
+Everything runs in AWS `af-south-1` (Cape Town). No real patient data is stored anywhere.
+
 ## Everything to do now, and who does it
 
 _Updated 9 Nov 2026 (RDS has migrations 001–007 and the surveillance demo data). **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 10 Nov, 23:59. Working deadline Fri 13 Nov (being confirmed). Full plan, with evidence file names: [`PLAN.md`](./PLAN.md#final-sprint-6-to-13-nov-one-week-to-finish-lab-8-and-prosit-2). Tier 1 comes before everything else._
