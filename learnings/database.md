@@ -60,6 +60,22 @@ The database stores patients, their vital signs, their consent, health workers a
    Tests: `db/tests/run_tests.sh` → **57 deny checks, 30 allow checks, 0 problems**
    (`evidence/final/E-M-schema-tests.txt`).
 
+8. **Surveillance (FB-7a).** `db/migrations/005_surveillance.sql`:
+   - **`weekly_case_counts`**: cases per district, per week (a Monday), per condition. **Totals only, no patient
+     ids or names** (D-018). Each row says if it's `synthetic` or `reported` (D-034).
+   - **`outbreak_signals`** (a *view*: a saved query, recalculated whenever it's read): flags a district when a week
+     has **at least 5 cases and more than double the average of the 4 weeks before**, with the reason in a sentence.
+     The thresholds are illustrative, not signed off by a medical partner.
+   - **`outbreak_alerts`**: a signal a GHS official (or admin) **confirms or dismisses**; the decision then stands, the
+     figures can't be edited, and the community alert (test mode) is only allowed once confirmed.
+   - **Demo data:** `db/seed/surveillance_synthetic.sql` (not a migration). 16 regions, 19 districts, 8 weeks of
+     diarrhoea and malaria, shaped by the **Ghana 2022 DHS regional percentages** (cited in the file, fetched from the
+     DHS Program API), plus a planted cholera outbreak in Ga East. Safe to run twice.
+   - **API:** `backend/src/routes/surveillance.ts`: `GET /surveillance/summary`, `GET /surveillance/alerts`,
+     `POST /surveillance/alerts/:id/decision` (GHS official or admin only). **App:** the GHS Dashboard, Map and Alerts
+     screens (`frontend/src/screens/surveillance.tsx`), with a test mode that follows the same rule.
+   Tests: schema 68 deny / 34 allow / 0 problems; API 7 tests; app 11 tests. Evidence: `evidence/final/FB-7-outbreak-*.png`.
+
 ## 3. Why we did it this way
 
 | Choice | Why | Rejected |
@@ -147,6 +163,23 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 
 ## 6. What will bite us
 
+- **Missing weeks count as missing, not as zero.** The outbreak rule needs 4 weeks of history; a district that
+  reports nothing for a quiet week should send a 0 row, or it won't be checked.
+- **Rank regions per district, not by total.** Regions report from different numbers of districts (Greater Accra 4,
+  the others 1 in the demo data), so a total puts the region with more districts first. The map ranks per district.
+- **Known limits of surveillance (from Joseph's #61 review), fine for the demo:**
+  - The baseline is the previous 4 *rows*, not 4 calendar weeks: a district with gaps gets an older baseline.
+  - `/surveillance/alerts` always says `synthetic: true`; that's only right while all the data is synthetic.
+  - The dashboard's region is fixed to Greater Accra; an official elsewhere would see no open alerts there.
+  - The map marks a district for an alert from any week, not only the week shown.
+  - No rate limit on the three routes yet (CodeQL); copy the limiter from `prescriptions.ts` once #57 is merged.
+- **A decided alert is closed.** Confirming or dismissing a second time is refused (database and API: 409), so the
+  community alert is never sent twice. Only a GHS official decides; an admin can view.
+- **The surveillance data is synthetic.** It looks like Ghana because it follows the DHS percentages, but the counts
+  are made up. Every screen says so; the report must too.
+- **`run_tests.sh` and pgAdmin:** if pgAdmin has the test database open, the script can't rebuild it. Close the
+  connection (or disconnect in pgAdmin) first.
+
 - **Role names differ between the app and the database.** The app says `healer`, `facility_admin`, `ghs`, `clinician`,
   `platform_admin`; the database says `traditional_healer`, `health_centre_admin`, `ghs_official`, and `nurse` /
   `doctor` / `specialist`, `admin`. The API translates. A wrong name is refused by the database, not silently stored.
@@ -196,6 +229,9 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 | TTL (time to live) | A date on an item after which DynamoDB deletes it by itself |
 | CHPS compound | Ghana's village health post (Community-based Health Planning and Services) |
 | Implied consent | In an emergency, care goes ahead without asking first, because there's no time or the patient can't answer |
+| View | A saved query that looks like a table and is recalculated each time it's read; `outbreak_signals` is one |
+| Seed file | Demo data loaded on purpose after the migrations; kept apart so it never mixes with the real structure |
+| DHS | Demographic and Health Surveys: large national health surveys; we use Ghana's 2022 regional percentages only |
 | Trigger (before/after) | A trigger can compare the row before and after a change, which a CHECK rule can't; we use it for "the level never goes down" |
 | Act 843 | Ghana's Data Protection Act, 2012: the law our data handling must follow |
 
