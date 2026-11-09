@@ -21,6 +21,8 @@ export interface Ctx {
   corsOrigins?: string[]
   /** Sign-in calls allowed per minute from one address, per server. Defaults to 60; the load test raises it. */
   authRatePerMinute?: number
+  /** All other calls allowed per minute from one address, per server. Defaults to 600; the load test raises it. */
+  apiRatePerMinute?: number
 }
 
 const LIVE_APP = 'https://app-hc.agroconnect.space'
@@ -64,6 +66,14 @@ export function createApp(ctx: Ctx): Express {
       res.status(503).json({ status: 'unavailable', instance: ctx.instanceId })
     }
   })
+
+  // Every route below needs sign-in and a database call, so a flood from one address could tie up the servers.
+  // 600 a minute: a whole clinic can share one address and a sync sends many calls. /health and /ready sit above
+  // this on purpose, so the ALB's checks are never refused.
+  app.use(rateLimit({
+    windowMs: 60_000, limit: ctx.apiRatePerMinute ?? 600, standardHeaders: 'draft-8', legacyHeaders: false,
+    message: { error: 'too_many_requests', message: 'Too many requests. Wait a minute and try again' },
+  }))
 
   // Password checks are slow on purpose, so unlimited sign-ins could tie up a server. The account lock doesn't
   // cover guesses across many usernames; this does. 60, not 5: a whole clinic can share one address.
