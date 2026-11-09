@@ -2,7 +2,7 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import { rateLimit } from 'express-rate-limit'
 import helmet from 'helmet'
 import { pinoHttp } from 'pino-http'
-import type { Db } from './db.js'
+import { isDatabaseOutage, type Db } from './db.js'
 import type { EventPublisher } from './events.js'
 import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
@@ -22,6 +22,8 @@ export interface Ctx {
   corsOrigins?: string[]
   /** Sign-in calls allowed per minute from one address, per server. Defaults to 60; the load test raises it. */
   authRatePerMinute?: number
+  /** All other calls allowed per minute from one address, per server. Defaults to 600; the load test raises it. */
+  apiRatePerMinute?: number
 }
 
 const LIVE_APP = 'https://app-hc.agroconnect.space'
@@ -66,6 +68,14 @@ export function createApp(ctx: Ctx): Express {
     }
   })
 
+  // Every route below needs sign-in and a database call, so a flood from one address could tie up the servers.
+  // 600 a minute: a whole clinic can share one address and a sync sends many calls. /health and /ready sit above
+  // this on purpose, so the ALB's checks are never refused.
+  app.use(rateLimit({
+    windowMs: 60_000, limit: ctx.apiRatePerMinute ?? 600, standardHeaders: 'draft-8', legacyHeaders: false,
+    message: { error: 'too_many_requests', message: 'Too many requests. Wait a minute and try again' },
+  }))
+
   // Password checks are slow on purpose, so unlimited sign-ins could tie up a server. The account lock doesn't
   // cover guesses across many usernames; this does. 60, not 5: a whole clinic can share one address.
   // ponytail: counted per server (two servers = up to double); move the count to a shared store if that matters.
@@ -84,6 +94,10 @@ export function createApp(ctx: Ctx): Express {
     const type = (error as { type?: string }).type
     if (type === 'entity.parse.failed') return void res.status(400).json({ error: 'invalid_json', message: 'Body must be JSON' })
     if (type === 'entity.too.large') return void res.status(413).json({ error: 'too_large', message: 'The request body is too large' })
+    if (isDatabaseOutage(error)) {
+      logger.error({ err: error }, 'database unreachable')
+      return void res.status(503).set('Retry-After', '15').json({ error: 'unavailable', message: 'The service is briefly unavailable. Your data is safe on your phone; try again soon' })
+    }
     logger.error({ err: error }, 'unexpected error')
     res.status(500).json({ error: 'server_error', message: 'Unexpected error' })
   })
