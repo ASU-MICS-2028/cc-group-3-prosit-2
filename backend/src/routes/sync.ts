@@ -2,7 +2,7 @@ import express, { type Express, type Request, type Response } from 'express'
 import type { Ctx } from '../app.js'
 import { logAccess, type AccessEntry } from '../audit.js'
 import { requireActor, type Actor } from '../auth.js'
-import type { Queryable } from '../db.js'
+import { lockSpecialist, type Queryable } from '../db.js'
 import { logger } from '../logging.js'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -89,6 +89,7 @@ async function project(q: Queryable, r: Json, actor: Actor) {
       const specialist = specialistOf(r)
       const role = (await q.query('SELECT role FROM practitioners WHERE id = $1 AND active', [specialist])).rows[0]?.role
       if (role !== 'specialist' && role !== 'doctor') throw rejected(422, 'unknown-specialist', 'That person is not an active doctor or specialist')
+      await lockSpecialist(q, specialist!) // the role check above already refused a missing one
       await q.query(
         `INSERT INTO appointments (id, patient_id, specialist_id, starts_at, ends_at, status) VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, starts_at = EXCLUDED.starts_at, ends_at = EXCLUDED.ends_at`,
