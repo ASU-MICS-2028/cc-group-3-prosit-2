@@ -226,7 +226,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-028: We design for Act 843 as the law and the HIPAA Security Rule as the safeguards
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no) · **Replaces:** D-005
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Elise added her yes on #49, 2026-11-06, so 4 yes) · **Replaces:** D-005
 - **Affects:** everyone; Perfect (consent, PIN lock, device encryption), Joseph (access control, audit), Eugene (encryption, backup), Elise (data minimisation)
 - **Decision:** Act 843 is the legal basis for every health-data decision. We also design against the HIPAA Security Rule's safeguard groups (access control, audit controls, integrity, person authentication, transmission security, backup) and map each to a control in the report. We write "designed against HIPAA safeguards", never "HIPAA-compliant" or "certified".
 - **Why:** The brief asks for HIPAA compliance (p.2, p.7, p.9) and the rubric scores it, but HIPAA is a US law and doesn't apply in Ghana. Using both is accurate and scores.
@@ -234,7 +234,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-029: The full brief is in scope: built breadth first, with sandbox mode for partner systems
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Eugene confirmed the AWS budget 2026-11-01) · **Replaces:** D-008
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Elise added her yes on #49, 2026-11-06, so 4 yes; Eugene confirmed the AWS budget 2026-11-01) · **Replaces:** D-008
 - **Affects:** everyone; Perfect (all screens), Joseph (splits the new backend services), Eugene (hosting and cost of the services)
 - **Decision:** Every requirement in Weeks 1–4 is Build, Build (sandbox), Design or Process, as listed in [`REQUIREMENTS-CHECKLIST.md`](../REQUIREMENTS-CHECKLIST.md); nothing is "deferred". We build in the 11 steps of [`PLAN.md`](../PLAN.md) Phase 6, breadth first: a basic screen for every role before depth anywhere, and each step proven on a real phone before the next starts. Services that need a partner system (NHIS, DHIS2, WHO, hospitals, pharmacies, SMS, payments) get a real interface and a labelled mock mode. Must-implement items on p.3 (prescription fraud checks, emergency escalation) are core.
 - **Why:** The scope changed: the brief's weeks have passed and the whole brief must be shown. Partner systems can't be reached by a student team, so a mock with the real interface is the honest way.
