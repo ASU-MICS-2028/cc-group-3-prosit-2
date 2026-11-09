@@ -55,6 +55,9 @@ broken check locally: the script exited with code 1, so CI goes red. A normal ru
 - **Stacked PRs:** if a PR is built on top of another and GitHub groups them into a "stack", the normal merge
   button and `gh pr merge` refuse. Avoid stacking. If it happens:
   `gh api -X PUT repos/ASU-MICS-2028/cc-group-3-prosit-2/pulls/<N>/merge-async -f merge_method=squash -f merge_action=direct_merge`.
+  **Deleting a merged branch closes every PR built on it** (GitHub doesn't move them to `main`; this closed #54 on 9 Nov).
+  Before deleting, move the next PR first: `gh pr edit <next> --base main`, then merge `main` into it. CI doesn't rerun
+  on a base change, so push a commit (an empty one is fine) to get fresh checks.
 - **Don't edit history.** Applied migrations, evidence files, accepted ADRs and session summaries stay as they are,
   which is why decision IDs stay `D-0xx` instead of being renamed `ADR-0xx`.
 - **`db/tests/run_tests.sh` overwrites the Lab 6 evidence file** unless you give it another output path.

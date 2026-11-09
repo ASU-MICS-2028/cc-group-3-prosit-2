@@ -62,3 +62,4 @@
 | Eugene Sewor | |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
+| 2026-11-09 | Eugene | Claude Code | Applied migrations 005 and 007 on RDS and loaded the surveillance demo data; brought README, `learnings/database.md`, `infra/README.md` and the stacked-PR note up to date | Dry run first (exactly 005 and 007 pending); `schema_migrations` lists 001–007 afterwards; 312 synthetic rows; live `/health` and `/ready` 200, new routes answer 401 without sign-in; DynamoDB table and the Lambda's `SENT_TABLE` checked in AWS |
