@@ -1,4 +1,5 @@
 import type { Session } from "../auth/types";
+import { mockPremium } from "./insurance";
 
 export type Payment = {
   id: string; purpose: "consultation_fee" | "insurance_premium"; subjectId: string; patientId: string;
@@ -59,7 +60,7 @@ export function mockPayApi(session: Session, amounts: Record<Payment["purpose"],
       if (again) return again;
       if (i.purpose === "consultation_fee" && all.some((p) => p.subjectId === i.subjectId && p.status !== "failed")) throw new PayError("already_paid", "This visit has already been paid for, or a payment is in progress.");
       const p: Payment = {
-        id: i.id, purpose: i.purpose, subjectId: i.subjectId, patientId, amount: amounts[i.purpose], currency: "GHS", network: i.network,
+        id: i.id, purpose: i.purpose, subjectId: i.subjectId, patientId, amount: (i.purpose === "insurance_premium" ? mockPremium(session.user.id, i.subjectId) : null) ?? amounts[i.purpose], currency: "GHS", network: i.network,
         status: i.phone.endsWith("0000") ? "failed" : "pending", testMode: true, simulated: true, checkoutUrl: null, createdAt: new Date().toISOString(),
       };
       save([...all, p]);

@@ -7,6 +7,7 @@ import { CallScreen, EscalationTimeline, PreCall, PriorityBadge, RangeFlag, Vita
 import { DispensedList, ImageViewer, Medicines, Prescribe, Verify } from "./prescriptions";
 import { PayFee } from "./payments";
 import { Audit, Revenue, Users } from "./admin";
+import { Insurance } from "./insurance";
 import { DAYS, Heading, KV, Rows, SLOTS, TestMode, Tiles, go, sync, type ScreenDef } from "./kit";
 
 /* ---------------- Patient ---------------- */
@@ -36,11 +37,7 @@ export const patient: Record<string, ScreenDef> = {
     <SecondaryButton>Change my choices</SecondaryButton>
   </>) },
   "patient.pay": { title: "Pay", render: () => <PayFee /> },
-  "patient.insurance": { title: "Health insurance", render: () => (<>
-    <KV k="Plan" v="Community plan" /><KV k="Premium" v="₵ 10.00 a month" /><KV k="NHIS check" v="Active (test)" />
-    <PrimaryButton>Pay this month's premium</PrimaryButton>
-    <TestMode what="NHIS and payment" />
-  </>) },
+  "patient.insurance": { title: "Health insurance", render: () => <Insurance /> },
   "patient.learn": { title: "Learn", render: () => (<Rows items={[{ name: "Eating well in pregnancy", role: "Audio · 3 min", trailing: <ListenButton /> }, { name: "Safe water", role: "Video · 2 min", trailing: sync("sent") }]} />) },
 };
 

@@ -17,7 +17,7 @@ const RECHECK_MS = 10_000
 const SYSTEM_ID = '00000000-0000-0000-0000-000000000000'
 type Row = Record<string, unknown>
 
-class Refusal extends Error {
+export class Refusal extends Error {
   constructor(readonly status: number, readonly body: Row) { super(String(body.message)) }
 }
 const invalid = (field: string, message: string) => new Refusal(400, { error: 'invalid_request', field, message })

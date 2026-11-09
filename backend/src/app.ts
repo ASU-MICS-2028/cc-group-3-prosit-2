@@ -9,6 +9,7 @@ import type { CheckoutProvider } from './votex.js'
 import { adminRoutes } from './routes/admin.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
+import { insurancePremium, insuranceRoutes } from './routes/insurance.js'
 import { patientRoutes } from './routes/patients.js'
 import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
 import { prescriptionRoutes } from './routes/prescriptions.js'
@@ -96,7 +97,8 @@ export function createApp(ctx: Ctx): Express {
   surveillanceRoutes(app, ctx)
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
-  paymentRoutes(app, ctx)
+  paymentRoutes(app, ctx, { insurance_premium: insurancePremium })
+  insuranceRoutes(app, ctx)
   adminRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
