@@ -135,7 +135,11 @@ export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id "$(terraform
 export PGHOST=localhost PGPORT=15432 PGDATABASE=healthconnect PGUSER=healthconnect_admin PGSSLMODE=require
 cd .. && db/migrate.sh --dry-run    # check what would run first
 db/migrate.sh                       # applies only what's missing, and records it in schema_migrations
+psql -v ON_ERROR_STOP=1 -f db/seed/surveillance_synthetic.sql   # demo data, not a migration; safe to re-run
 ```
+
+The database and every server are shared by the whole team: say in the team chat before you run `migrate.sh` or a seed,
+and update the RDS logbook line in [`learnings/database.md`](../learnings/database.md) afterwards.
 
 **Once, before the first new migration:** 001–003 were applied on 2026-10-22, before `db/migrate.sh` existed, so record
 them without re-running them: `db/migrate.sh --baseline 003`. See [`learnings/database.md`](../learnings/database.md).
