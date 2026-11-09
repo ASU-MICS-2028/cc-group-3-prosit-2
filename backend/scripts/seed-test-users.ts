@@ -8,6 +8,7 @@ import { hashPassword } from '../src/passwords.js'
 
 const SYSTEM_ID = '00000000-0000-0000-0000-000000000000'
 const PATIENT_ID = '00000000-0000-4000-8000-000000000002'
+const PHARMACY_ID = '00000000-0000-4000-8000-000000000021'
 
 /** username (the app's role name) → database role, id and name */
 export const TEST_USERS = [
@@ -26,6 +27,7 @@ export async function seedTestUsers(db: Db, password: string) {
   const hash = await hashPassword(password)
   await db.withTransaction(SYSTEM_ID, async (q: Queryable) => {
     await q.query(`INSERT INTO patients (id, full_name) VALUES ($1, 'Akosua Boateng') ON CONFLICT (id) DO NOTHING`, [PATIENT_ID])
+    await q.query(`INSERT INTO facilities (id, name, type, region, district) VALUES ($1, 'Test pharmacy', 'pharmacy', 'Greater Accra', 'Shai Osudoku') ON CONFLICT (id) DO NOTHING`, [PHARMACY_ID])
     for (const u of TEST_USERS) {
       await q.query(
         `INSERT INTO practitioners (id, full_name, role, facility, patient_id) VALUES ($1, $2, $3, $4, $5)
@@ -38,6 +40,12 @@ export async function seedTestUsers(db: Db, password: string) {
         [u.id, u.username, hash],
       )
     }
+    await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = $2`, [PHARMACY_ID, TEST_USERS.find((u) => u.username === 'pharmacist')!.id])
+    // The sandbox licence register (D-038): not the real GMDC list.
+    await q.query(
+      `INSERT INTO prescriber_licences (practitioner_id, licence_number, valid_until) VALUES ($1, 'MDC-TEST-0001', '2030-12-31') ON CONFLICT (practitioner_id) DO NOTHING`,
+      [TEST_USERS.find((u) => u.username === 'clinician')!.id],
+    )
   })
 }
 

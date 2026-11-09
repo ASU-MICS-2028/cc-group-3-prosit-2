@@ -68,7 +68,7 @@ _Updated 9 Nov 2026 (RDS has migrations 001–007 and the surveillance demo data
 | Task | Due | Tier | Status |
 |---|---|---|---|
 | D-035 Confirm or change "one API, not sixteen services" | Fri 6 | 1 | ✅ Confirmed 6 Nov (approved in #49) |
-| E1 Run each merged migration on RDS, keep deploys working | Daily | 1 | 🔄 001–007 applied 9 Nov; 008, 009, 011 when #57, #58, #60 merge. Still to do: seed the test sign-ins |
+| E1 Run each merged migration on RDS, keep deploys working | Daily | 1 | 🔄 001–007 applied 9 Nov; 008, 009, 011 when #57, #58, #60 merge. |
 | L6-B1b KMS key, `rds.force_ssl`, HTTPS-only bucket | Sat 7 | 1 | 🟢 Ready |
 | L6-X Why the failover dropped requests; L8-C resource audit | Sun 8 | 1, 2 | 🟢 Ready |
 | SVC-2 Media uploads to S3 | Mon 9 | 2 | 🟢 Ready |

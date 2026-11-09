@@ -8,6 +8,7 @@ import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
+import { prescriptionRoutes } from './routes/prescriptions.js'
 import { surveillanceRoutes } from './routes/surveillance.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
@@ -88,6 +89,7 @@ export function createApp(ctx: Ctx): Express {
   patientRoutes(app, ctx)
   surveillanceRoutes(app, ctx)
   syncRoutes(app, ctx)
+  prescriptionRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {

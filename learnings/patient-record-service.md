@@ -22,6 +22,12 @@ patient records, and writes down every access, while the database's own rules ma
 | `POST /sync/push` | signed-in CHV, nurse, doctor, specialist; a patient for their own bookings | The phone sends one changed record |
 | `GET /sync/pull?since=N` | signed in | Downloads what this person may see, changed after bookmark N |
 | `GET /sync/taken?specialist=&from=&to=` | anyone who can send records | A doctor's booked times, with no patient details |
+| `POST /prescriptions` | doctor or specialist, for a patient with a visit with them | Issues a prescription, runs the fraud checks |
+| `POST /prescriptions/verify` | pharmacist | Checks a code or scanned QR. Changes nothing |
+| `POST /prescriptions/:id/dispense` | pharmacist, with the patient's code | Hands it over, once |
+| `POST /prescriptions/:id/cancel` | the prescriber | Cancels an unused one |
+| `GET /prescriptions/mine` | prescriber, patient, pharmacist | Their own list |
+| `GET /pharmacies` | signed in | The sandbox pharmacy list |
 
 Built in five steps (25 Oct), each tested before the next:
 
@@ -102,6 +108,35 @@ Treat a 401 as "refresh and try again", and a network failure as `NetworkError`.
 - Field-level encryption on the server isn't built. RDS encrypts the whole disk; the phone encrypts its own copy.
 
 **Check it:** `TEST_DATABASE_URL=postgres://postgres:test@localhost:55432/postgres npm test` in `backend/`. Evidence: `evidence/final/J2-sync.txt`.
+
+### Prescriptions (FB-6, 7 Nov)
+
+**A prescription, start to finish:** the doctor issues it. The patient gets an 8-digit code and a QR. The pharmacist types or scans it, sees what to hand over, and presses Dispense. A second dispense is refused, even two at the same moment, because Elise's database trigger decides.
+
+**Why the code is safe to read out:** verifying changes nothing, dispensing needs the code as well as the id, and all of it is rate-limited and logged. The QR also carries a signature, so an altered one is refused. It holds no patient data.
+
+**Fraud checks.** These raise flags rather than blocks, because a patient can really need the same medicine twice. A pharmacist can't dispense until they've ticked that they've read them, and we record who did.
+
+| Flag | When |
+|---|---|
+| `duplicate` | The patient already has an unused prescription for this medicine |
+| `repeated` | 3 or more for this medicine in 30 days |
+| `prescriber_rate` | More than 20 from one prescriber in an hour |
+| `unlicensed` | The prescriber has no valid licence in our **test** register |
+
+**What isn't real:** the licence register and pharmacy list are our own test data, because we have no access to GMDC or a pharmacy network. The thresholds are illustrative; no regulator has reviewed them. The report says so.
+
+**The screens** are in `frontend/src/screens/prescriptions.tsx`. They use `rxApiFor(session)` in `frontend/src/data/prescriptions.ts`: the real API when `session.mode` is `live`, otherwise a test-mode stand-in with the same rules. **Perfect:** nothing extra to do; P2's `mode: "live"` switches them over. Test-mode prescriptions stay on that device, so a code from one phone won't verify on another until then.
+
+**Shared images:** there's no separate path. A photo the CHV takes is compressed on the phone and goes through sync, and the doctor's phone downloads it once the patient has a visit with them. The viewer is `clinician.images`. Zoom is a tap to enlarge, then the phone's own pinch. **Not built:** comparing two images side by side.
+
+**Not done:**
+
+- Issuing and dispensing need a signal, because the fraud checks need the server. A CHV's records work offline; a prescription doesn't.
+- Scanning uses the phone's own QR reader (`BarcodeDetector`), found on Chrome for Android but not iPhones. Typing the code always works.
+- `/prescriptions/mine` doesn't log a read for each list view. Issuing, verifying and dispensing are all logged.
+
+**Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/FB-6-api.txt`, `FB-6-*.png`.
 
 ## 3. Why it works this way
 

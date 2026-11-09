@@ -306,3 +306,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** The phone needs its record back exactly as sent, or versions and conflicts stop working. The tables are where the consent, range and double-booking rules live, and reports need them. Saving to one only would lose one or the other.
 - **Trade-off:** The same data is held twice. The last step of each push takes one lock so that bookmarks can't skip a record, which limits writes per second; the load test measures it. Photos stay in Postgres until SVC-2.
 - **Check:** `evidence/final/J2-sync.txt`.
+
+## D-038: Prescription fraud checks raise flags a pharmacist must read; the licence register is a sandbox
+
+- **Date:** 2026-11-07 · **Status:** Accepted (Joseph, API owner) · **Builds on:** D-034, D-035
+- **Affects:** Perfect (the app's prescription screens switch to the API with P2), Elise (migration `008` adds to her prescriptions table), whoever demos this
+- **Decision:** Duplicate, repeated, high-rate and unlicensed-prescriber checks raise flags rather than refuse. A pharmacist must acknowledge them before dispensing, and we record who did. Licences and pharmacies come from our own test data. Issuing and dispensing need a signal.
+- **Why:** A patient can genuinely need the same medicine twice, so a hard block would stop real care; the person at the counter decides, and it's on record. Fraud checks can't run offline, so an offline prescription could be dispensed twice at two pharmacies. We have no access to the GMDC register or a pharmacy network.
+- **Trade-off:** A doctor with no signal can't issue a prescription. The thresholds are illustrative, and no regulator or medical partner has reviewed them.
+- **Check:** `evidence/final/FB-6-api.txt`, `evidence/final/FB-6-*.png`.

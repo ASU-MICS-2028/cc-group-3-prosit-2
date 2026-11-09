@@ -136,6 +136,7 @@
 .rx-issued { background: var(--lavender-tint); color: var(--violet); }
 .rx-dispensed { background: var(--ok-bg); color: var(--ok-fg); }
 .rx-cancelled { background: var(--mist); color: var(--text-muted); }
+.rx-expired { background: var(--warn-bg); color: var(--warn-fg); }
 .conn { background: var(--ink); color: var(--on-ink); }
 .conn-weak { background: var(--warn-bg); color: var(--warn-fg); }
 .rec-pill { background: var(--surface); color: var(--danger); }
@@ -327,6 +328,11 @@
 
 /* Photos and voice notes on the patient page */
 img.photo-thumb { object-fit: cover; background: var(--lavender-tint); }
+.check-row { display: flex; align-items: flex-start; gap: var(--space-3); }
+.check-row input { flex: none; width: var(--space-6); height: var(--space-6); }
+.plain-button { display: block; width: 100%; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; }
+.photo-full { display: block; width: 100%; height: auto; border-radius: var(--radius-sm); }
+.scan-video { display: block; width: 100%; border-radius: var(--radius-sm); background: var(--mist); }
 .photo-meta audio { width: 100%; max-width: 100%; }
 .photo-tile:disabled { color: var(--text-muted); border-color: var(--mist); cursor: progress; }
 

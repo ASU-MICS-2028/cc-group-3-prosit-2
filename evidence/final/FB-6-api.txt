@@ -1,0 +1,64 @@
+FB-6 evidence: prescriptions through the real API. Signed code, one-time dispense, fraud flags.
+Mode: LOCAL API and local Postgres 16 with migrations 001-008. Live run follows after E1. Synthetic data only.
+The licence register is a sandbox, not the real GMDC list. Thresholds are illustrative.
+Screens: FB-6-*.png show the app in Test mode (it moves to this API with Perfect's P2). Date: 2026-11-07T00:42:01Z
+
+== 1. Who may prescribe ==
+A pharmacist tries to prescribe                      HTTP 403  {"error": "forbidden", "message": "A pharmacist account cannot prescribe"}
+A GHS official tries to prescribe                    HTTP 403  {"error": "forbidden", "message": "A ghs_official account cannot prescribe"}
+Doctor prescribes                                    HTTP 201  code: 8 digits (True), QR signed (True), licence: MDC-TEST-0001, flags: []
+
+== 2. Fraud check: the same medicine again ==
+Same medicine, in capitals                           HTTP 201  flags: ['duplicate']
+Third time in 30 days                                HTTP 201  flags: ['duplicate', 'repeated']
+
+== 3. Pharmacist verifies ==
+Wrong code                                           HTTP 404  {"error": "not_found", "message": "That code isn't valid. Ask the patient to check it"}
+Right code                                           HTTP 200  {"status": "active", "flags": [], "medication": "Amlodipine 5 mg", "dispensedAtPlace": null}
+Scanned QR                                           HTTP 200  {"status": "active", "flags": [], "medication": "Amlodipine 5 mg", "dispensedAtPlace": null}
+QR with the code altered                             HTTP 400  {"error": "bad_signature", "message": "That QR code has been altered, or did not come from HealthConnect"}
+A CHV tries to verify                                HTTP 403  {"error": "forbidden", "message": "A chv account cannot verify prescriptions"}
+
+== 4. Dispense once ==
+Dispense with no code                                HTTP 404  {"error": "not_found", "message": "That code isn't valid for this prescription"}
+Dispense                                             HTTP 200  {"status": "dispensed", "flags": [], "medication": "Amlodipine 5 mg", "dispensedAtPlace": "Test pharmacy"}
+SECOND dispense of the same prescription             HTTP 409  {"error": "already_dispensed", "message": "This prescription has already been dispensed. Do not give the medicine"}
+
+== 5. A flagged prescription waits for a person ==
+Dispense without reading the warnings                HTTP 409  {"error": "flags_need_review", "message": "Read these warnings first", "flags": [{"kind": "duplicate", "detail": "This patient already has an unused prescription for AMLODIPINE 5 MG", "reviewed": false}]}
+Dispense after acknowledging them                    HTTP 200  {"status": "dispensed", "flags": [{"kind": "duplicate", "detail": "This patient already has an unused prescription for AMLODIPINE 5 MG", "reviewed": true}], "medication": "AMLODIPINE 5 MG", "dispensedAtPlace": "Test pharmacy"}
+
+== 6. Cancelled ==
+Doctor cancels                                       HTTP 204
+Pharmacist tries to dispense it                      HTTP 409  {"error": "cancelled", "message": "This prescription was cancelled. Do not give the medicine"}
+
+== 7. Sandbox pharmacy network ==
+"Test pharmacy" | mode: test
+
+== 8. Every step is on record ==
+ action |  outcome  | count 
+--------+-----------+-------
+ create | denied    |     2
+ create | success   |     3
+ read   | denied    |     2
+ read   | not_found |     1
+ read   | success   |     2
+ update | denied    |     2
+ update | error     |     1
+ update | not_found |     1
+ update | success   |     3
+(9 rows)
+
+   kind    | reviewed | count 
+-----------+----------+-------
+ duplicate | f        |     1
+ duplicate | t        |     1
+ repeated  | f        |     1
+(3 rows)
+
+== 9. Test suites ==
+Backend:  8 files, 132 tests, all passed.
+Frontend: 19 files, 352 tests. All passed in most runs. One test fails now and then:
+  visitsScreens.test.tsx, "after the CHV books and it is sent, the doctor's Today lists the visit".
+  It failed in this evidence run. It also fails on a clean copy of main (1 run in 10), so this work
+  didn't cause it. It's a timing problem in that test's sign-in steps, passed to Perfect.
