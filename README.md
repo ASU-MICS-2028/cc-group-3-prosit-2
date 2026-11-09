@@ -2,6 +2,12 @@
 
 ICS 534 Cloud Computing · PROSIT 2 · Joseph Etse · Eugene Sewor · Elise Kennedy-Angbo · Perfect Avugla
 
+## The app
+
+![Three HealthConnect phone screens: asking a patient's permission, recording vitals offline, and a patient record that flags a high blood pressure reading](docs/app-screens.png)
+
+The app a community health volunteer uses, on a phone that may have no signal. The people and readings shown are made up. Screens are from 5 November.
+
 ## Architecture
 
 ![HealthConnect Ghana AWS architecture: clients, CloudFront and S3 for the PWA, a two-zone VPC with the load balancer, API Auto Scaling group, call server and RDS PostgreSQL, and the SNS to SQS to Lambda event layer](docs/architecture-healthconnect.png)
