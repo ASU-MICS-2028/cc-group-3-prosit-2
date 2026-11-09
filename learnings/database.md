@@ -151,8 +151,11 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 ## 5. What is NOT done, or is faked
 
 - **RDS logbook:** Eugene ran `db/migrate.sh --baseline 003` on RDS on 26 Oct, so `schema_migrations` there holds 001–003.
-- **L7-H2 is not live yet.** The table and permissions are in Terraform (`infra/modules/events`) but not applied:
-  Eugene applies them. Until then the deployed reminder function is the old one. No "after" evidence yet.
+  Since then: 004 and 006 applied 9 Nov morning, 005 and 007 the same afternoon, then `db/seed/surveillance_synthetic.sql`
+  (312 synthetic rows, weeks 14 Sep to 2 Nov). Numbers already taken by open PRs: 008 (#57), 009 (#58), 011 (#60); 010 is
+  kept for E-M part 2. `migrate.sh` applies a lower number that arrives late (005 ran after 006), so gaps are fine.
+- **L7-H2 is live** (checked 9 Nov): table `healthconnect-dev-reminders-sent` exists and the reminder function's
+  `SENT_TABLE` points at it. The live duplicate check (book twice, look for `duplicate_skipped`) is still to be captured.
 - **The specialist-notify function still has no duplicate check.** A repeated event notifies the specialist twice.
 - **LOINC codes:** all 9 are active and correctly labelled (cross-checked against the HL7 terminology server). Blood glucose
   has a more exact code for a finger-prick glucometer reading (`14743-9`); adding it is a future `004` migration.
