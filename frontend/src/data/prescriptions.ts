@@ -1,5 +1,15 @@
 import type { Session } from "../auth/types";
 
+/** An 8-digit code, every value equally likely. Draws past the last whole multiple of 90 million are redrawn,
+ *  so plain `% 90_000_000` can't favour the low codes (modulo bias). */
+function randomCode(): string {
+  const limit = 90_000_000 * 47; // largest multiple of 90 million below 2^32
+  for (;;) {
+    const n = crypto.getRandomValues(new Uint32Array(1))[0];
+    if (n < limit) return String(10_000_000 + (n % 90_000_000));
+  }
+}
+
 export type RxFlag = { kind: "duplicate" | "repeated" | "prescriber_rate" | "unlicensed"; detail: string; reviewed: boolean };
 export type Rx = {
   id: string; patient: { id: string; name: string };
@@ -71,7 +81,7 @@ export function mockRxApi(session: Session): RxApi {
       const flags: RxFlag[] = [];
       if (same.some((r) => statusNow(r) === "active")) flags.push({ kind: "duplicate", detail: `This patient already has an unused prescription for ${i.medication}`, reviewed: false });
       if (same.length + 1 >= 3) flags.push({ kind: "repeated", detail: `${same.length + 1} prescriptions for ${i.medication} in 30 days`, reviewed: false });
-      const code = String(10_000_000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 90_000_000));
+      const code = randomCode();
       const now = new Date();
       const rx: Stored = {
         id: i.id, patient: i.patient, medication: i.medication, dose: i.dose, frequency: i.frequency, durationDays: i.durationDays, quantity: i.quantity, instructions: i.instructions ?? null,

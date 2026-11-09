@@ -37,15 +37,21 @@ export function httpPayApi(token: string, baseUrl = API_URL): PayApi {
   };
 }
 
-const KEY = "hc.mock.payments.v1";
+/** One store per signed-in test user, so no patient id has to be written to the device (CodeQL
+ *  js/clear-text-storage-of-sensitive-data); it is added back on reading. */
+type Stored = Omit<Payment, "patientId">;
+const keyFor = (owner: string) => `hc.mock.payments.v1:${owner}`;
 const SIMULATED_DELAY_MS = 3_000;
-const load = (): Payment[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? "[]") as Payment[]; } catch { return []; } };
-const save = (all: Payment[]) => { try { localStorage.setItem(KEY, JSON.stringify(all)); } catch { /* storage full or blocked */ } };
+const loadStored = (owner: string): Stored[] => { try { return JSON.parse(localStorage.getItem(keyFor(owner)) ?? "[]") as Stored[]; } catch { return []; } };
+const saveStored = (owner: string, all: Stored[]) => { try { localStorage.setItem(keyFor(owner), JSON.stringify(all)); } catch { /* storage full or blocked */ } };
 const settled = (p: Payment): Payment => (p.status === "pending" && Date.now() - Date.parse(p.createdAt) >= SIMULATED_DELAY_MS ? { ...p, status: "successful" } : p);
 
 /** Test mode: the server's rules (backend/src/routes/payments.ts), kept on this device. No money moves. */
 export function mockPayApi(session: Session, amounts: Record<Payment["purpose"], number> = { consultation_fee: 25, insurance_premium: 10 }): PayApi {
   const patientId = session.user.patientId ?? session.user.id;
+  const owner = session.user.id;
+  const load = (): Payment[] => loadStored(owner).map((p) => ({ ...p, patientId }));
+  const save = (all: Payment[]) => saveStored(owner, all.map(({ patientId: _p, ...p }) => p));
   return {
     async start(i) {
       const all = load().map(settled);
@@ -64,7 +70,7 @@ export function mockPayApi(session: Session, amounts: Record<Payment["purpose"],
       if (!p) throw new PayError("not_found", "Unknown payment.");
       return p;
     },
-    async mine() { return load().map(settled).filter((p) => p.patientId === patientId).sort((a, b) => b.createdAt.localeCompare(a.createdAt)); },
+    async mine() { return load().map(settled).sort((a, b) => b.createdAt.localeCompare(a.createdAt)); },
   };
 }
 

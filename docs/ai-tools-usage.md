@@ -60,6 +60,7 @@
 | 2026-11-09 | Eugene | Claude Code | Applied migrations 005 and 007 on RDS and loaded the surveillance demo data; brought README, `learnings/database.md`, `infra/README.md` and the stacked-PR note up to date | Dry run first (exactly 005 and 007 pending); `schema_migrations` lists 001–007 afterwards; 312 synthetic rows; live `/health` and `/ready` 200, new routes answer 401 without sign-in; DynamoDB table and the Lambda's `SENT_TABLE` checked in AWS |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | README: app screens cropped from the progress deck | Joseph asked for them; slide checked by eye: made-up people only, and the slides with team faces were left out |
 | 2026-11-09 | Eugene | Claude Code | README: described the app screens image as part of the whole app, with every role and which parts are live | Screen list read from `frontend/src/screens/`; "live" claimed only for screens that call the API or offline store; previews say "Test mode" on screen |
+| 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Fixing a Postgres deadlock when two phones book the same doctor at once: a per-doctor lock in both booking routes | Found by a CI failure; Postgres logged the deadlocks; the race test now runs 30 rounds, failed 4 of 4 before the fix and passes after; run against Postgres 16 |
 
 ## Sign-off
 
