@@ -48,6 +48,7 @@
 | 2026-11-06 | Elise Kennedy-Angbo | Claude Code (Anthropic) | Migration `004` (roles, patient logins, facilities, referrals, emergencies, prescriptions) and its tests; a local pgAdmin setup to view the database | Elise reviewed each table's design before it was written; every rule has a test both ways, and two tests that passed for the wrong reason were found and fixed; 57 deny / 30 allow / 0 problems on Postgres 16 |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J1: sign-in routes, password hashing, role translation, CORS, migration `006`, seed script, tests | Joseph set the scope and decisions; 26 new tests cover wrong input, lockout, reuse and wrong roles; run against Postgres 16, evidence in `evidence/final/J1-login-roles.txt` |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | API behaviour when the database is unreachable: timeouts and a 503 | Found while checking the Lab 8 answer against the code; tested against a refused connection |
+| 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | Lab 8: updating the walkthrough script; drafting the answers to the four questions and our questions for the partner team | Each claim checked against the code and Terraform; the check found the database timeout gap, fixed in #55; each lead reviews their area and rehearses it |
 
 ## Sign-off
 
