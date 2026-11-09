@@ -75,3 +75,4 @@
 | Eugene Sewor | |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
+| 2026-11-09 | Eugene | Claude Code | Ran `evidence/lab9/collect.sh` (read-only) for Lab 9 Parts D and E; redacted teammates' emails from the plan; added spend before credits | Outputs checked for emails, keys and IAM users before commit; plan drift traced to newer fck-nat and Ubuntu AMIs |

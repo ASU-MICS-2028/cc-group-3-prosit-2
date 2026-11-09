@@ -1,0 +1,22 @@
+== EC2 running
+------------------------------------------------------------------
+|                        DescribeInstances                       |
++----------------------+-----------------------------+-----------+
+|  i-0df0c1e05e47f5b9a |  healthconnect-dev-fck-nat  |  t4g.nano |
+|  i-0a5c1b13ee934a046 |  healthconnect-dev-call     |  t3.micro |
+|  i-0136c2397c0334e65 |  healthconnect-dev-app      |  t3.micro |
+|  i-0c0db812ba643a686 |  healthconnect-dev-app      |  t3.micro |
++----------------------+-----------------------------+-----------+
+== RDS
+-------------------------------------------------------------
+|                    DescribeDBInstances                    |
++-----------------------------+----------------+------------+
+|  healthconnect-dev-postgres |  db.t4g.micro  |  available |
++-----------------------------+----------------+------------+
+== Load balancers
+-------------------------------------
+|       DescribeLoadBalancers       |
++------------------------+----------+
+|  healthconnect-dev-alb |  active  |
++------------------------+----------+
+== NAT gateways (expect none: we use a NAT instance)
