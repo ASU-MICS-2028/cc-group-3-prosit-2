@@ -106,7 +106,7 @@ _Elise and Joseph._
 
 **For the health worker, almost nothing.** The app works offline, so they keep recording, and the phone retries later. **The API** gives up on a connection after 5 seconds and answers 503 with a "try again" hint, rather than hanging. `/health` stays up on purpose, so the load balancer doesn't remove healthy servers and turn "no database" into "no API". `/ready` shows the real state.
 
-**A write can't half-happen:** each one is a single transaction, and a broken connection rolls it back. The retry is safe because ids come from the phone.
+**No write half-happens.** Each write is one transaction with its audit row, so it's all saved or nothing is. Retries are safe: the phone resends with the same id (D-011), so nothing is saved twice, and a repeated reminder is skipped (D-027). And when the database is back, consent and audit rules still apply, because they're in the database, not the app.
 
 **The honest limit:** RDS is in one Availability Zone (`multi_az = false`), to keep costs down. The API survives losing a zone; the database doesn't. If the zone is lost, we restore from a backup, which takes minutes and can lose recent writes, though the phones still hold what they queued. Multi-AZ is the fix, at about twice the database's cost. _Eugene adds the restore time from E3._
 
