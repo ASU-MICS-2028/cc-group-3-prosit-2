@@ -60,6 +60,8 @@
 | 2026-11-09 | Eugene | Claude Code | App-wide API rate limit (CodeQL `js/missing-rate-limiting` on every signed-in route, blocking #54 and #61); merging Joseph's stacked PRs and resolving their doc conflicts | Unit test (third call refused, `/health` never); full suite and build pass; CI and CodeQL on the PR |
 | 2026-11-09 | Eugene | Claude Code | Redrew the architecture diagram in the AWS icon set (draw.io `mxgraph.aws4`) from the Terraform as deployed | Every resource checked against `infra/` and `terraform output`; PNG rendered and inspected for overlaps; ports, CIDRs and instance sizes match the code |
 | 2026-11-09 | Eugene | Claude Code | Applied migrations 005 and 007 on RDS and loaded the surveillance demo data; brought README, `learnings/database.md`, `infra/README.md` and the stacked-PR note up to date | Dry run first (exactly 005 and 007 pending); `schema_migrations` lists 001–007 afterwards; 312 synthetic rows; live `/health` and `/ready` 200, new routes answer 401 without sign-in; DynamoDB table and the Lambda's `SENT_TABLE` checked in AWS |
+| 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | README: app screens cropped from the progress deck | Joseph asked for them; slide checked by eye: made-up people only, and the slides with team faces were left out |
+| 2026-11-09 | Eugene | Claude Code | README: described the app screens image as part of the whole app, with every role and which parts are live | Screen list read from `frontend/src/screens/`; "live" claimed only for screens that call the API or offline store; previews say "Test mode" on screen |
 
 ## Sign-off
 
