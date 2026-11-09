@@ -226,7 +226,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-028: We design for Act 843 as the law and the HIPAA Security Rule as the safeguards
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no) · **Replaces:** D-005
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Elise added her yes on #49, 2026-11-06, so 4 yes) · **Replaces:** D-005
 - **Affects:** everyone; Perfect (consent, PIN lock, device encryption), Joseph (access control, audit), Eugene (encryption, backup), Elise (data minimisation)
 - **Decision:** Act 843 is the legal basis for every health-data decision. We also design against the HIPAA Security Rule's safeguard groups (access control, audit controls, integrity, person authentication, transmission security, backup) and map each to a control in the report. We write "designed against HIPAA safeguards", never "HIPAA-compliant" or "certified".
 - **Why:** The brief asks for HIPAA compliance (p.2, p.7, p.9) and the rubric scores it, but HIPAA is a US law and doesn't apply in Ghana. Using both is accurate and scores.
@@ -234,7 +234,7 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 
 ## D-029: The full brief is in scope: built breadth first, with sandbox mode for partner systems
 
-- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Eugene confirmed the AWS budget 2026-11-01) · **Replaces:** D-008
+- **Date:** 2026-10-30 · **Status:** Accepted (team vote 2026-10-31: 3 yes, 0 no; Elise added her yes on #49, 2026-11-06, so 4 yes; Eugene confirmed the AWS budget 2026-11-01) · **Replaces:** D-008
 - **Affects:** everyone; Perfect (all screens), Joseph (splits the new backend services), Eugene (hosting and cost of the services)
 - **Decision:** Every requirement in Weeks 1–4 is Build, Build (sandbox), Design or Process, as listed in [`REQUIREMENTS-CHECKLIST.md`](../REQUIREMENTS-CHECKLIST.md); nothing is "deferred". We build in the 11 steps of [`PLAN.md`](../PLAN.md) Phase 6, breadth first: a basic screen for every role before depth anywhere, and each step proven on a real phone before the next starts. Services that need a partner system (NHIS, DHIS2, WHO, hospitals, pharmacies, SMS, payments) get a real interface and a labelled mock mode. Must-implement items on p.3 (prescription fraud checks, emergency escalation) are core.
 - **Why:** The scope changed: the brief's weeks have passed and the whole brief must be shown. Partner systems can't be reached by a student team, so a mock with the real interface is the honest way.
@@ -288,3 +288,21 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** The new backend features (SVC-1 to SVC-16) are route modules inside `patient-record-service`, sharing its database, sign-in, audit and deployment. Partner systems stay behind a small adapter with a mock mode. The event functions stay as they are.
 - **Why:** We have one week. Sixteen services would need sixteen pipelines, images and health checks, and would strain the servers and the budget for no gain at our traffic. Each module can still be split out later, and the report describes that split as the target design.
 - **Gave up:** independent scaling and deployment per service, and isolation: a bad deploy or a crash affects every feature. A larger target architecture goes in the report as design, not build.
+
+## D-036: Sign-in with a username, a hashed password and one-use refresh tokens
+
+- **Date:** 2026-11-07 · **Status:** Accepted (Joseph, API owner) · **Changes:** `npm run token` is now only for tests; the brief's login is real
+- **Affects:** Perfect (the app's sign-in screen needs a password field), Eugene (run the migration and the seed on RDS), everyone demoing the app
+- **Decision:** `POST /auth/login` checks a scrypt-hashed password and returns a one-hour token plus a 30-day refresh token that works once. Five wrong passwords lock the account for 15 minutes. Migration `006`, not `005`, because `005` is reserved for E-M part 2.
+- **Why:** Scrypt is built into Node, so no new package. A short token limits what a stolen one can do, and a long refresh lets a CHV stay signed in through weeks offline. The API still checks the role in the database on every request, so the token is never trusted for permissions.
+- **Trade-off:** The test accounts share one password, kept out of the repo. That's acceptable for synthetic data only, and would have to change before real patients (D-034). A phone that loses the reply to a refresh has to sign in again.
+- **Check:** `evidence/final/J1-login-roles.txt`.
+
+## D-037: Sync keeps the phone's record and writes it to the proper table too
+
+- **Date:** 2026-11-07 · **Status:** Accepted (Joseph, API owner) · **Builds on:** D-011, D-032
+- **Affects:** Perfect (the app's `SyncApi` can now call the real server), Elise (her rules decide what sync accepts), Eugene (a Postgres-heavy path for the load test)
+- **Decision:** `POST /sync/push` saves each record twice in one transaction: the exact FHIR copy with its version in `sync_records`, and a row in `patients`, `consents`, `observations` or `appointments`. `GET /sync/pull` uses a running number as the bookmark and filters by role on the server.
+- **Why:** The phone needs its record back exactly as sent, or versions and conflicts stop working. The tables are where the consent, range and double-booking rules live, and reports need them. Saving to one only would lose one or the other.
+- **Trade-off:** The same data is held twice. The last step of each push takes one lock so that bookmarks can't skip a record, which limits writes per second; the load test measures it. Photos stay in Postgres until SVC-2.
+- **Check:** `evidence/final/J2-sync.txt`.

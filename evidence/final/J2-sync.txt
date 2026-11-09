@@ -1,0 +1,55 @@
+J2 evidence: real sync. Upload, role-filtered download, 409 on double booking.
+Mode: LOCAL API and local Postgres 16 with migrations 001-007. Live run follows after E1. Synthetic data only.
+Date: 2026-11-07T00:20:05Z
+
+== 1. Upload ==
+CHV sends a consent before the patient arrives (retry)     HTTP 424  {"status": "retry", "reason": "patient-not-here-yet"}
+CHV sends a new patient                                    HTTP 201  {"status": "ok", "serverVersion": 1}
+CHV sends their consent                                    HTTP 201  {"status": "ok", "serverVersion": 1}
+CHV sends a temperature reading                            HTTP 201  {"status": "ok", "serverVersion": 1}
+
+== 2. A lost reply: the same record sent again ==
+Same reading, sent twice                                   HTTP 200  {"status": "duplicate", "serverVersion": 1}
+
+== 3. Conflict: someone changed it since this phone last saw it ==
+Change on the current version (1)                          HTTP 200  {"status": "ok", "serverVersion": 2}
+Different change on the old version (1)                    HTTP 409  {"status": "conflict", "serverVersion": 2}
+
+== 4. Double booking ==
+First booking, Dr. Mensah 09:00                            HTTP 201  {"status": "ok", "serverVersion": 1}
+Second patient, same doctor, same time                     HTTP 409  {"status": "rejected", "reason": "slot-taken", "error": "double_booked", "message": "Someone else booked that time first"}
+
+== 5. Role-filtered download ==
+CHV who registered them    HTTP 200  {'Appointment': 1, 'Consent': 1, 'Observation': 1, 'Patient': 2}
+Doctor with the visit      HTTP 200  {'Appointment': 1, 'Consent': 1, 'Observation': 1, 'Patient': 1}
+Pharmacist                 HTTP 200  nothing
+GHS official               HTTP 200  nothing
+Another patient            HTTP 200  nothing
+
+== 6. Wrong role and consent refused by the server ==
+Pharmacist tries to upload a patient                       HTTP 403  {"status": "rejected", "reason": "forbidden", "message": "A pharmacist account cannot send patient records"}
+Withdraw the consent                                       HTTP 200  {"status": "ok", "serverVersion": 2}
+New reading after the withdrawal                           HTTP 403  {"status": "rejected", "reason": "consent-withdrawn", "message": "Consent a57911fd-976c-443b-b6bb-4e2210c9b767 was withdrawn on 03 Nov 2026. Obtain new consent before recording."}
+
+== 7. Times already taken: no patient details ==
+GET /sync/taken                                            HTTP 200  [{"start": "2027-01-11T09:00:00.000Z", "end": "2027-01-11T09:30:00.000Z"}]
+
+== 8. In the real tables, not just the sync copy ==
+ patients | consents | observations | appointments | sync_records 
+----------+----------+--------------+--------------+--------------
+        2 |        1 |            1 |            1 |            5
+(1 row)
+
+ action |  outcome  | count 
+--------+-----------+-------
+ create | success   |     5
+ read   | success   |     9
+ update | denied    |     2
+ update | error     |     2
+ update | not_found |     1
+ update | success   |     3
+(6 rows)
+
+== 9. Test suite ==
+ Test Files  7 passed (7)
+      Tests  95 passed (95)

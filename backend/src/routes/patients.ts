@@ -27,9 +27,10 @@ export function patientRoutes(app: Express, ctx: Ctx) {
     async (req: Request, res: Response) => {
       const actor = res.locals.actor as Actor
       const id = String(req.params.id)
-      if (!READERS.has(actor.role)) {
+      // A patient's login opens their own record and nothing else.
+      if (!READERS.has(actor.role) && !(actor.role === 'patient' && actor.patientId === id)) {
         await record(entry(req, actor.id, 'denied'))
-        return void res.status(403).json({ error: 'forbidden', message: `A ${actor.role} account cannot open patient records` })
+        return void res.status(403).json({ error: 'forbidden', message: `A ${actor.role} account cannot open this patient record` })
       }
       if (!UUID.test(id)) {
         await record(entry(req, actor.id, 'error'))

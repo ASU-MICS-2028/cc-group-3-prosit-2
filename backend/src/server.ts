@@ -20,7 +20,7 @@ if (!jwtKey) logger.warn('No JWT secret configured (JWT_SECRET or JWT_SECRET_ARN
 const events = config.appointmentTopicArn ? snsPublisher(config.appointmentTopicArn, config.region) : noPublisher
 if (!config.appointmentTopicArn) logger.warn('APPOINTMENT_TOPIC_ARN not set: appointments save, but no events are published')
 
-const app = createApp({ db, instanceId: config.instanceId, jwtKey, events })
+const app = createApp({ db, instanceId: config.instanceId, jwtKey, events, ...(config.corsOrigins ? { corsOrigins: config.corsOrigins } : {}), ...(config.authRatePerMinute ? { authRatePerMinute: config.authRatePerMinute } : {}), ...(config.apiRatePerMinute ? { apiRatePerMinute: config.apiRatePerMinute } : {}) })
 const server = app.listen(config.port, () => logger.info({ port: config.port, instance: config.instanceId }, 'patient-record-service listening'))
 
 // The ASG replaces instances during a deploy: finish in-flight requests, then close the pool.
