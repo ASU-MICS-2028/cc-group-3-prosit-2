@@ -14,8 +14,12 @@
 --   CH_DIAR_C_DIA  children under 5 with diarrhoea in the 2 weeks before the survey (%)
 --   ML_PMAL_C_RDT  malaria prevalence in children 6-59 months, by rapid test (%)
 --   https://api.dhsprogram.com/rest/dhs/data?countryIds=GH&surveyIds=GH2022DHS&indicatorIds=CH_DIAR_C_DIA,ML_PMAL_C_RDT&breakdown=subnational
---   Source: ICF, The DHS Program STATcompiler / API. Regional figures only; no
---   individual-level DHS data is used (DHS terms of use, D-034).
+--   Survey: Ghana Statistical Service (GSS) and ICF. 2024. Ghana Demographic and
+--     Health Survey 2022. Accra, Ghana, and Rockville, Maryland, USA: GSS and ICF.
+--     https://www.dhsprogram.com/pubs/pdf/FR387/FR387.pdf (report FR387)
+--   Figures via: ICF. The DHS Program API. Funded by USAID.
+--     https://api.dhsprogram.com (accessed 8 November 2026)
+--   Regional figures only; no individual-level DHS data is used (DHS terms of use, D-034).
 -- Made-up output: weekly counts per district = the region's percentage x a
 -- fixed scale, +/- up to 20% steady "noise". So regions with more malaria in
 -- the survey show more malaria here, but THE COUNTS ARE NOT REAL. Every row is

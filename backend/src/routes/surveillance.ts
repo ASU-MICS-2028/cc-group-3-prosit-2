@@ -6,6 +6,8 @@ import { logger } from '../logging.js'
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 /** Surveillance is for public health staff. It shows totals only, never a patient (D-018). */
 const VIEWERS = new Set(['ghs_official', 'admin'])
+/** Confirming an outbreak is a public health decision: GHS officials only (admins can view). */
+const DECIDERS = new Set(['ghs_official'])
 
 /**
  * Disease surveillance (FB-7a, SVC-8, as a route module per D-035). The rules live in the database
@@ -69,6 +71,9 @@ export function surveillanceRoutes(app: Express, ctx: Ctx) {
   app.post('/surveillance/alerts/:id/decision', signedIn, async (req: Request, res: Response) => {
     const actor = viewer(res)
     if (!actor) return
+    if (!DECIDERS.has(actor.role)) {
+      return void res.status(403).json({ error: 'forbidden', message: 'Only a GHS official can confirm or dismiss an outbreak' })
+    }
     const id = String(req.params.id)
     const decision = req.body?.decision
     const note = typeof req.body?.note === 'string' ? req.body.note.slice(0, 500) : null
@@ -83,10 +88,14 @@ export function surveillanceRoutes(app: Express, ctx: Ctx) {
         `UPDATE outbreak_alerts
          SET status = $2, decided_by = $3, decided_at = now(), decision_note = $4,
              alert_sent_at = CASE WHEN $2 = 'confirmed' THEN now() END
-         WHERE id = $1
+         WHERE id = $1 AND status = 'suggested'
          RETURNING id, district, condition, week_start, case_count, status, decided_at, alert_sent_at`,
         [id, decision, actor.id, note],
-      )).rows[0])
+      )).rows[0] ?? (
+        // Nothing updated: either it doesn't exist, or it was already decided (a repeat must not re-send the alert).
+        (await q.query('SELECT status FROM outbreak_alerts WHERE id = $1', [id])).rows[0]?.status
+          ? { alreadyDecided: true } : undefined
+      ))
     } catch (error) {
       // The database's own rules (005): a decision stands once made.
       if ((error as { code?: string }).code === '23514') {
@@ -95,6 +104,9 @@ export function surveillanceRoutes(app: Express, ctx: Ctx) {
       throw error
     }
     if (!alert) return void res.status(404).json({ error: 'not_found', message: 'Unknown alert' })
+    if (alert.alreadyDecided) {
+      return void res.status(409).json({ error: 'already_decided', message: 'This alert was already decided and that decision stands.' })
+    }
 
     if (alert.status === 'confirmed') {
       // Test mode: no SMS provider is connected (D-029). The log line is the evidence.

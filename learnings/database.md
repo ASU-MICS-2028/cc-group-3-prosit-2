@@ -167,6 +167,14 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
   reports nothing for a quiet week should send a 0 row, or it won't be checked.
 - **Rank regions per district, not by total.** Regions report from different numbers of districts (Greater Accra 4,
   the others 1 in the demo data), so a total puts the region with more districts first. The map ranks per district.
+- **Known limits of surveillance (from Joseph's #61 review), fine for the demo:**
+  - The baseline is the previous 4 *rows*, not 4 calendar weeks: a district with gaps gets an older baseline.
+  - `/surveillance/alerts` always says `synthetic: true`; that's only right while all the data is synthetic.
+  - The dashboard's region is fixed to Greater Accra; an official elsewhere would see no open alerts there.
+  - The map marks a district for an alert from any week, not only the week shown.
+  - No rate limit on the three routes yet (CodeQL); copy the limiter from `prescriptions.ts` once #57 is merged.
+- **A decided alert is closed.** Confirming or dismissing a second time is refused (database and API: 409), so the
+  community alert is never sent twice. Only a GHS official decides; an admin can view.
 - **The surveillance data is synthetic.** It looks like Ghana because it follows the DHS percentages, but the counts
   are made up. Every screen says so; the report must too.
 - **`run_tests.sh` and pgAdmin:** if pgAdmin has the test database open, the script can't rebuild it. Close the

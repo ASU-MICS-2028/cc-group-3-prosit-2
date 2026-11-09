@@ -395,12 +395,23 @@ UPDATE outbreak_alerts SET alert_sent_at = now() WHERE id = :alert1;
 UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :chv, decided_at = now() WHERE id = :alert1;
 \echo 'SHOULD FAIL: confirmed without saying who'
 UPDATE outbreak_alerts SET status = 'confirmed', decided_at = now() WHERE id = :alert1;
+\echo 'SHOULD FAIL: an admin confirms it (admins can view, only a GHS official decides)'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :admin, decided_at = now() WHERE id = :alert1;
 SET app.user_id = '44444444-4444-4444-4444-444444444444';
 \echo 'SHOULD PASS: the GHS official confirms it and the alert goes out (test mode)'
 UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :ghs, decided_at = now(),
   decision_note = 'Matches reports from two CHPS compounds', alert_sent_at = now() WHERE id = :alert1;
 \echo 'SHOULD FAIL: change the decision afterwards'
 UPDATE outbreak_alerts SET status = 'dismissed' WHERE id = :alert1;
+\echo 'SHOULD FAIL: confirm it a second time (would send the community alert again)'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :ghs, decided_at = now(), alert_sent_at = now() WHERE id = :alert1;
+\set alert2 '''0a000000-0000-0000-0000-000000000002'''
+\echo 'SHOULD PASS: a second suggested alert is dismissed'
+INSERT INTO outbreak_alerts (id, region, district, condition, week_start, case_count, baseline, reason)
+VALUES (:alert2, 'Greater Accra', 'Tema', 'malaria', '2026-11-02', 6, 2.5, 'Test alert');
+UPDATE outbreak_alerts SET status = 'dismissed', decided_by = :ghs, decided_at = now() WHERE id = :alert2;
+\echo 'SHOULD FAIL: dismiss it a second time (a decision stands, even the same one)'
+UPDATE outbreak_alerts SET status = 'dismissed', decided_by = :ghs, decided_at = now(), decision_note = 'again' WHERE id = :alert2;
 \echo 'SHOULD FAIL: edit the figures behind the alert'
 UPDATE outbreak_alerts SET case_count = 3 WHERE id = :alert1;
 \echo 'SHOULD FAIL: delete the alert'

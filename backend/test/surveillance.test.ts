@@ -19,17 +19,20 @@ describe.skipIf(!TEST_DATABASE_URL)('surveillance (FB-7a)', () => {
   let close: () => void
   const official = randomUUID()
   const doctor = randomUUID()
+  const admin = randomUUID()
   let officialToken: string
   let doctorToken: string
+  let adminToken: string
 
   beforeAll(async () => {
     ;({ db, drop } = await freshDatabase())
     await db.withTransaction(SYSTEM_ID, async (q) => {
-      await q.query(`INSERT INTO practitioners (id, full_name, role) VALUES ($1, 'Adwoa GHS', 'ghs_official'), ($2, 'Dr Eshun', 'doctor')`, [official, doctor])
+      await q.query(`INSERT INTO practitioners (id, full_name, role) VALUES ($1, 'Adwoa GHS', 'ghs_official'), ($2, 'Dr Eshun', 'doctor'), ($3, 'Esi Admin', 'admin')`, [official, doctor, admin])
     })
     await db.query(SEED)
     officialToken = await signToken(key, official)
     doctorToken = await signToken(key, doctor)
+    adminToken = await signToken(key, admin)
     const server = createApp({ db, instanceId: 'test', jwtKey: key, events: { publish: async () => {} } }).listen(0)
     await new Promise((r) => server.once('listening', r))
     url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
@@ -84,9 +87,11 @@ describe.skipIf(!TEST_DATABASE_URL)('surveillance (FB-7a)', () => {
     expect((await decide(randomUUID(), { decision: 'confirmed' })).status).toBe(404)
   })
 
-  it('does not let a doctor decide', async () => {
+  it('does not let a doctor decide, and lets an admin view but not decide', async () => {
     const [alert] = (await (await get('/surveillance/alerts', officialToken)).json()).alerts
     expect((await decide(alert.id, { decision: 'confirmed' }, doctorToken)).status).toBe(403)
+    expect((await get('/surveillance/alerts', adminToken)).status).toBe(200)
+    expect((await decide(alert.id, { decision: 'confirmed' }, adminToken)).status).toBe(403)
   })
 
   it('lets the official confirm: the community alert goes out in test mode, and the decision then stands', async () => {
@@ -100,6 +105,13 @@ describe.skipIf(!TEST_DATABASE_URL)('surveillance (FB-7a)', () => {
     const again = await decide(alert.id, { decision: 'dismissed' })
     expect(again.status).toBe(409)
     expect((await again.json()).error).toBe('already_decided')
+
+    // The same decision again is refused too, and the alert is not sent a second time.
+    const sentAt = (await db.query('SELECT alert_sent_at FROM outbreak_alerts WHERE id = $1', [alert.id])).rows[0].alert_sent_at
+    expect((await decide(alert.id, { decision: 'confirmed', note: 'again' })).status).toBe(409)
+    const after = (await db.query('SELECT alert_sent_at, decision_note FROM outbreak_alerts WHERE id = $1', [alert.id])).rows[0]
+    expect(after.alert_sent_at).toEqual(sentAt)
+    expect(after.decision_note).toBe('Matches two CHPS reports')
 
     const row = (await db.query('SELECT decided_by FROM outbreak_alerts WHERE id = $1', [alert.id])).rows[0]
     expect(row.decided_by).toBe(official) // from the verified login, not the request

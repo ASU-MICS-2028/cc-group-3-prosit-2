@@ -80,6 +80,7 @@ export function outbreakSignals(rows: Row[]): Omit<Alert, "id" | "status" | "dec
 }
 
 const VIEWERS = new Set(["ghs", "platform_admin"]);
+const DECIDERS = new Set(["ghs"]); // a public health decision: admins can view, not decide
 const storeKey = (userId: string) => `hc.mock.surveillance.v1.${userId}`;
 
 /** Test mode only: forget this account's test decisions, so a demo can start again. Live data can't be reset. */
@@ -113,6 +114,7 @@ export function mockSurveillanceApi(session: Session): SurveillanceApi {
     },
     async decide(id, decision, note) {
       allowed();
+      if (!DECIDERS.has(session.user.role)) throw new SurveillanceError("forbidden", "Only a GHS official can confirm or dismiss an outbreak.");
       const saved = read();
       const a = saved.find((x) => x.id === id);
       if (!a) throw new SurveillanceError("not_found", "That alert doesn't exist.");

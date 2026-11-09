@@ -105,13 +105,16 @@ LANGUAGE plpgsql AS $$
 DECLARE
   decider_role  TEXT;
 BEGIN
-  IF OLD.status <> 'suggested' AND NEW.status IS DISTINCT FROM OLD.status THEN
+  -- Once decided, an alert is closed: no second decision (even the same one), no
+  -- new decider or time, and no second community alert.
+  IF OLD.status <> 'suggested' THEN
     RAISE EXCEPTION 'This alert was already % and that decision stands.', OLD.status
       USING ERRCODE = 'check_violation';
   END IF;
-  IF NEW.status <> 'suggested' AND OLD.status = 'suggested' THEN
+  IF NEW.status <> 'suggested' THEN
     SELECT role INTO decider_role FROM practitioners WHERE id = NEW.decided_by;
-    IF decider_role IS DISTINCT FROM 'ghs_official' AND decider_role IS DISTINCT FROM 'admin' THEN
+    -- A public health decision: GHS officials only. Admins can view but not decide.
+    IF decider_role IS DISTINCT FROM 'ghs_official' THEN
       RAISE EXCEPTION 'Only a GHS official can confirm or dismiss an outbreak (decided_by is %).',
         coalesce(decider_role, 'not set')
         USING ERRCODE = 'insufficient_privilege';

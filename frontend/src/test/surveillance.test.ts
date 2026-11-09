@@ -64,6 +64,17 @@ describe("surveillance, test mode (FB-7a)", () => {
     expect(again).toMatchObject({ district: "Ga East", status: "suggested", alert_sent_at: null });
   });
 
+  it("confirming twice is refused, and an admin can view but not decide", async () => {
+    const api = mockSurveillanceApi(as("ghs"));
+    const [a] = await api.alerts();
+    await api.decide(a.id, "confirmed");
+    await expect(api.decide(a.id, "confirmed")).rejects.toMatchObject({ code: "already_decided" });
+    localStorage.clear();
+    const adminApi = mockSurveillanceApi(as("platform_admin", "admin1"));
+    const [b] = await adminApi.alerts();
+    await expect(adminApi.decide(b.id, "confirmed")).rejects.toMatchObject({ code: "forbidden" });
+  });
+
   it("dismissing sends nothing", async () => {
     const api = mockSurveillanceApi(as("ghs"));
     const [a] = await api.alerts();
