@@ -345,3 +345,74 @@ SET app.user_id = '33333333-3333-3333-3333-333333333333';
 UPDATE prescriptions SET status = 'dispensed', dispensed_by = :pharm, dispensed_at = now() WHERE id = :rx2;
 \echo 'SHOULD FAIL: delete a prescription (cancel it instead)'
 DELETE FROM prescriptions WHERE id = :rx2;
+
+-- =============================================================================
+-- 005: surveillance (FB-7a)
+-- =============================================================================
+\echo '--- 005: weekly case counts ---'
+\set ghs '''44444444-4444-4444-4444-444444444444'''
+SET app.user_id = '99999999-9999-9999-9999-999999999999';
+INSERT INTO practitioners (id, full_name, role) VALUES (:ghs, 'Adwoa GHS Official', 'ghs_official');
+\echo 'SHOULD PASS: 5 weeks of synthetic totals for three districts (no patient ids anywhere)'
+INSERT INTO weekly_case_counts (week_start, region, district, condition, case_count, source)
+SELECT w, 'Greater Accra', d, 'cholera', n, 'synthetic'
+FROM (VALUES
+  ('Ga East', ARRAY[3, 2, 4, 3, 12]),     -- jumps to 12: should be flagged
+  ('Adenta',  ARRAY[1, 0, 2, 1, 4]),      -- 4 is more than double, but under 5: not flagged
+  ('Tema',    ARRAY[10, 12, 11, 9, 18])   -- 18 is under double the usual 10.5: not flagged
+) AS t(d, counts),
+LATERAL unnest(counts) WITH ORDINALITY AS c(n, i),
+LATERAL (SELECT date '2026-10-05' + (i::int - 1) * 7) AS wk(w);
+\echo 'SHOULD FAIL: a week that does not start on a Monday'
+INSERT INTO weekly_case_counts (week_start, region, district, condition, case_count, source)
+VALUES ('2026-11-04', 'Greater Accra', 'Ga East', 'cholera', 3, 'synthetic');
+\echo 'SHOULD FAIL: a negative number of cases'
+INSERT INTO weekly_case_counts (week_start, region, district, condition, case_count, source)
+VALUES ('2026-11-09', 'Greater Accra', 'Ga East', 'cholera', -1, 'synthetic');
+\echo 'SHOULD FAIL: two totals for the same district, week and condition'
+INSERT INTO weekly_case_counts (week_start, region, district, condition, case_count, source)
+VALUES ('2026-10-05', 'Greater Accra', 'Ga East', 'cholera', 7, 'synthetic');
+\echo 'SHOULD FAIL: data that does not say where it came from'
+INSERT INTO weekly_case_counts (week_start, region, district, condition, case_count)
+VALUES ('2026-11-09', 'Greater Accra', 'Ga East', 'cholera', 2);
+
+\echo '--- 005: the outbreak rule ---'
+\echo 'SHOULD PASS: only Ga East is flagged, with the reason in plain words'
+SELECT district, case_count, baseline, synthetic, reason FROM outbreak_signals;
+SELECT count(*) = 1 AND bool_and(district = 'Ga East') AS only_ga_east_flagged FROM outbreak_signals;
+
+\echo '--- 005: outbreak alerts ---'
+\set alert1 '''0a000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: the signal becomes a suggested alert'
+INSERT INTO outbreak_alerts (id, region, district, condition, week_start, case_count, baseline, reason)
+SELECT :alert1, region, district, condition, week_start, case_count, baseline, reason FROM outbreak_signals;
+\echo 'SHOULD FAIL: the same signal suggested twice'
+INSERT INTO outbreak_alerts (region, district, condition, week_start, case_count, baseline, reason)
+SELECT region, district, condition, week_start, case_count, baseline, reason FROM outbreak_signals;
+\echo 'SHOULD FAIL: a community alert for an outbreak nobody has confirmed'
+UPDATE outbreak_alerts SET alert_sent_at = now() WHERE id = :alert1;
+\echo 'SHOULD FAIL: a CHV confirms the outbreak'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :chv, decided_at = now() WHERE id = :alert1;
+\echo 'SHOULD FAIL: confirmed without saying who'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_at = now() WHERE id = :alert1;
+\echo 'SHOULD FAIL: an admin confirms it (admins can view, only a GHS official decides)'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :admin, decided_at = now() WHERE id = :alert1;
+SET app.user_id = '44444444-4444-4444-4444-444444444444';
+\echo 'SHOULD PASS: the GHS official confirms it and the alert goes out (test mode)'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :ghs, decided_at = now(),
+  decision_note = 'Matches reports from two CHPS compounds', alert_sent_at = now() WHERE id = :alert1;
+\echo 'SHOULD FAIL: change the decision afterwards'
+UPDATE outbreak_alerts SET status = 'dismissed' WHERE id = :alert1;
+\echo 'SHOULD FAIL: confirm it a second time (would send the community alert again)'
+UPDATE outbreak_alerts SET status = 'confirmed', decided_by = :ghs, decided_at = now(), alert_sent_at = now() WHERE id = :alert1;
+\set alert2 '''0a000000-0000-0000-0000-000000000002'''
+\echo 'SHOULD PASS: a second suggested alert is dismissed'
+INSERT INTO outbreak_alerts (id, region, district, condition, week_start, case_count, baseline, reason)
+VALUES (:alert2, 'Greater Accra', 'Tema', 'malaria', '2026-11-02', 6, 2.5, 'Test alert');
+UPDATE outbreak_alerts SET status = 'dismissed', decided_by = :ghs, decided_at = now() WHERE id = :alert2;
+\echo 'SHOULD FAIL: dismiss it a second time (a decision stands, even the same one)'
+UPDATE outbreak_alerts SET status = 'dismissed', decided_by = :ghs, decided_at = now(), decision_note = 'again' WHERE id = :alert2;
+\echo 'SHOULD FAIL: edit the figures behind the alert'
+UPDATE outbreak_alerts SET case_count = 3 WHERE id = :alert1;
+\echo 'SHOULD FAIL: delete the alert'
+DELETE FROM outbreak_alerts WHERE id = :alert1;
