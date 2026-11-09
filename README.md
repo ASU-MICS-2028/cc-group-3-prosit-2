@@ -2,6 +2,31 @@
 
 ICS 534 Cloud Computing · PROSIT 2 · Joseph Etse · Eugene Sewor · Elise Kennedy-Angbo · Perfect Avugla
 
+## The app
+
+![Three HealthConnect phone screens: asking a patient's permission, recording vitals offline, and a patient record that flags a high blood pressure reading](docs/app-screens.png)
+
+Three screens from the community health volunteer's visit to a patient, in order: **ask permission first**, then
+**record vitals** (this works with no signal and syncs later), then the patient's record, which **flags a reading for a
+clinician to check**. People and readings are made up; screens from 5 November.
+
+These are three of about 60 screens. HealthConnect is one installable web app (PWA) with eight roles, and each person
+sees only their own role's screens after signing in:
+
+| Role | What they do in the app | State |
+|---|---|---|
+| **Community health volunteer** | Register patients, record permission and vitals offline, sync when there's signal, book visits, join video visits, refer, raise an emergency, surveys, mothers and babies, learning | Working with live data: patients, permission, vitals, sync, booking, video visits, photos. The rest are previews |
+| **Patient** | Their visits, video visits, their permissions, paying the fee, health insurance, learning | Video visits work; the rest are previews |
+| **Clinician** | Today's patients, patient records, shared images, video visits, referrals and emergencies, prescribing | Video visits work; prescribing is in review (#57) |
+| **Pharmacist** | Verify a prescription, queue, stock | In review (#57) |
+| **Traditional healer** | Their patients, remedies in use | Preview |
+| **Ghana Health Service official** | Surveillance dashboard, disease map, outbreak alerts, policy and SDG 3 views | Surveillance, map and alerts work with synthetic data; policy and SDG views are previews |
+| **Health centre admin** | Staff, stock, training, reports for their own facility | Preview |
+| **Platform admin** | Users, roles, audit log, settings | In review (#59) |
+
+"Preview" screens show sample rows and say so on the screen ("Test mode"); they are connected to the API task by task
+(see the task tables below).
+
 ## Architecture
 
 ![HealthConnect Ghana AWS architecture: clients, CloudFront and S3 for the PWA, a two-zone VPC with the load balancer, API Auto Scaling group, call server and RDS PostgreSQL, and the SNS to SQS to Lambda event layer](docs/architecture-healthconnect.png)
