@@ -3,9 +3,9 @@
 | | |
 | --- | --- |
 | Created | 21 Oct 2026 |
-| Last updated | 21 Oct 2026 |
+| Last updated | 9 Nov 2026 (added migrations 004–007) |
 | Lab | Lab 6 Part C |
-| Schema version | migrations 001–003 (21 Oct 2026) |
+| Schema version | migrations 001–007 (9 Nov 2026) |
 | FHIR version | R4 (4.0.1) |
 | Status | Draft for team review (mapping, gap analysis, data minimisation) |
 
@@ -29,6 +29,15 @@
 | `access_log` | AuditEvent | Good |
 | `audit_trail` | AuditEvent + Provenance | Good |
 | `loinc_codes` | No resource; a stand-in for a terminology server | n/a |
+| `facilities` (004) | Location (+ Organization) | Good |
+| `referrals` (004) | ServiceRequest | Good |
+| `emergencies` (004) | Flag (+ Communication for the alert) | Partial |
+| `prescriptions` (004) | MedicationRequest (+ MedicationDispense) | Partial: medicines are text, not codes |
+| `weekly_case_counts` (005) | MeasureReport | Partial |
+| `outbreak_alerts` (005) | DetectedIssue (closest) + Communication | Partial |
+| `practitioner_credentials`, `refresh_tokens` (006) | none: sign-in secrets, not health data | n/a |
+| `login_events` (006) | AuditEvent (login) | Good |
+| `sync_records` (007) | The phone's FHIR-shaped JSON, stored as sent | Good: already FHIR-shaped |
 | `created_*` / `updated_*` columns | `meta.lastUpdated` + Provenance | Partial |
 
 ---
@@ -90,7 +99,10 @@ Ama's reading as FHIR, built only from our columns:
 | `full_name` | `Practitioner.name[0].text` | 🔁 | Same family/given split as Patient |
 | `active` | `Practitioner.active` | ✅ | |
 | `role` | `PractitionerRole.code` | 🔁 | FHIR keeps role separately, so one person can hold several roles at several facilities; we allow one |
-| `facility` | `PractitionerRole.location` | ❌ | FHIR expects a Location/Organization resource; we store text |
+| `facility` | `PractitionerRole.location` | ❌ | Old free-text column, kept (never rewrite history); replaced by `facility_id` |
+| `facility_id` (004) | `PractitionerRole.location` | ✅ | `Reference(Location)` to the new `facilities` table |
+| `role` = `patient` (004) | none | ❌ | A patient login isn't a Practitioner. On export, these rows are skipped; the person is the Patient their `patient_id` points to |
+| `patient_id` (004) | none | ❌ | Internal sign-in link: a patient login opens only its own record |
 
 ## consents → Consent
 
@@ -147,6 +159,89 @@ Ama's reading as FHIR, built only from our columns:
 
 This table is a **local stand-in for a terminology server**. A real FHIR setup checks codes with `ValueSet/$validate-code` against the full LOINC catalogue (100,000+ codes). We check against our list of 9 (DATA-002).
 
+## facilities → Location (+ Organization)
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `id` | `Location.id` | ✅ | |
+| `name` | `Location.name` | ✅ | |
+| `type` | `Location.type` | 🔁 | `chps`, `health_centre`, `clinic`, `hospital`, `pharmacy` → codes from a local CodeSystem (HL7's ServiceDeliveryLocationRoleType has no CHPS) |
+| `region`, `district` | `Location.address.state`, `.district` | ✅ | |
+| `active` | `Location.status` | 🔁 | true → `active`, false → `inactive` |
+
+## referrals → ServiceRequest
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `id` | `ServiceRequest.id` | ✅ | |
+| `patient_id` | `ServiceRequest.subject` | ✅ | `Reference(Patient)` |
+| `to_practitioner_id`, `to_facility_id` | `ServiceRequest.performer` | ✅ | `Reference(Practitioner)` and/or `Reference(Location)` |
+| `reason` | `ServiceRequest.reasonCode.text` | 🔁 | Free text; no SNOMED code yet |
+| `priority` | `ServiceRequest.priority` | 🔁 | `emergency` → `stat`, `urgent` → `urgent`, `soon` → `asap`, `routine` → `routine` |
+| `priority_reason` | `ServiceRequest.note` | 🔁 | Why that priority, in words |
+| `status` | `ServiceRequest.status` | 🔁 | `pending` → `active`, `accepted` → `active`, `completed` → `completed`, `declined`/`cancelled` → `revoked` |
+| `consent_id` | `ServiceRequest.supportingInfo` | 🔁 | `Reference(Consent)` |
+| `created_at`, `created_by` | `.authoredOn`, `.requester` | ✅ | |
+
+## emergencies → Flag (+ Communication)
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `id` | `Flag.id` | ✅ | |
+| `patient_id` | `Flag.subject` | 🔁 | Optional here (the person may not be registered); FHIR requires a subject, so an unknown person exports with the Location as subject |
+| `description` | `Flag.code.text` | 🔁 | Free text |
+| `status` | `Flag.status` | 🔁 | `raised`/`acknowledged` → `active`, `resolved`/`cancelled` → `inactive` |
+| `created_at`, `resolved_at` | `Flag.period.start`, `.end` | ✅ | |
+| `escalation_level`, `escalated_at`, `acknowledged_by`, `acknowledged_at` | none | ❌ | FHIR has no escalation workflow on Flag; each step would be a `Communication`, or an extension |
+| `facility_id`, `location_note` | `Flag.encounter` / extension | ❌ | No clean element for where it is happening |
+
+## prescriptions → MedicationRequest (+ MedicationDispense)
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `id` | `MedicationRequest.id` | ✅ | |
+| `patient_id` | `MedicationRequest.subject` | ✅ | |
+| `medication` | `MedicationRequest.medicationCodeableConcept.text` | 🔁 | Text only, no medicine code (gap #12) |
+| `dose`, `frequency`, `instructions` | `MedicationRequest.dosageInstruction.text` | 🔁 | Text; FHIR can also hold a structured `timing` and `doseAndRate` |
+| `duration_days`, `quantity` | `.dispenseRequest.expectedSupplyDuration`, `.quantity` | ✅ | |
+| `expires_at` | `.dispenseRequest.validityPeriod.end` | ✅ | |
+| `verification_code` | `MedicationRequest.identifier` | 🔁 | The code the pharmacist scans |
+| `status` | `MedicationRequest.status` | 🔁 | `active` → `active`, `dispensed` → `completed`, `cancelled` → `cancelled`, `expired` → `stopped` |
+| `consent_id` | `.supportingInformation` | 🔁 | `Reference(Consent)` |
+| `created_by` | `.requester` | ✅ | The prescriber |
+| `dispensed_by`, `dispensed_at`, `dispensed_facility_id` | `MedicationDispense.performer`, `.whenHandedOver`, `.location` | 🔁 | FHIR records dispensing as a separate resource that points back (`authorizingPrescription`) |
+
+## weekly_case_counts → MeasureReport
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `district`, `region` | `MeasureReport.subject` | 🔁 | `Reference(Location)` for the district |
+| `week_start` | `MeasureReport.period` | ✅ | Start = Monday, end = Sunday |
+| `condition` | `MeasureReport.group.code` | 🔁 | Plain words, not ICD-10 codes (gap #13) |
+| `case_count` | `MeasureReport.group.population.count` | ✅ | |
+| `source` | `MeasureReport.status` + a tag | 🔁 | `synthetic` rows are tagged so they're never mistaken for real reports (D-034) |
+
+No patient fields at all: these are totals (D-018).
+
+## outbreak_alerts → DetectedIssue (closest) + Communication
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `reason`, `case_count`, `baseline` | `DetectedIssue.detail`, `.evidence` | 🔁 | DetectedIssue is meant for clinical issues; a public-health signal is a stretch |
+| `status` | `DetectedIssue.status` | 🔁 | `suggested` → `preliminary`, `confirmed` → `final`, `dismissed` → `cancelled` |
+| `decided_by`, `decided_at`, `decision_note` | `DetectedIssue.mitigation` | 🔁 | Who decided, when, why |
+| `alert_sent_at` | `Communication.sent` | 🔁 | The community alert (test mode) |
+
+## practitioner_credentials, refresh_tokens, login_events (006, Joseph)
+
+Sign-in data, not health data: no FHIR resource for the first two (and they must never be exported). `login_events` maps
+to `AuditEvent` with type `110114` (user authentication), like `access_log`.
+
+## sync_records (007, Joseph)
+
+The phone already builds FHIR-shaped JSON (`Patient`, `Consent`, `Observation`, `Media`, `Appointment`), and this table
+keeps each one as sent, with a version. That's closer to FHIR than our tables are, but it's still not a FHIR API (gap #3).
+
 ---
 
 # Gap Analysis
@@ -180,11 +275,14 @@ Ordered by impact: the first rows would stop a real integration; the last are co
 | 4 | **No Encounter** | Readings aren't tied to a visit, so a clinician can't see "everything from Tuesday's triage" as one event | `encounters` table; `observations.encounter_id` | Medium |
 | 5 | **Blood pressure as two linked rows** | FHIR expects one Observation (`85354-9`) with systolic and diastolic components | Translation layer merges rows sharing `group_id`; no schema change | Low |
 | 6 | **Name stored as one field** | FHIR HumanName splits family and given. Ghanaian names (day names, varied surname conventions) make an automatic split unreliable | Capture family and given names at registration; keep `text` as entered | Low–Medium |
-| 7 | **Facility as text** | FHIR expects Location / Organization resources, which national registries hold | `facilities` table keyed to the Ghana Health Service facility list | Medium |
+| 7 | **Facility as text** (partly closed by 004) | FHIR expects Location / Organization resources, which national registries hold | Done: `facilities` table and `practitioners.facility_id`. Still to do: key it to the Ghana Health Service facility list | Low |
 | 8 | **Consent details** | Only `clinical_care` has a standard code (`TREAT`); no policy reference; a guardian's identity isn't stored | Local CodeSystem for reminder and advisory purposes; `Consent.policy` → Act 843; RelatedPerson for guardians | Low |
 | 9 | **Language and region as free text** | FHIR expects codes (BCP-47 languages; region codes) | CHECK constraints or lookup tables, like `loinc_codes` | Low |
 | 10 | **`birth_date_estimated` has no core element** | Lost in translation unless defined | Custom extension, published with our profile | Low |
 | 11 | **Who-did-what is in columns, not Provenance** | FHIR tools expect Provenance resources | Generated from `created_by` / `updated_by` / `audit_trail` by the translation layer | Low |
+| 12 | **Medicines as text** (004) | A pharmacy system can't tell that "Amoxicillin 500 mg capsule" and "amoxicillin 500mg" are the same, and fraud checks compare words | A medicine code list (e.g. WHO ATC, or Ghana's essential medicines list) as a lookup table, like `loinc_codes` | Medium |
+| 13 | **Surveillance conditions as words** (005) | DHIS2 and WHO reporting expect ICD-10 codes | Map the six conditions to ICD-10 (e.g. cholera `A00`, malaria `B54`) in a lookup table | Low |
+| 14 | **Patient logins live in `practitioners`** (004) | FHIR keeps patients and staff apart; an export must skip `role = 'patient'` rows | A separate `user_accounts` table later; for now the export filters them | Low |
 
 ## What we'd say in Lab 8
 
@@ -237,6 +335,15 @@ The schema cleanly converts to FHIR R4, but HealthConnect can't yet *exchange* d
 
 **Finding 4: the audit trail must not become a second copy of identity data.** `audit_trail` stores real values for clinical fields but only *field names* for `full_name`, `phone` and `date_of_birth` (D-015).
 
+**Finding 5 (9 Nov, migrations 004–007): the new tables.**
+
+| Data | Purpose | Decision |
+| --- | --- | --- |
+| `weekly_case_counts` | 4 (public health reporting) | Totals only; no personal data at all (D-018) |
+| `referrals.reason`, `prescriptions.*` | 1, 2 (triage, care) | Needed to treat; covered by clinical-care consent (D-012) |
+| `emergencies.location_note` | 1 (triage) | Kept, but only for emergencies: it's how help finds the patient. It can describe a home, which Finding 3 otherwise avoids, so it should hold a place description, never GPS, and be shown only to responders |
+| `sync_records.resource` | Delivering the patient's own records to the phones that may see them | **A second full copy of each record, names and phone numbers included.** Unlike `audit_trail`, it isn't redacted, and it isn't in the change history. Needed for syncing; it must get the same access rules as `patients`, and the retention rule must cover it. Raised with Joseph |
+
 **Needs legal review (Joseph, L5-C2):** the exact Act 843 section numbers for the minimality principle, purpose specification, consent, special personal data and retention.
 
 ## Sources
@@ -244,4 +351,5 @@ The schema cleanly converts to FHIR R4, but HealthConnect can't yet *exchange* d
 - [HL7 FHIR R4 specification](https://hl7.org/fhir/R4/): resource definitions used for every mapping above
 - [AWS HealthLake data store: supports R4 only](https://docs.amazonaws.cn/AWSCloudFormation/latest/UserGuide/aws-resource-healthlake-fhirdatastore.html)
 - [Health Samurai: Getting ready for FHIR R6](https://www.health-samurai.io/articles/getting-ready-for-fhir-r6-what-you-need-to-know): R4 adoption, R5 uptake, R6 timeline
-- LOINC codes in `002_loinc_reference.sql`: **to be verified on [loinc.org](https://loinc.org/)** before migration 002 is applied
+- LOINC codes in `002_loinc_reference.sql`: all 9 are active and correctly labelled (checked 26 Oct 2026 against the HL7 terminology server; loinc.org itself blocks automated checks). FHIR R4 wants `2708-6` for oxygen saturation on export, with our `59408-5` as an extra code; `14743-9` (glucometer) fits a finger-prick glucose reading better than `15074-8`
+- [Ghana DHS 2022 (GSS and ICF, 2024)](https://www.dhsprogram.com/pubs/pdf/FR387/FR387.pdf): regional figures behind the synthetic surveillance data (D-034)
