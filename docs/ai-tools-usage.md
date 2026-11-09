@@ -55,6 +55,7 @@
 | 2026-11-09 | Eugene | Claude Code | App-wide API rate limit (CodeQL `js/missing-rate-limiting` on every signed-in route, blocking #54 and #61); merging Joseph's stacked PRs and resolving their doc conflicts | Unit test (third call refused, `/health` never); full suite and build pass; CI and CodeQL on the PR |
 | 2026-11-09 | Eugene | Claude Code | Redrew the architecture diagram in the AWS icon set (draw.io `mxgraph.aws4`) from the Terraform as deployed | Every resource checked against `infra/` and `terraform output`; PNG rendered and inspected for overlaps; ports, CIDRs and instance sizes match the code |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | README: app screens cropped from the progress deck | Joseph asked for them; slide checked by eye: made-up people only, and the slides with team faces were left out |
+| 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Fixing a Postgres deadlock when two phones book the same doctor at once: a per-doctor lock in both booking routes | Found by a CI failure; Postgres logged the deadlocks; the race test now runs 30 rounds, failed 4 of 4 before the fix and passes after; run against Postgres 16 |
 
 ## Sign-off
 

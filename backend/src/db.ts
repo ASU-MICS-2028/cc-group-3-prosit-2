@@ -8,6 +8,13 @@ export interface Queryable {
   query(sql: string, params?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>
 }
 
+/**
+ * Bookings for one doctor take turns until the transaction ends. Two inserts racing on the no-double-booking
+ * rule can deadlock in Postgres, and the loser would get a server error instead of "that time is taken".
+ */
+export const lockSpecialist = (q: Queryable, specialistId: string) =>
+  q.query('SELECT pg_advisory_xact_lock($1, hashtext($2))', [7003, specialistId])
+
 export interface Db extends Queryable {
   /**
    * Runs `fn` in one transaction on one connection. The acting practitioner is set first
