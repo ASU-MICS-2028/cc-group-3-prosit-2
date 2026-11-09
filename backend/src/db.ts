@@ -25,6 +25,19 @@ interface DbCredentials {
 }
 
 /**
+ * Without these, a request hangs for as long as the database is unreachable. With them it fails in seconds, the
+ * API answers 503, and the phone keeps its records and tries later. Also the limit on waiting for a free connection.
+ */
+export const OUTAGE_LIMITS = { connectionTimeoutMillis: 5_000, statement_timeout: 15_000 }
+
+/** True when the fault is reaching the database, not a bug: the caller should try again shortly. */
+export function isDatabaseOutage(error: unknown): boolean {
+  const { code, message } = error as { code?: string; message?: string }
+  return ['ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'EHOSTUNREACH', 'EPIPE', '57P01', '57P03', '57014', '53300'].includes(code ?? '')
+    || /timeout exceeded when trying to connect|Connection terminated/i.test(message ?? '')
+}
+
+/**
  * Postgres on RDS, or any DATABASE_URL for local work. On RDS the password is fetched for every new
  * connection, so a rotated secret is picked up without a restart, and TLS is verified against the RDS CA.
  */
@@ -47,7 +60,7 @@ export async function createPgDb(config: Config): Promise<Db> {
     }
   }
 
-  return dbFromPool(new pg.Pool({ max: 10, idleTimeoutMillis: 30_000, ...poolConfig }))
+  return dbFromPool(new pg.Pool({ max: 10, idleTimeoutMillis: 30_000, ...OUTAGE_LIMITS, ...poolConfig }))
 }
 
 /** Wraps a pool as our `Db`. Exported so tests can point it at a throwaway database. */

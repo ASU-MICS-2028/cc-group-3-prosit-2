@@ -76,10 +76,14 @@ routes keep working, and `/auth/login` answers 500 until the tables exist.
 - **CORS** (telling browsers which websites may call us) allows only `https://app-hc.agroconnect.space`. Add a laptop with `CORS_ORIGINS=http://localhost:5173`. It doesn't replace sign-in.
 - **Every attempt** goes in `login_events`, which can't be changed afterwards.
 - **Rate limit:** 60 calls to `/auth` per minute from one address, per server, using `express-rate-limit`. **Eugene: a load test from one machine needs `AUTH_RATE_PER_MINUTE` raised, or it logs in once per test user beforehand.**
+- **Rate limit on everything else:** 600 calls a minute from one address, per server (`API_RATE_PER_MINUTE`), added 9 Nov after CodeQL flagged every signed-in route. `/health` and `/ready` are above it, so the ALB is never refused. **Eugene: raise it, and `AUTH_RATE_PER_MINUTE`, for the load test.**
 
 **Not done:** a phone that loses the reply to a refresh has to sign in again. No password reset or self-service change yet (a re-seed resets test users). The lock is per account, not per IP, so someone could lock a known username on purpose.
 
 **Check it:** `TEST_DATABASE_URL=postgres://postgres:test@localhost:55432/postgres npm test` in `backend/`. Evidence: `evidence/final/J1-login-roles.txt`.
+### If the database is unreachable (7 Nov)
+
+A connection attempt gives up after 5 seconds, and a query after 15. The API then answers **503** with `Retry-After: 15`, not a hang and not a 500. `/health` stays 200 on purpose: the servers are fine, and pulling them all from the load balancer would only turn "no database" into "no API". `/ready` answers 503. **Perfect:** treat a 503 from sync as `NetworkError`, so the phone keeps its records and tries again.
 
 ### Real sync (J2, 7 Nov)
 
