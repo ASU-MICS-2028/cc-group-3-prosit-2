@@ -3,6 +3,7 @@ import type { Ctx } from '../app.js'
 import { logAccess, type AccessEntry } from '../audit.js'
 import { requireActor, type Actor } from '../auth.js'
 import { logger } from '../logging.js'
+import { lockSpecialist } from '../db.js'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 /** Roles that may book. GHS officials see aggregates only; the system account never books. */
@@ -77,6 +78,7 @@ export function appointmentRoutes(app: Express, ctx: Ctx) {
         const role = spec.rows[0]?.role
         if (role !== 'specialist' && role !== 'doctor') throw invalid('specialist_id', 'specialist_id is not an active specialist or doctor')
 
+        await lockSpecialist(q, booking.specialist_id)
         const inserted = await q.query(
           `INSERT INTO appointments (id, patient_id, specialist_id, starts_at, ends_at)
            VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO NOTHING RETURNING *`,

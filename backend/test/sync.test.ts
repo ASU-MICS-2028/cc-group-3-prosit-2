@@ -33,13 +33,14 @@ describe.skipIf(!TEST_DATABASE_URL)('sync', () => {
   let close: () => void
   const events: J[] = []
   let failEvents = false
+  const racer = randomUUID(), raceDoctor = randomUUID() // their own accounts: the race test's records would fill other tests' download pages
   const chv = randomUUID(), chv2 = randomUUID(), doctor = randomUUID(), doctor2 = randomUUID(), pharmacist = randomUUID(), ghs = randomUUID()
   const tok: Record<string, string> = {}
 
   beforeAll(async () => {
     ;({ db, drop } = await freshDatabase(12))
     await db.withTransaction(SYSTEM_ID, async (q) => {
-      for (const [id, role] of [[chv, 'chv'], [chv2, 'chv'], [doctor, 'doctor'], [doctor2, 'specialist'], [pharmacist, 'pharmacist'], [ghs, 'ghs_official']] as const) {
+      for (const [id, role] of [[racer, 'chv'], [raceDoctor, 'doctor'], [chv, 'chv'], [chv2, 'chv'], [doctor, 'doctor'], [doctor2, 'specialist'], [pharmacist, 'pharmacist'], [ghs, 'ghs_official']] as const) {
         await q.query(`INSERT INTO practitioners (id, full_name, role) VALUES ($1, $2, $3)`, [id, `Test ${role}`, role])
         tok[id] = await signToken(key, id)
       }
@@ -159,11 +160,14 @@ describe.skipIf(!TEST_DATABASE_URL)('sync', () => {
       expect((await db.query('SELECT 1 FROM appointments WHERE id = $1', [second])).rows).toHaveLength(0)
     })
     it('lets exactly one win when two phones book the same time at once', async () => {
-      const a = await setup(), b = await setup()
-      const start = nextSlot()
-      const results = await Promise.all([a, b].map((x) => push(chv, visit(randomUUID(), x.p, doctor, start))))
-      expect(results.map((r) => r.status).sort()).toEqual(['ok', 'rejected'])
-    })
+      // Many rounds: the two inserts used to deadlock only about one time in ten.
+      for (let round = 0; round < 30; round++) {
+        const a = await setup(racer), b = await setup(racer)
+        const start = nextSlot()
+        const results = await Promise.all([a, b].map((x) => push(racer, visit(randomUUID(), x.p, raceDoctor, start))))
+        expect(results.map((r) => r.status).sort()).toEqual(['ok', 'rejected'])
+      }
+    }, 30_000)
     it('frees the time when a visit is cancelled', async () => {
       const a = await setup(), b = await setup()
       const start = nextSlot(), id = randomUUID()
