@@ -297,3 +297,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Why:** Scrypt is built into Node, so no new package. A short token limits what a stolen one can do, and a long refresh lets a CHV stay signed in through weeks offline. The API still checks the role in the database on every request, so the token is never trusted for permissions.
 - **Trade-off:** The test accounts share one password, kept out of the repo. That's acceptable for synthetic data only, and would have to change before real patients (D-034). A phone that loses the reply to a refresh has to sign in again.
 - **Check:** `evidence/final/J1-login-roles.txt`.
+
+## D-037: Sync keeps the phone's record and writes it to the proper table too
+
+- **Date:** 2026-11-07 · **Status:** Accepted (Joseph, API owner) · **Builds on:** D-011, D-032
+- **Affects:** Perfect (the app's `SyncApi` can now call the real server), Elise (her rules decide what sync accepts), Eugene (a Postgres-heavy path for the load test)
+- **Decision:** `POST /sync/push` saves each record twice in one transaction: the exact FHIR copy with its version in `sync_records`, and a row in `patients`, `consents`, `observations` or `appointments`. `GET /sync/pull` uses a running number as the bookmark and filters by role on the server.
+- **Why:** The phone needs its record back exactly as sent, or versions and conflicts stop working. The tables are where the consent, range and double-booking rules live, and reports need them. Saving to one only would lose one or the other.
+- **Trade-off:** The same data is held twice. The last step of each push takes one lock so that bookmarks can't skip a record, which limits writes per second; the load test measures it. Photos stay in Postgres until SVC-2.
+- **Check:** `evidence/final/J2-sync.txt`.

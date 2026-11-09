@@ -19,6 +19,9 @@ patient records, and writes down every access, while the database's own rules ma
 | `POST /auth/refresh` | anyone with a refresh token | Swaps it for a new pair. Each one works once |
 | `POST /auth/logout` | anyone with a refresh token | Ends that sign-in |
 | `GET /auth/me` | signed in | Who am I, with the app's role name |
+| `POST /sync/push` | signed-in CHV, nurse, doctor, specialist; a patient for their own bookings | The phone sends one changed record |
+| `GET /sync/pull?since=N` | signed in | Downloads what this person may see, changed after bookmark N |
+| `GET /sync/taken?specialist=&from=&to=` | anyone who can send records | A doctor's booked times, with no patient details |
 
 Built in five steps (25 Oct), each tested before the next:
 
@@ -69,6 +72,36 @@ routes keep working, and `/auth/login` answers 500 until the tables exist.
 ### If the database is unreachable (7 Nov)
 
 A connection attempt gives up after 5 seconds, and a query after 15. The API then answers **503** with `Retry-After: 15`, not a hang and not a 500. `/health` stays 200 on purpose: the servers are fine, and pulling them all from the load balancer would only turn "no database" into "no API". `/ready` answers 503. **Perfect:** treat a 503 from sync as `NetworkError`, so the phone keeps its records and tries again.
+
+### Real sync (J2, 7 Nov)
+
+**For Perfect (P2):** these three match `SyncApi` in `frontend/src/data/sync.ts`. An adapter only has to add the token and read the JSON:
+
+| Call | Answer |
+|---|---|
+| `POST /sync/push` with the app's `PushRequest` | The body is always a `PushResult`, whatever the status: 201 or 200 `ok`, 200 `duplicate`, 409 `conflict` (with the server's copy), 424 `retry`, or 400/403/409/422 `rejected` with a `reason` |
+| `GET /sync/pull?since=N` | `{ items, cursor, more }`, the app's `PullPage`. 100 records at a time |
+| `GET /sync/taken?specialist=&from=&to=` | `[{ start, end }]` |
+
+Treat a 401 as "refresh and try again", and a network failure as `NetworkError`. New rejection reasons to add to `REJECTED` in `syncScreens.tsx`: `consent-withdrawn`, `refused-by-rules`, `unknown-specialist`, `forbidden`, `invalid`. `slot-taken` is already there.
+
+**How it works:** each record is saved twice in one transaction. The exact copy goes in `sync_records`, and the proper table (`patients`, `consents`, `observations`, `appointments`) gets its row, so Elise's rules still refuse a withdrawn consent, a typing error or a double booking. If either save fails, neither stays.
+
+**Who can see what:** a person sees what they sent. A CHV also sees their own patients' records. A doctor, nurse or specialist also sees the records of patients with a visit booked with them. A patient sees their own. Pharmacists, healers, GHS officials and admins get nothing here. The server decides this; the app only displays it. The same rule stops someone overwriting a patient who isn't theirs, or seeing that patient through a conflict reply.
+
+**Two traps it avoids:**
+
+- **Skipped records.** Downloads use a running number as a bookmark. If record 6 is saved before record 5 finishes, a phone could read past 5 and never get it. So the last step takes a lock until COMMIT, and numbers can only appear in order. That one step is one-at-a-time; if the load test shows pushes queuing there, this is the first place to look.
+- **A doctor's first visit with a patient.** The patient's older records were numbered before the doctor's bookmark, so the doctor would never get them. The first booking numbers them again. Other phones get them again too, and ignore them because the version hasn't changed.
+
+**Not done:**
+
+- `POST /appointments` still works but doesn't write to `sync_records`, so a phone won't download a visit booked that way.
+- Photos and voice notes are stored inside Postgres (up to 4 MB per request), until SVC-2 moves them to S3.
+- The app's "village" is stored in `patients.region`.
+- Field-level encryption on the server isn't built. RDS encrypts the whole disk; the phone encrypts its own copy.
+
+**Check it:** `TEST_DATABASE_URL=postgres://postgres:test@localhost:55432/postgres npm test` in `backend/`. Evidence: `evidence/final/J2-sync.txt`.
 
 ## 3. Why it works this way
 
