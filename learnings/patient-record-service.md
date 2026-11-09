@@ -31,6 +31,9 @@ patient records, and writes down every access, while the database's own rules ma
 | `POST /payments` | a patient for themselves; a CHV or nurse for their patient | Starts a payment; the amount is set by the server |
 | `GET /payments/:id`, `GET /payments/mine` | whoever started it, the patient; an admin for one by id | The outcome, and receipts |
 | `POST /webhooks/votex365` | votex365, with a valid signature | Tells us how a payment ended |
+| `GET /admin/users`, `POST /admin/users/:id/activate`, `/deactivate` | platform admin | Who has access; switch an account on or off |
+| `GET /admin/audit?outcome=&before=` | platform admin | Who did what, 50 at a time, and sign-in counts |
+| `GET /admin/revenue` | platform admin | Successful payments, with simulated money kept apart |
 
 Built in five steps (25 Oct), each tested before the next:
 
@@ -167,6 +170,18 @@ Until then, nothing has been tested against the real votex365. The client is the
 **Not done:** refunds. A CHV paying on someone's behalf has no screen yet (the API allows it).
 
 **Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/SVC-4-api.txt`, `SVC-4-*.png`.
+
+### Platform admin (FB-10a, 7 Nov)
+
+**What it does:** lists users, switches accounts on and off, shows the audit log, and shows revenue. Switching an account off works at once, because every request checks the account; their refresh tokens end too. An admin can't switch off their own account.
+
+**What an admin can't see:** health records. The audit log gives who, what kind of record, and the outcome, with a patient only as an id. `GET /patients/:id` still lets an admin in, so that's a gap to close.
+
+**Revenue:** only successful payments count, and simulated money is shown apart, so test money can't pass as income.
+
+**Not done:** adding a user from the screen (use the seed script), editing a role, and settings, which is still a display. The Roles screen describes the design, and it says so: healer and facility limits aren't built, and `GET /patients/:id` isn't limited to a person's own patients. In test mode the audit rows are samples, also labelled.
+
+**Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/FB-10-admin-*.png`.
 
 ## 3. Why it works this way
 
