@@ -5,6 +5,7 @@ import { createPgDb } from './db.js'
 import { logger } from './logging.js'
 import { optionalSecret } from './secrets.js'
 import { noPublisher, snsPublisher } from './events.js'
+import { votexProvider, type VotexSecret } from './votex.js'
 
 const config = loadConfig()
 // Fail fast: a missing database setting should stop the boot, not surface as a 500 later.
@@ -20,7 +21,12 @@ if (!jwtKey) logger.warn('No JWT secret configured (JWT_SECRET or JWT_SECRET_ARN
 const events = config.appointmentTopicArn ? snsPublisher(config.appointmentTopicArn, config.region) : noPublisher
 if (!config.appointmentTopicArn) logger.warn('APPOINTMENT_TOPIC_ARN not set: appointments save, but no events are published')
 
-const app = createApp({ db, instanceId: config.instanceId, jwtKey, events, ...(config.corsOrigins ? { corsOrigins: config.corsOrigins } : {}), ...(config.authRatePerMinute ? { authRatePerMinute: config.authRatePerMinute } : {}), ...(config.apiRatePerMinute ? { apiRatePerMinute: config.apiRatePerMinute } : {}) })
+const checkout = config.votexSecretArn
+  ? votexProvider(config.votexBaseUrl, config.paymentReturnUrl, () => optionalSecret<VotexSecret>(config, config.votexSecretArn))
+  : null
+if (!checkout) logger.warn('VOTEX_SECRET_ARN not set: every payment is simulated')
+
+const app = createApp({ db, instanceId: config.instanceId, jwtKey, events, checkout, ...(config.corsOrigins ? { corsOrigins: config.corsOrigins } : {}), ...(config.authRatePerMinute ? { authRatePerMinute: config.authRatePerMinute } : {}), ...(config.apiRatePerMinute ? { apiRatePerMinute: config.apiRatePerMinute } : {}) })
 const server = app.listen(config.port, () => logger.info({ port: config.port, instance: config.instanceId }, 'patient-record-service listening'))
 
 // The ASG replaces instances during a deploy: finish in-flight requests, then close the pool.

@@ -28,6 +28,9 @@ patient records, and writes down every access, while the database's own rules ma
 | `POST /prescriptions/:id/cancel` | the prescriber | Cancels an unused one |
 | `GET /prescriptions/mine` | prescriber, patient, pharmacist | Their own list |
 | `GET /pharmacies` | signed in | The sandbox pharmacy list |
+| `POST /payments` | a patient for themselves; a CHV or nurse for their patient | Starts a payment; the amount is set by the server |
+| `GET /payments/:id`, `GET /payments/mine` | whoever started it, the patient; an admin for one by id | The outcome, and receipts |
+| `POST /webhooks/votex365` | votex365, with a valid signature | Tells us how a payment ended |
 
 Built in five steps (25 Oct), each tested before the next:
 
@@ -137,6 +140,33 @@ Treat a 401 as "refresh and try again", and a network failure as `NetworkError`.
 - `/prescriptions/mine` doesn't log a read for each list view. Issuing, verifying and dispensing are all logged.
 
 **Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/FB-6-api.txt`, `FB-6-*.png`.
+
+### Payments (SVC-4, 7 Nov)
+
+**How a payment works:** the app sends what's being paid for, the network and the number. The server sets the amount. With a votex365 key, the reply has a `checkoutUrl`, where the person approves it. votex365 then calls our webhook, and we check its signature. If the webhook doesn't come, asking `GET /payments/:id` checks with votex365. **Without a key, every payment is simulated** and the reply says `simulated: true`: pending for 3 seconds, then successful, or failed at once for a number ending in 0000.
+
+**To turn on real test mode:**
+
+1. Eugene or Joseph puts `{ "api_key", "webhook_secret" }` for votex365's **test** keys in Secrets Manager.
+2. Set `VOTEX_SECRET_ARN` on the API servers, and let their role read that secret.
+3. In votex365's dashboard, set the webhook to `https://api-hc.agroconnect.space/webhooks/votex365`.
+
+Until then, nothing has been tested against the real votex365. The client is the Prosit 1 code, tested here against a stand-in.
+
+**Rules that protect money:**
+
+- The amount never comes from the caller. The fee is in `routes/payments.ts`, and the example prices are illustrative.
+- The same id is the same payment, so a retry can't charge twice. A second fee for one visit, under a new id, is refused by a unique index, even two at once. A failed try doesn't count.
+- A finished payment can't change, and what it was for and how much can't be edited. The database enforces both.
+- The phone's word never settles a payment; only votex365's signed webhook or their status reply does.
+- We don't store the phone number. votex365 needs it for the payment; we don't.
+- If votex365 is down, the API answers 503 and keeps the payment. A retry opens the checkout.
+
+**Screens:** `patient.pay` is in `frontend/src/screens/payments.tsx`. `PayForm` also takes premiums. **Perfect:** this covers the fee screen in your FB-4b; use `PayForm` if you need it elsewhere. Live mode needs P2, as with prescriptions.
+
+**Not done:** refunds. A CHV paying on someone's behalf has no screen yet (the API allows it).
+
+**Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/SVC-4-api.txt`, `SVC-4-*.png`.
 
 ## 3. Why it works this way
 

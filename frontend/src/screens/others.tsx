@@ -5,6 +5,7 @@ import { Field } from "../components/inputs";
 import { DateStrip, TimeSlots } from "../components/schedule";
 import { CallScreen, EscalationTimeline, PreCall, PriorityBadge, RangeFlag, VitalCard } from "../components/clinical";
 import { DispensedList, ImageViewer, Medicines, Prescribe, Verify } from "./prescriptions";
+import { PayFee } from "./payments";
 import { DAYS, Heading, KV, Rows, SLOTS, TestMode, Tiles, go, sync, type ScreenDef } from "./kit";
 
 /* ---------------- Patient ---------------- */
@@ -33,13 +34,7 @@ export const patient: Record<string, ScreenDef> = {
     <KV k="Care records" v="Yes" /><KV k="Reminders by SMS" v="Yes" /><KV k="Health advice" v="No" />
     <SecondaryButton>Change my choices</SecondaryButton>
   </>) },
-  "patient.pay": { title: "Pay", render: () => (<>
-    <KV k="Consultation fee" v="₵ 25.00" />
-    <PrimaryButton>Pay with mobile money</PrimaryButton>
-    <TestMode what="Payment (votex365 test mode)" />
-    <Heading>Receipts</Heading>
-    <Rows items={[{ name: "Visit 21 Oct", role: "₵ 25.00", trailing: sync("sent") }]} />
-  </>) },
+  "patient.pay": { title: "Pay", render: () => <PayFee /> },
   "patient.insurance": { title: "Health insurance", render: () => (<>
     <KV k="Plan" v="Community plan" /><KV k="Premium" v="₵ 10.00 a month" /><KV k="NHIS check" v="Active (test)" />
     <PrimaryButton>Pay this month's premium</PrimaryButton>
