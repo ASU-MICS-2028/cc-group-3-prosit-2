@@ -1,0 +1,63 @@
+J1 evidence: sign-in, eight roles, wrong-role 403, CORS.
+Mode: LOCAL API and local Postgres 16 with migrations 001-006. Live run follows once 004 and 006 are on RDS (E1).
+Password and tokens are not shown. Synthetic test users only.
+Date: 2026-11-07T00:14:43Z
+
+== 1. Each role signs in; the app's role name is in the reply and in the token ==
+chv              Ama Serwaa | reply role: chv | token role: chv | expires in 3600 s
+patient          Akosua Boateng | reply role: patient | token role: patient | expires in 3600 s
+clinician        Dr. Kofi Mensah | reply role: clinician | token role: clinician | expires in 3600 s
+pharmacist       Efua Darko | reply role: pharmacist | token role: pharmacist | expires in 3600 s
+healer           Nana Yaw Asare | reply role: healer | token role: healer | expires in 3600 s
+ghs              Adwoa Frimpong | reply role: ghs | token role: ghs | expires in 3600 s
+facility_admin   Kwabena Ofori | reply role: facility_admin | token role: facility_admin | expires in 3600 s
+platform_admin   Team Admin | reply role: platform_admin | token role: platform_admin | expires in 3600 s
+
+== 2. Wrong password, unknown user: same answer ==
+{"error":"unauthenticated","message":"Wrong username or password"} [HTTP 401]
+{"error":"unauthenticated","message":"Wrong username or password"} [HTTP 401]
+
+== 3. Wrong role is refused by the server (a patient's record: 00000000-0000-4000-8000-000000000002) ==
+clinician        HTTP 200 opened: Akosua Boateng
+chv              HTTP 200 opened: Akosua Boateng
+patient          HTTP 200 opened: Akosua Boateng
+pharmacist       HTTP 403 A pharmacist account cannot open this patient record
+healer           HTTP 403 A traditional_healer account cannot open this patient record
+ghs              HTTP 403 A ghs_official account cannot open this patient record
+facility_admin   HTTP 403 A health_centre_admin account cannot open this patient record
+
+== 4. No token ==
+{"error":"unauthenticated","message":"Sign in first"} [HTTP 401]
+
+== 5. Refresh works once; a second use is refused and ends the sign-in ==
+first use:  HTTP 200
+{"error":"unauthenticated","message":"Your session has ended. Sign in again"} second use: HTTP 401
+
+== 6. Five wrong passwords lock the account, even for the right one ==
+try 1: HTTP 401
+try 2: HTTP 401
+try 3: HTTP 401
+try 4: HTTP 401
+try 5: HTTP 401
+right password: {"error":"locked","message":"Too many wrong passwords. Try again in 15 minutes"}
+
+== 7. CORS: the live app is allowed, another site is not ==
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: https://app-hc.agroconnect.space
+Access-Control-Allow-Headers: Authorization, Content-Type
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+-- from https://evil.example:
+HTTP/1.1 204 No Content
+
+== 8. Every attempt is on record (login_events) ==
+    outcome     | count 
+----------------+-------
+ locked         |     1
+ success        |    16
+ unknown_user   |     1
+ wrong_password |     6
+(4 rows)
+
+== 9. Test suite ==
+ Test Files  6 passed (6)
+      Tests  61 passed (61)

@@ -14,7 +14,11 @@ patient records, and writes down every access, while the database's own rules ma
 | `GET /health` | anyone (the load balancer) | "Am I running?" and which server answered. Never touches the database |
 | `GET /ready` | anyone | Also checks the database answers |
 | `POST /appointments` | signed-in CHV, nurse, doctor, specialist, admin | Books an appointment, then announces it (Lab 7) |
-| `GET /patients/:id` | signed-in CHV, nurse, doctor, specialist, admin | Shows one patient, and records the read (Lab 6) |
+| `GET /patients/:id` | signed-in CHV, nurse, doctor, specialist, admin; a patient for their own record only | Shows one patient, and records the read (Lab 6) |
+| `POST /auth/login` | anyone | Username and password in; sign-in token (1 hour) and refresh token (30 days) out |
+| `POST /auth/refresh` | anyone with a refresh token | Swaps it for a new pair. Each one works once |
+| `POST /auth/logout` | anyone with a refresh token | Ends that sign-in |
+| `GET /auth/me` | signed in | Who am I, with the app's role name |
 
 Built in five steps (25 Oct), each tested before the next:
 
@@ -31,6 +35,36 @@ Built in five steps (25 Oct), each tested before the next:
 5. **`GET /patients/:id`** (`src/routes/patients.ts`). Every attempt is logged: found, unknown, malformed id, wrong
    role, or not signed in.
 
+### Signing in (J1, 7 Nov)
+
+**For Perfect (P2):** send `POST https://api-hc.agroconnect.space/auth/login` with `{"username": "...", "password": "..."}`.
+The reply is `{ token, refreshToken, expiresIn, user: { id, name, role, facility?, patientId? }, mode: "live" }`, and `user.role`
+is already the app's name. Send `Authorization: Bearer <token>` on every call. When a call answers 401, send
+`{"refreshToken": "..."}` to `POST /auth/refresh`, and save the **new** pair. The old refresh token is now dead, and using it
+twice signs that person out everywhere, so never retry it blindly. The app's `signIn(userId)` will need a password field.
+
+**The eight test sign-ins:** the username is the app's role name (`chv`, `patient`, `clinician`, `pharmacist`, `healer`,
+`ghs`, `facility_admin`, `platform_admin`). Same ids and names as the app's demo accounts, except that the patient's login is
+`...0012` and their record is `...0002`. The password isn't in the repo. Joseph shares it in the group.
+
+**For Eugene (E1), in this order on RDS:** `db/migrate.sh`, then, through the same tunnel,
+`DATABASE_URL=... TEST_USER_PASSWORD=<12+ characters> npm run seed:test-users`. Merging this PR before that is safe: the old
+routes keep working, and `/auth/login` answers 500 until the tables exist.
+
+**How it's protected:**
+
+- **Passwords** are stored as scrypt hashes (`src/passwords.ts`). Scrypt is built into Node and is slow on purpose, so guessing is costly.
+- **Five wrong passwords** lock the account for 15 minutes. A wrong password and an unknown username get the same answer, in about the same time.
+- **Refresh tokens** are stored only as a hash and work once. If a used one comes back, someone has a copy, so all that person's sign-ins end.
+- **The role in the token is only for the app.** The API looks the role up in the database on every request, so a role change or a deactivation works at once.
+- **Role names** are translated in one place, `src/roles.ts`. The API's own checks use database names.
+- **CORS** (telling browsers which websites may call us) allows only `https://app-hc.agroconnect.space`. Add a laptop with `CORS_ORIGINS=http://localhost:5173`. It doesn't replace sign-in.
+- **Every attempt** goes in `login_events`, which can't be changed afterwards.
+- **Rate limit:** 60 calls to `/auth` per minute from one address, per server, using `express-rate-limit`. **Eugene: a load test from one machine needs `AUTH_RATE_PER_MINUTE` raised, or it logs in once per test user beforehand.**
+
+**Not done:** a phone that loses the reply to a refresh has to sign in again. No password reset or self-service change yet (a re-seed resets test users). The lock is per account, not per IP, so someone could lock a known username on purpose.
+
+**Check it:** `TEST_DATABASE_URL=postgres://postgres:test@localhost:55432/postgres npm test` in `backend/`. Evidence: `evidence/final/J1-login-roles.txt`.
 ### If the database is unreachable (7 Nov)
 
 A connection attempt gives up after 5 seconds, and a query after 15. The API then answers **503** with `Retry-After: 15`, not a hang and not a 500. `/health` stays 200 on purpose: the servers are fine, and pulling them all from the load balancer would only turn "no database" into "no API". `/ready` answers 503. **Perfect:** treat a 503 from sync as `NetworkError`, so the phone keeps its records and tries again.

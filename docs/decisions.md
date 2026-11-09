@@ -288,3 +288,12 @@ Status: **Accepted** (we're doing it), **Proposed** (needs the team or the facil
 - **Decision:** The new backend features (SVC-1 to SVC-16) are route modules inside `patient-record-service`, sharing its database, sign-in, audit and deployment. Partner systems stay behind a small adapter with a mock mode. The event functions stay as they are.
 - **Why:** We have one week. Sixteen services would need sixteen pipelines, images and health checks, and would strain the servers and the budget for no gain at our traffic. Each module can still be split out later, and the report describes that split as the target design.
 - **Gave up:** independent scaling and deployment per service, and isolation: a bad deploy or a crash affects every feature. A larger target architecture goes in the report as design, not build.
+
+## D-036: Sign-in with a username, a hashed password and one-use refresh tokens
+
+- **Date:** 2026-11-07 · **Status:** Accepted (Joseph, API owner) · **Changes:** `npm run token` is now only for tests; the brief's login is real
+- **Affects:** Perfect (the app's sign-in screen needs a password field), Eugene (run the migration and the seed on RDS), everyone demoing the app
+- **Decision:** `POST /auth/login` checks a scrypt-hashed password and returns a one-hour token plus a 30-day refresh token that works once. Five wrong passwords lock the account for 15 minutes. Migration `006`, not `005`, because `005` is reserved for E-M part 2.
+- **Why:** Scrypt is built into Node, so no new package. A short token limits what a stolen one can do, and a long refresh lets a CHV stay signed in through weeks offline. The API still checks the role in the database on every request, so the token is never trusted for permissions.
+- **Trade-off:** The test accounts share one password, kept out of the repo. That's acceptable for synthetic data only, and would have to change before real patients (D-034). A phone that loses the reply to a refresh has to sign in again.
+- **Check:** `evidence/final/J1-login-roles.txt`.
