@@ -222,9 +222,21 @@ jobs:
             frontend:
               - "frontend/**"
 
+  # Lab 9 Part C: tests pass, then a person approves, then deploy. The environment sits on this job and not on
+  # the deploy jobs because an environment changes the OIDC subject, which the AWS role's trust policy
+  # only accepts as refs/heads/main (D-030).
+  approve-deploy:
+    name: wait for deploy approval
+    needs: [terraform, backend, schema, functions, frontend, call, security, changes]
+    if: github.ref == 'refs/heads/main' && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.call == 'true' || needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - run: echo "Approved. Deploy jobs can start."
+
   deploy-backend:
     name: deploy API
-    needs: [backend, schema, security, changes]
+    needs: [backend, schema, security, changes, approve-deploy]
     if: github.ref == 'refs/heads/main' && (needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
@@ -319,7 +331,7 @@ jobs:
 
   deploy-call:
     name: deploy call page
-    needs: [call, security, changes]
+    needs: [call, security, changes, approve-deploy]
     if: github.ref == 'refs/heads/main' && (needs.changes.outputs.call == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
@@ -386,7 +398,7 @@ jobs:
 
   deploy-frontend:
     name: deploy PWA
-    needs: [frontend, security, changes]
+    needs: [frontend, security, changes, approve-deploy]
     if: github.ref == 'refs/heads/main' && (needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
