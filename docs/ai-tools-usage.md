@@ -52,6 +52,7 @@
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | Lab 8: updating the walkthrough script; drafting the answers to the four questions and our questions for the partner team | Each claim checked against the code and Terraform; the check found the database timeout gap, fixed in #55; each lead reviews their area and rehearses it |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J2: sync routes, migration `007`, tests | 35 new tests cover retries, conflicts, races, double booking, wrong roles and paging; they caught a refused push being logged with no patient, now fixed; run against Postgres 16, evidence in `evidence/final/J2-sync.txt` |
 | 2026-11-09 | Eugene | Claude Code | App-wide API rate limit (CodeQL `js/missing-rate-limiting` on every signed-in route, blocking #54 and #61); merging Joseph's stacked PRs and resolving their doc conflicts | Unit test (third call refused, `/health` never); full suite and build pass; CI and CodeQL on the PR |
+| 2026-11-09 | Eugene | Claude Code | Redrew the architecture diagram in the AWS icon set (draw.io `mxgraph.aws4`) from the Terraform as deployed | Every resource checked against `infra/` and `terraform output`; PNG rendered and inspected for overlaps; ports, CIDRs and instance sizes match the code |
 
 ## Sign-off
 

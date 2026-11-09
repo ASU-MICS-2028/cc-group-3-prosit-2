@@ -2,6 +2,12 @@
 
 ICS 534 Cloud Computing · PROSIT 2 · Joseph Etse · Eugene Sewor · Elise Kennedy-Angbo · Perfect Avugla
 
+## Architecture
+
+![HealthConnect Ghana AWS architecture: clients, CloudFront and S3 for the PWA, a two-zone VPC with the load balancer, API Auto Scaling group, call server and RDS PostgreSQL, and the SNS to SQS to Lambda event layer](docs/architecture-healthconnect.png)
+
+What runs where, as deployed in `af-south-1`. To edit, open [`docs/architecture-healthconnect.drawio`](docs/architecture-healthconnect.drawio) in draw.io. Infrastructure details: [`infra/README.md`](infra/README.md).
+
 ## Everything to do now, and who does it
 
 _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 10 Nov, 23:59. Working deadline Fri 13 Nov (being confirmed). Full plan, with evidence file names: [`PLAN.md`](./PLAN.md#final-sprint-6-to-13-nov-one-week-to-finish-lab-8-and-prosit-2). Tier 1 comes before everything else._
