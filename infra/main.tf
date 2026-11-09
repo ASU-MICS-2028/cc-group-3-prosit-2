@@ -73,6 +73,7 @@ module "compute" {
   db_name                   = module.database.db_name
   db_master_user_secret_arn = module.database.master_user_secret_arn
   jwt_secret_arn            = aws_secretsmanager_secret.jwt.arn
+  votex_secret_arn          = aws_secretsmanager_secret.votex.arn
   appointment_topic_arn     = module.events.topic_arn
   media_bucket_policy_json  = module.storage.app_access_policy_json
   image_tag_param_name      = module.cicd.image_tag_param_name
@@ -184,6 +185,17 @@ module "frontend" {
 resource "aws_secretsmanager_secret" "jwt" {
   name                    = "${local.name}-jwt-secret"
   description             = "API sign-in token key (HS256) - JSON { secret }"
+  recovery_window_in_days = 0
+}
+
+# ---------- votex365 payment keys (SVC-4, D-039) ----------
+# Same pattern as the sign-in key: Terraform owns only the empty container. The value
+# ({"api_key": "...", "webhook_secret": "..."}, votex365 TEST keys only) is put out-of-band
+# (infra/README.md), so it never enters git or Terraform state. While it has no value, the API
+# simulates every payment and labels it as such.
+resource "aws_secretsmanager_secret" "votex" {
+  name                    = "${local.name}-votex365"
+  description             = "votex365 test keys for the payments API - JSON { api_key, webhook_secret }"
   recovery_window_in_days = 0
 }
 

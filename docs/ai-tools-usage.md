@@ -72,3 +72,4 @@
 | Eugene Sewor | |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
+| 2026-11-09 | Eugene | Claude Code | votex365 secret for the payments API in Terraform (empty secret, API read access, `VOTEX_SECRET_ARN` on the servers) | Same pattern as the sign-in key; `terraform fmt` and a targeted plan: 1 to add, 2 to change, 0 to destroy; no key values in git or state |

@@ -118,6 +118,12 @@ variable "image_tag_param_arn" {
 
 
 
+variable "votex_secret_arn" {
+  type        = string
+  description = "Secrets Manager ARN of the votex365 test keys ({ api_key, webhook_secret }). Passed as VOTEX_SECRET_ARN; the role may read just this one."
+  default     = ""
+}
+
 variable "jwt_secret_arn" {
   type        = string
   description = "Secrets Manager ARN of the sign-in token key ({ secret }). Passed as JWT_SECRET_ARN; the role may read just this one."

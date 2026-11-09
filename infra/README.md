@@ -55,6 +55,7 @@ State lives in the S3 bucket bootstrapped for Prosit 1 (`agroconnect-tfstate-<ac
   zipped from `functions/` at plan time, batch size 1), each with its own role (its queue + its log group only).
   The API role may `sns:Publish` to that topic only
 - Sign-in token key: Secrets Manager `healthconnect-dev-jwt-secret` (D-026); the API role may read it
+- votex365 test keys: Secrets Manager `healthconnect-dev-votex365` (D-039); the API role may read it, passed as `VOTEX_SECRET_ARN`
 - PWA (D-033): private S3 bucket `healthconnect-dev-frontend` (only CloudFront may read it) → CloudFront at
   `https://app-hc.agroconnect.space` (certificate in us-east-1, African edges, security headers, a CloudFront Function
   that sends app routes `index.html`). About $0/month inside CloudFront's free tier
@@ -118,6 +119,23 @@ aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-d
 ```
 
 Changing it signs everyone out (old tokens stop verifying).
+
+### votex365 payment keys (once)
+
+Same pattern (SVC-4, D-039): `healthconnect-dev-votex365` is created empty and only the API role may read it. Use the
+votex365 **test** keys only, and never paste them into a file in this repo. Read them into the shell without echoing:
+
+```bash
+read -rs VOTEX_API_KEY; read -rs VOTEX_WEBHOOK_SECRET
+aws secretsmanager put-secret-value --secret-id healthconnect-dev-votex365 \
+  --secret-string "$(jq -n --arg k "$VOTEX_API_KEY" --arg w "$VOTEX_WEBHOOK_SECRET" '{api_key: $k, webhook_secret: $w}')"
+unset VOTEX_API_KEY VOTEX_WEBHOOK_SECRET
+aws autoscaling start-instance-refresh --auto-scaling-group-name healthconnect-dev-asg \
+  --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":200,"InstanceWarmup":180}'
+```
+
+Then, in the votex365 dashboard, add the webhook `https://api-hc.agroconnect.space/webhooks/votex365`. Until the secret
+has a value, every payment is simulated and labelled as such.
 
 ### Running database migrations
 
