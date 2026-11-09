@@ -3,7 +3,7 @@
 ## L8-A2: 5-minute walkthrough script
 
 **Presenter:** Joseph · **On screen:** `docs/architecture-healthconnect.png` · **Length:** about 650 words, 5 minutes at a calm pace.
-Follow the diagram top to bottom: client → API → data → security → events. Point at each layer as you name it.
+Follow the diagram left to right: clients on the left → entry (CloudFront, internet gateway, load balancer) → API servers → database, then the event services on the right and the security box at the bottom. Point at each part as you name it.
 
 ### 0:00 The problem (30 s)
 
