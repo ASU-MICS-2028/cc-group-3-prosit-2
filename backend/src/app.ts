@@ -8,6 +8,7 @@ import { logger } from './logging.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
+import { surveillanceRoutes } from './routes/surveillance.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
 export interface Ctx {
@@ -85,6 +86,7 @@ export function createApp(ctx: Ctx): Express {
   authRoutes(app, ctx)
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
+  surveillanceRoutes(app, ctx)
   syncRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
