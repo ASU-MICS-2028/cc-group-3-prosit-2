@@ -63,6 +63,9 @@
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | README: app screens cropped from the progress deck | Joseph asked for them; slide checked by eye: made-up people only, and the slides with team faces were left out |
 | 2026-11-09 | Eugene | Claude Code | README: described the app screens image as part of the whole app, with every role and which parts are live | Screen list read from `frontend/src/screens/`; "live" claimed only for screens that call the API or offline store; previews say "Test mode" on screen |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Fixing a Postgres deadlock when two phones book the same doctor at once: a per-doctor lock in both booking routes | Found by a CI failure; Postgres logged the deadlocks; the race test now runs 30 rounds, failed 4 of 4 before the fix and passes after; run against Postgres 16 |
+| 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Report references and figures (DHS citation, sync, booking and ER diagrams) | Joseph checked the diagrams against the code and migrations |
+| 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Lab 9: approval gate, evidence runs, draft package | CI runs are real; the package needs team agreement |
+| 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | One AI agent per team member, drafting from that person's repo record: a simulated Lab 8 review, and first drafts of report slots | Labelled as simulation or AI draft; each owner must confirm or rewrite. Missing measurements left blank, none invented |
 
 ## Sign-off
 

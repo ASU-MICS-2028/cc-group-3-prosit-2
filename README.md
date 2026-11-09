@@ -57,10 +57,10 @@ _Updated 9 Nov 2026 (RDS has migrations 001–007 and the surveillance demo data
 |---|---|---|---|
 | X1 Ask the facilitator: final dates and format, Lab 8 session and partner team, Week 9 handout | Fri 6 | 1 | 🟢 Ready |
 | L8-A2 Rehearse the walkthrough, timed; L8-A3 Eugene and Elise add their parts | Sun 8 | 1 | 🔄 In PR |
-| FB-6 Prescriptions, fraud checks, pharmacist screen, image sharing | Mon 9 | 1 | 🔄 In PR #57 (migration 008) |
-| SVC-4 Fee and premiums through votex365 test mode | Mon 9 | 2 | 🔄 In PR #58, after #57 (migration 009; votex365 secret still needs Terraform) |
-| FB-9a Insurance, NHIS check (sandbox) | Tue 10 | 2 | 🔄 In PR #60, after #59 (migration 011) |
-| FB-10a Platform admin, audit viewer, revenue view | Tue 10 | 3 | 🔄 In PR #59, after #58 |
+| FB-6 Prescriptions, fraud checks, pharmacist screen, image sharing | Mon 9 | 1 | ✅ Merged (#57) |
+| SVC-4 Fee and premiums through votex365 test mode | Mon 9 | 2 | ✅ Merged (#58) |
+| FB-9a Insurance, NHIS check (sandbox) | Tue 10 | 2 | ✅ Merged (#60) |
+| FB-10a Platform admin, audit viewer, revenue view | Tue 10 | 3 | ✅ Merged (#59) |
 | F1 Final report (outline Sun 8, finished Fri 13) | Fri 13 | 1 | 🔄 Draft in Drive, `prosit 2/Final/`; waiting on sections by Wed 11 |
 
 ### Eugene
@@ -68,7 +68,7 @@ _Updated 9 Nov 2026 (RDS has migrations 001–007 and the surveillance demo data
 | Task | Due | Tier | Status |
 |---|---|---|---|
 | D-035 Confirm or change "one API, not sixteen services" | Fri 6 | 1 | ✅ Confirmed 6 Nov (approved in #49) |
-| E1 Run each merged migration on RDS, keep deploys working | Daily | 1 | 🔄 001–007 applied 9 Nov; 008, 009, 011 when #57, #58, #60 merge. |
+| E1 Run each merged migration on RDS, keep deploys working | Daily | 1 | 🔄 001–007 applied 9 Nov; 008, 009, 011 merged, RDS to be confirmed. |
 | L6-B1b KMS key, `rds.force_ssl`, HTTPS-only bucket | Sat 7 | 1 | 🟢 Ready |
 | L6-X Why the failover dropped requests; L8-C resource audit | Sun 8 | 1, 2 | 🟢 Ready |
 | SVC-2 Media uploads to S3 | Mon 9 | 2 | 🟢 Ready |

@@ -1,0 +1,5 @@
+Finding:     FAKE_LAB9_DEMO_KEY=REDACTED
+RuleID:      aws-access-token
+File:        lab9-fake-secret.txt
+Commit:      eb2cc9925780b543398a79a8885d1f013d3560ae
+9:51PM WRN leaks found: 1
