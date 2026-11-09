@@ -42,7 +42,7 @@ _Updated 6 Nov 2026. **Final sprint: one week.** Midsem Thu 12 Nov. Freeze Tue 1
 | E-M part 1 (`004`): roles, patient logins, facilities, referrals, emergencies, prescriptions | Fri 6 | 1 | 🔄 In PR |
 | E-M part 2 (`005`): surveys, pregnancies and children, courses, insurance, stock | Sat 7 | 2 | 🟢 Ready |
 | S8 Shared vocabulary in `knowledge/` | Sat 7 | 2 | 🟢 Ready |
-| FB-7a Surveillance: DHS-shaped synthetic cases, dashboard, map, outbreak rule, alert | Mon 9 | 1 | 🟢 Ready |
+| FB-7a Surveillance: DHS-shaped synthetic cases, dashboard, map, outbreak rule, alert | Mon 9 | 1 | 🔄 In PR (works in test mode) |
 | FB-7b Surveys, maternal and child, decision support, forecasts | Tue 10 | 2 | 🟢 Ready |
 | FB-9b Healers and supply chain | Tue 10 | 3 | 🟢 Ready |
 | FB-10b SDG 3 dashboard, FHIR, DHIS2 and WHO exports | Tue 10 | 3 | 🟢 Ready |

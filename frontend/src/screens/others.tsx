@@ -90,15 +90,9 @@ export const healer: Record<string, ScreenDef> = {
   "healer.remedies": { title: "Remedies in use", render: () => (<><Rows items={[{ name: "Neem leaf tea", role: "Used by 3 patients" }]} /><Field label="Add a remedy" voice /><PrimaryButton>Save</PrimaryButton></>) },
 };
 
-/* ---------------- GHS official ---------------- */
+/* ---------------- GHS official ----------------
+   Dashboard, map and alerts are real now: screens/surveillance.tsx (FB-7a). */
 export const ghs: Record<string, ScreenDef> = {
-  "ghs.dashboard": { title: "Hi Adwoa", caption: "Greater Accra · this week", render: () => (<>
-    <div className="row"><VitalCard label="New cases" value="148" unit="" taken="Last 7 days" /><VitalCard label="Malaria" value="+38%" unit="" taken="vs last month" flag="check" /></div>
-    <Rows items={[{ name: "Possible outbreak: cholera", role: "Ga East, 12 cases", trailing: <PriorityBadge priority="urgent" />, to: "ghs.alerts" }]} />
-    <TestMode what="This dashboard" />
-  </>) },
-  "ghs.map": { title: "Disease map", render: () => (<><div className="tile-grid">{["Ga East", "Ga West", "Adenta", "Dodowa"].map((d, i) => <div key={d} className="tile"><span className="heading">{[12, 4, 9, 2][i]}</span><span className="tile-label">{d}</span></div>)}</div><p className="caption">Cases by district. A real map arrives with the surveillance step.</p></>) },
-  "ghs.alerts": { title: "Outbreak alerts", render: () => (<><Rows items={[{ name: "Cholera · Ga East", role: "12 cases, baseline 3", trailing: <PriorityBadge priority="urgent" /> }]} /><PrimaryButton>Confirm and alert the area</PrimaryButton><SecondaryButton>Not an outbreak</SecondaryButton></>) },
   "ghs.policy": { title: "Policy dashboard", render: () => (<><KV k="Rural specialist visits" v="+120%" /><KV k="Maternal visits kept" v="82%" /><KV k="Emergency response" v="31 min" /><Tiles items={[{ icon: "calendar-check", label: "SDG 3", to: "ghs.sdg" }]} /><SecondaryButton>Export (DHIS2 test)</SecondaryButton></>) },
   "ghs.sdg": { title: "SDG 3 impact", render: () => (<><KV k="Maternal complications" v="-12%" /><KV k="People with cover" v="41%" /><KV k="Rural vs urban gap" v="-8 pts" /><TestMode what="These indicators" /></>) },
 };

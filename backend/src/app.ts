@@ -12,6 +12,7 @@ import { authRoutes } from './routes/auth.js'
 import { patientRoutes } from './routes/patients.js'
 import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
 import { prescriptionRoutes } from './routes/prescriptions.js'
+import { surveillanceRoutes } from './routes/surveillance.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
 export interface Ctx {
@@ -92,6 +93,7 @@ export function createApp(ctx: Ctx): Express {
   authRoutes(app, ctx)
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
+  surveillanceRoutes(app, ctx)
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
   paymentRoutes(app, ctx)

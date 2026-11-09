@@ -85,11 +85,11 @@ Legend: `[x]` done · `[ ]` to do · 🔄 being worked on now · 🧪 mock/sandb
 ## FB-7 Public health
 - [ ] Surveys: admin builds, CHV answers offline
 - [ ] Maternal and child records, visit schedule, SMS reminders 🧪
-- [ ] Surveillance dashboard (cases by disease, area, week)
-- [ ] Outbreak flag from a simple, explainable rule
-- [ ] District map
+- [ ] 🔄 Surveillance dashboard (cases by disease, area, week): works in local test mode, in PR (FB-7a)
+- [ ] 🔄 Outbreak flag from a simple, explainable rule: in the database (`outbreak_signals`), in PR
+- [ ] 🔄 District map: district tiles + regions ranked per district (a drawn map is not built), in PR
 - [ ] Trend and stock forecast, labelled as estimates
-- [ ] Official confirms an outbreak, community SMS alert 🧪
+- [ ] 🔄 Official confirms an outbreak, community SMS alert 🧪: alert logged, not texted, in PR
 - [ ] Policy dashboard with filters and export
 - [ ] Symptom decision support ("not a diagnosis")
 
@@ -137,7 +137,7 @@ Legend: `[x]` done · `[ ]` to do · 🔄 being worked on now · 🧪 mock/sandb
 - [ ] SVC-5 notification-service
 - [ ] SVC-6 prescription-service
 - [ ] SVC-7 referral-service
-- [ ] SVC-8 surveillance-service
+- [ ] 🔄 SVC-8 surveillance-service: route module `backend/src/routes/surveillance.ts` (D-035), in PR
 - [ ] SVC-9 decision-support-service
 - [ ] SVC-10 community-programs-service
 - [ ] SVC-11 learning-service
