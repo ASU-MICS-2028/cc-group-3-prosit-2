@@ -387,7 +387,17 @@ able to explain every part, which is what the `learnings/` notes are for.
 
 **Rubric:** quality of our live questions 30% · quality of our answers 30% · written feedback 30% · real revision based on feedback 10%.
 
-After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It gets its own phase when its handout is released.
+After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It is in `evidence/lab9/`; the draft package is `evidence/lab9/package.md`.
+
+| Part | What | Owner | Status |
+|---|---|---|---|
+| A | Passing and deliberately failed run | Joseph | ✅ Screenshots captured 9 Nov |
+| B | Gitleaks catching a fake key | Joseph | ✅ Captured 9 Nov; branch deleted |
+| C | Deploy pauses for approval, then deploys | Joseph, a teammate to approve | 🔄 `production` environment created; workflow in #71; screenshots after the first merge |
+| D | Terraform plan output | Eugene | ⛔ Run `evidence/lab9/collect.sh` |
+| E | Running resources, NAT, month-to-date spend | Eugene | ⛔ Same script; then the cost template |
+| Package | 300-word report, sustainability paragraph, retention sentence | Team | 🔄 Drafted; team to agree |
+| Diagram | Add CI/CD and IaC layers | Perfect or Eugene | 🟢 Ready |
 
 ## Phase 6: Full-brief build, breadth first (D-029)
 
