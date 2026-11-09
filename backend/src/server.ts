@@ -26,7 +26,7 @@ const checkout = config.votexSecretArn
   : null
 if (!checkout) logger.warn('VOTEX_SECRET_ARN not set: every payment is simulated')
 
-const app = createApp({ db, instanceId: config.instanceId, jwtKey, events, checkout, ...(config.corsOrigins ? { corsOrigins: config.corsOrigins } : {}), ...(config.authRatePerMinute ? { authRatePerMinute: config.authRatePerMinute } : {}) })
+const app = createApp({ db, instanceId: config.instanceId, jwtKey, events, checkout, ...(config.corsOrigins ? { corsOrigins: config.corsOrigins } : {}), ...(config.authRatePerMinute ? { authRatePerMinute: config.authRatePerMinute } : {}), ...(config.apiRatePerMinute ? { apiRatePerMinute: config.apiRatePerMinute } : {}) })
 const server = app.listen(config.port, () => logger.info({ port: config.port, instance: config.instanceId }, 'patient-record-service listening'))
 
 // The ASG replaces instances during a deploy: finish in-flight requests, then close the pool.
