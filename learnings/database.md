@@ -210,6 +210,10 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
   The proper fix is a Postgres *advisory lock* (a named lock only one connection can hold), but our script runs each file
   on its own connection, so it would need restructuring first. Not worth it for a four-person team.
 
+- **The no-double-booking rule can deadlock.** Two inserts for the same doctor at the same moment can each wait for the
+  other, because an exclusion constraint checks after writing. Postgres kills one, and the phone got a server error instead
+  of "that time is taken". So both booking routes call `lockSpecialist` first. No double booking ever got through; the database rule still decides.
+
 ## 7. Terms used
 
 | Term | Plain meaning |
