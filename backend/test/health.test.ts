@@ -45,4 +45,16 @@ describe('health and readiness', () => {
     expect(res.status).toBe(404)
     expect(await res.json()).toMatchObject({ error: 'not_found' })
   })
+
+  it('limits calls per address, but never /health', async () => {
+    const server = createApp({ db: okDb, instanceId: 'i-test123', jwtKey: null, events: { publish: async () => {} }, apiRatePerMinute: 2 }).listen(0)
+    await new Promise((resolve) => server.once('listening', resolve))
+    close = () => server.close()
+    const { port } = server.address() as AddressInfo
+    const get = (path: string) => fetch(`http://127.0.0.1:${port}${path}`)
+    expect((await get('/nope')).status).toBe(404)
+    expect((await get('/nope')).status).toBe(404)
+    expect((await get('/nope')).status).toBe(429)
+    for (let i = 0; i < 5; i++) expect((await get('/health')).status).toBe(200)
+  })
 })

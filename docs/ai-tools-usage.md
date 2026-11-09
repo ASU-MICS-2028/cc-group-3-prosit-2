@@ -49,6 +49,7 @@
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | J1: sign-in routes, password hashing, role translation, CORS, migration `006`, seed script, tests | Joseph set the scope and decisions; 26 new tests cover wrong input, lockout, reuse and wrong roles; run against Postgres 16, evidence in `evidence/final/J1-login-roles.txt` |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | API behaviour when the database is unreachable: timeouts and a 503 | Found while checking the Lab 8 answer against the code; tested against a refused connection |
 | 2026-11-07 | Joseph Etse | Claude Code (Anthropic) | Lab 8: updating the walkthrough script; drafting the answers to the four questions and our questions for the partner team | Each claim checked against the code and Terraform; the check found the database timeout gap, fixed in #55; each lead reviews their area and rehearses it |
+| 2026-11-09 | Eugene | Claude Code | App-wide API rate limit (CodeQL `js/missing-rate-limiting` on every signed-in route, blocking #54 and #61); merging Joseph's stacked PRs and resolving their doc conflicts | Unit test (third call refused, `/health` never); full suite and build pass; CI and CodeQL on the PR |
 
 ## Sign-off
 

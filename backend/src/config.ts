@@ -23,6 +23,8 @@ export interface Config {
   corsOrigins?: string[]
   /** AUTH_RATE_PER_MINUTE: raise it for a load test from one machine. */
   authRatePerMinute?: number
+  /** API_RATE_PER_MINUTE: the limit on every other route; raise it for a load test from one machine. */
+  apiRatePerMinute?: number
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -39,6 +41,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     jwtSecretArn: env.JWT_SECRET_ARN || null,
     appointmentTopicArn: env.APPOINTMENT_TOPIC_ARN || null,
     ...(Number(env.AUTH_RATE_PER_MINUTE) > 0 ? { authRatePerMinute: Number(env.AUTH_RATE_PER_MINUTE) } : {}),
+    ...(Number(env.API_RATE_PER_MINUTE) > 0 ? { apiRatePerMinute: Number(env.API_RATE_PER_MINUTE) } : {}),
     ...(env.CORS_ORIGINS ? { corsOrigins: env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean) } : {}),
   }
 }
