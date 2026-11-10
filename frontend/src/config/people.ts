@@ -6,6 +6,9 @@ export const SPECIALISTS: Specialist[] = [
   { id: "00000000-0000-4000-8000-000000000003", name: "Dr. Kofi Mensah", title: "General practitioner", timeZone: "Africa/Accra" },
 ];
 
+/** PLACEHOLDER, not a real line. The app labels it wherever it shows it. Replace when a real number is agreed. */
+export const EMERGENCY_NUMBER = "0000000000";
+
 /** Slots are fixed in UTC (Ghana is UTC+0) and shown in the device's own time zone, so a specialist in another
  *  country sees the right local time (brief p.3, time zones). */
 export const AVAILABILITY = { startHourUtc: 8, endHourUtc: 16, slotMinutes: 30, daysAhead: 7, closedWeekdaysUtc: [0] };

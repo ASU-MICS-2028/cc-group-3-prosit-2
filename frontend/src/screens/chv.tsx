@@ -3,7 +3,7 @@ import { Chip, ListenButton, PrimaryButton, SecondaryButton } from "../component
 import { PromoCard, StateView } from "../components/display";
 import { Field, PhoneField, SearchField } from "../components/inputs";
 import { DateStrip, TimeSlots } from "../components/schedule";
-import { CallScreen, EmergencyButton, EscalationTimeline, OfflineEmergencyActions, PhotoCapture, PreCall, PriorityBadge, VitalCard, VitalField } from "../components/clinical";
+import { CallScreen, EmergencyButton, PhotoCapture, PreCall, PriorityBadge, VitalCard, VitalField } from "../components/clinical";
 import { DAYS, Heading, KV, Rows, SLOTS, Tiles, go, sync, type ScreenDef } from "./kit";
 
 /** On every CHV patient screen the emergency button sits in the same place: the bottom of the page. */
@@ -110,18 +110,6 @@ export const chv: Record<string, ScreenDef> = {
   </>) },
   "chv.book": { title: "Book a visit", render: () => <Book /> },
   "chv.call": { title: "Video visit", render: () => (<><PreCall provider="Dr. Kofi Mensah" time="Tue 4 Nov, 8:00 am" /><CallScreen name="Dr. Kofi Mensah" quality="weak" /></>) },
-  "chv.referral": { title: "Refer a patient", render: () => (<>
-    <Field label="Reason" voice />
-    <div className="row"><PriorityBadge priority="urgent" /><span className="caption">Suggested from fever and rash</span></div>
-    <Field label="Send to" defaultValue="Korle Bu (test)" />
-    <PrimaryButton onClick={() => go("chv.care")}>Send referral</PrimaryButton>
-    <Emergency />
-  </>) },
-  "chv.emergency": { title: "Emergency", render: () => (<>
-    <EscalationTimeline steps={[{ label: "Raised", time: "8:21 am", state: "done" }, { label: "Notified", who: "Nurse Adjei", time: "8:21 am", state: "done" }, { label: "Acknowledged", state: "waiting" }]} />
-    <p className="caption">If there is no signal:</p>
-    <OfflineEmergencyActions number="0000000000" />
-  </>) },
   "chv.survey": { title: "Health survey", caption: "Fever in the household", render: () => <Survey /> },
   "chv.maternal": { title: "Mothers & babies", render: () => (<>
     <Rows items={[

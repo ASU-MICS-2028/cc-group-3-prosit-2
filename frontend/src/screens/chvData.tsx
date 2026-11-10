@@ -17,7 +17,7 @@ import { THRESHOLDS, flagFor } from "../config/thresholds";
 import { ghanaPhone, nameProblem, numberProblem, placeProblem, toNumber, vitalProblem, yearProblem } from "../data/validate";
 import { Heading, KV, Tiles, go, type ScreenDef } from "./kit";
 
-const Emergency = () => <div className="stack"><EmergencyButton onClick={() => go("chv.emergency")} /></div>;
+const Emergency = ({ patient }: { patient?: string }) => <div className="stack"><EmergencyButton onClick={() => go("chv.emergency", patient)} /></div>;
 const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
 const badge = (s: SyncStatus) => <SyncBadge status={s} />;
 const name = (p: Patient) => p.name[0].text;
@@ -267,8 +267,8 @@ export function PatientDetail({ id, readOnly }: { id?: string; readOnly?: boolea
       </div>
     ))}
     <KV k="Record id" v={<span className="caption tabular">{id.slice(0, 8)}</span>} />
-    {!readOnly && <div className="row"><SecondaryButton onClick={() => go("chv.referral")}>Refer</SecondaryButton></div>}
-    {!readOnly && <Emergency />}
+    {!readOnly && <div className="row"><SecondaryButton onClick={() => go("chv.referral", id)}>Refer</SecondaryButton></div>}
+    {!readOnly && <Emergency patient={id} />}
   </>);
 }
 
@@ -320,7 +320,7 @@ function Vitals({ id }: { id?: string }) {
     <VitalField vital="height" value={v.height} onChange={change("height")} error={show("height")} onBlurTop={touch("height")} />
     {problem && <><Alert>{problem.text}</Alert>{problem.consent && <SecondaryButton onClick={() => go("chv.consent", id)}>Ask for permission</SecondaryButton>}</>}
     <PrimaryButton loading={busy} onClick={save}>Save</PrimaryButton>
-    <Emergency />
+    <Emergency patient={id} />
   </>);
 }
 

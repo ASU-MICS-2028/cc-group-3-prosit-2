@@ -39,6 +39,8 @@ function Dashboard() {
     {open.length === 0
       ? <p className="body">No possible outbreaks waiting.</p>
       : <Rows items={open.map((a) => ({ name: `Possible outbreak: ${a.condition}`, role: `${a.district}, ${a.case_count} cases`, trailing: <PriorityBadge priority="urgent" />, to: "ghs.alerts" }))} />}
+    <Heading>Emergencies</Heading>
+    <Rows items={[{ name: "Escalated emergencies", role: "Unanswered ones reach you here", to: "ghs.emergencies" }]} />
     <Note />
   </>);
 }
