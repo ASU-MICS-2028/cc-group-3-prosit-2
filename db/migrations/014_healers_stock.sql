@@ -22,7 +22,7 @@ ALTER TABLE consents ADD CONSTRAINT consents_purpose_check
 
 ALTER TABLE access_log DROP CONSTRAINT access_log_resource_type_check;
 ALTER TABLE access_log ADD CONSTRAINT access_log_resource_type_check
-  CHECK (resource_type IN ('Patient', 'Observation', 'Consent', 'Appointment', 'Media', 'Prescription', 'Referral'));
+  CHECK (resource_type IN ('Patient', 'Observation', 'Consent', 'Appointment', 'Media', 'Prescription', 'Referral', 'Emergency'));
 
 -- ---------------------------------------------------------------------------
 -- 2. Directory columns. Only a healer has them.
