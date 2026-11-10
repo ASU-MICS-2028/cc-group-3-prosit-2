@@ -1,6 +1,7 @@
 import { judge, QualityMonitor } from "./quality";
 import { parseSignal, type SignalMessage } from "./signaling";
 import { isRelayed, summariseStats, type CallStats } from "./stats";
+import { recordStreams, type Recording } from "../media/recorder";
 
 /** Address of the signaling server (the Lab 7 server, hosted at call-hc.agroconnect.space). */
 export const CALL_URL: string = (import.meta.env.VITE_CALL_WS as string | undefined) ?? "wss://call-hc.agroconnect.space/ws";
@@ -16,6 +17,14 @@ export function iceServers(): RTCIceServer[] {
 
 export type Phase = "idle" | "starting" | "waiting" | "connecting" | "connected" | "reconnecting" | "ended" | "error";
 export type Quality = "good" | "weak" | "audio";
+
+/** Recording, always for one id and one call. "on" means the red indicator is showing on this phone. */
+export type RecordingState =
+  | { status: "off" }
+  | { status: "asking" | "asked"; id: string }   // asking: we asked and are waiting. asked: they asked and we must answer.
+  | { status: "on"; id: string; recorder: boolean };
+/** What the recording phone gets when a recording ends. Anything but "finished" has no sound in it: it was thrown away. */
+export type RecordingResult = { id: string; outcome: "finished" | "withdrawn" | "failed"; seconds: number; bytes?: Uint8Array; contentType?: string };
 
 export type CallState = {
   phase: Phase;
@@ -33,6 +42,7 @@ export type CallState = {
   seconds: number;
   relayed: boolean | null;
   stats: CallStats | null;
+  rec: RecordingState;
 };
 
 export type JoinOptions = { room: string; name: string; audioOnly: boolean };
@@ -47,17 +57,26 @@ export interface CallApi {
   toggleCamera(): Promise<void>;
   setAudioOnly(on: boolean): Promise<void>;
   dismissSuggestion(): void;
+  /** Tells the other person and waits for their yes. False if it can't be asked now. */
+  askToRecord(id: string, onDone: (r: RecordingResult) => void): boolean;
+  agreeToRecord(): void;
+  /** Says no, or stops a recording. Takes effect on this phone before anything else happens. */
+  withdrawRecording(): void;
 }
 
 export const initialState = (): CallState => ({
   phase: "idle", localStream: null, remoteStream: null, remoteName: null, remoteVideoOn: true, muted: false, cameraOff: false,
-  audioOnly: false, quality: "good", suggestAudio: false, seconds: 0, relayed: null, stats: null,
+  audioOnly: false, quality: "good", suggestAudio: false, seconds: 0, relayed: null, stats: null, rec: { status: "off" },
 });
 
 const VIDEO = { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 15, max: 20 }, facingMode: "user" } as const;
 const MAX_VIDEO_BITRATE = 150_000;   // about 150 kbit/s: usable on 3G
 const STATS_EVERY_MS = 2000;
 const RECONNECT_GRACE_MS = 10_000;
+/** At the recorder's 16 kbit/s, an hour is about 7 MB, sealed on the phone in one piece. */
+export const MAX_RECORDING_SECONDS = 3600;
+const DELETED = "What was recorded has been deleted.";
+const DROPPED = "Recording stopped because the connection dropped.";
 
 function mediaErrorText(e: unknown): string {
   if (!window.isSecureContext) return "Calls need a secure page (https). Use the secure address.";
@@ -80,6 +99,10 @@ export class CallEngine implements CallApi {
   private monitor = new QualityMonitor();
   private name = "";
   private left = false;
+  private capture: Recording | null = null;
+  private onRecDone: ((r: RecordingResult) => void) | undefined;
+  private recStarted = 0;
+  private recLimit: ReturnType<typeof setTimeout> | undefined;
 
   constructor(private url: string = CALL_URL) {}
 
@@ -155,7 +178,8 @@ export class CallEngine implements CallApi {
     const ctl = pc.createDataChannel("ctl", { negotiated: true, id: 0 });
     this.ctl = ctl;
     ctl.onopen = () => this.sendCtl({ video: !this.state.audioOnly && !this.state.cameraOff });
-    ctl.onmessage = (e) => { try { const m = JSON.parse(String(e.data)) as { video?: unknown }; if (typeof m.video === "boolean") this.set({ remoteVideoOn: m.video }); } catch { /* ignore */ } };
+    ctl.onclose = () => this.stopRec("finished", DROPPED);   // a "stop" could no longer get through
+    ctl.onmessage = (e) => { try { const m = JSON.parse(String(e.data)) as { video?: unknown; rec?: unknown; id?: unknown }; if (typeof m.video === "boolean") this.set({ remoteVideoOn: m.video }); if (typeof m.rec === "string" && typeof m.id === "string") this.onPeerRec(m.rec, m.id); } catch { /* ignore */ } };
 
     pc.ontrack = (e) => this.set({ remoteStream: e.streams[0] ?? null });
     pc.onicecandidate = (e) => { if (e.candidate) send({ type: "candidate", candidate: e.candidate.toJSON() }); };
@@ -167,6 +191,7 @@ export class CallEngine implements CallApi {
         void this.limitBitrate(pc);
         this.startTimers(pc);
       } else if (s === "disconnected") {
+        this.stopRec("finished", DROPPED);   // resuming would need a fresh yes from both
         this.set({ phase: "reconnecting", message: "Connection lost. Trying to reconnect…" });
         clearTimeout(this.graceTimer);
         this.graceTimer = setTimeout(() => { if (this.pc?.connectionState !== "connected") this.fail("The connection was lost. You can try the call again, or use a voice call."); }, RECONNECT_GRACE_MS);
@@ -241,7 +266,68 @@ export class CallEngine implements CallApi {
 
   dismissSuggestion() { this.set({ suggestAudio: false }); }
 
-  private sendCtl(m: { video: boolean }) { if (this.ctl?.readyState === "open") this.ctl.send(JSON.stringify(m)); }
+  /* ---------- recording ---------- */
+
+  askToRecord(id: string, onDone: (r: RecordingResult) => void): boolean {
+    if (this.state.phase !== "connected" || this.state.rec.status !== "off" || this.ctl?.readyState !== "open") return false;
+    this.onRecDone = onDone;
+    this.set({ rec: { status: "asking", id }, message: undefined });
+    this.sendCtl({ rec: "ask", id });
+    return true;
+  }
+
+  agreeToRecord() {
+    const r = this.state.rec;
+    if (r.status !== "asked") return;
+    this.set({ rec: { status: "on", id: r.id, recorder: false }, message: undefined });   // our indicator is up before the other phone can start
+    this.sendCtl({ rec: "agree", id: r.id });
+  }
+
+  withdrawRecording() {
+    const r = this.state.rec;
+    if (r.status === "off") return;
+    this.sendCtl({ rec: "withdraw", id: r.id });
+    this.stopRec("withdrawn", r.status === "on" ? `You stopped the recording. ${DELETED}` : "Recording cancelled. Nothing was recorded.");
+  }
+
+  private onPeerRec(op: string, id: string) {
+    const r = this.state.rec;
+    if (op === "ask") { if (r.status === "off" && this.state.phase === "connected") this.set({ rec: { status: "asked", id } }); return; }
+    if (r.status === "off" || r.id !== id) return;   // an answer to something else, or to something already over
+    if (op === "agree" && r.status === "asking") this.beginRec(id);
+    else if (op === "withdraw") this.stopRec("withdrawn", r.status === "on" ? `The other person stopped the recording. ${DELETED}` : "The other person said no, so nothing was recorded.");
+    else if (op === "off") this.stopRec("finished", "Recording stopped.");
+  }
+
+  private beginRec(id: string) {
+    const { localStream, remoteStream } = this.state;
+    this.set({ rec: { status: "on", id, recorder: true }, message: undefined });          // indicator first, then the recorder
+    try {
+      if (!localStream || !remoteStream) throw new Error("no call audio");
+      this.capture = recordStreams([localStream, remoteStream]);
+    } catch { return this.stopRec("failed", "This phone couldn't record the call. Nothing was recorded."); }
+    this.recStarted = Date.now();
+    this.recLimit = setTimeout(() => this.stopRec("finished", "Recording stopped: it reached the one-hour limit."), MAX_RECORDING_SECONDS * 1000);
+  }
+
+  /** Every way a recording ends comes through here. The indicator and the recorder go together, at once. */
+  private stopRec(outcome: "finished" | "withdrawn" | "failed", message?: string) {
+    const r = this.state.rec;
+    if (r.status === "off") return;
+    clearTimeout(this.recLimit);
+    const capture = this.capture, done = this.onRecDone;
+    const seconds = capture ? Math.round((Date.now() - this.recStarted) / 1000) : 0;
+    this.capture = null; this.onRecDone = undefined;
+    this.sendCtl({ rec: "off", id: r.id });
+    this.set({ rec: { status: "off" }, ...(message ? { message } : {}) });
+    if (outcome !== "finished" || !capture) { capture?.cancel(); done?.({ id: r.id, outcome: outcome === "failed" ? "failed" : "withdrawn", seconds: 0 }); return; }
+    void capture.stop().then(
+      (audio) => done?.({ id: r.id, outcome: "finished", seconds, ...audio }),
+      () => done?.({ id: r.id, outcome: "failed", seconds: 0 }),
+    );
+  }
+
+  private sendCtl(m: { video: boolean } | { rec: string; id: string }) { if (this.ctl?.readyState === "open") this.ctl.send(JSON.stringify(m)); }
 
   /* ---------- ending ---------- */
 
@@ -250,6 +336,7 @@ export class CallEngine implements CallApi {
   private fail(message: string) { if (this.left) return; this.left = true; this.cleanup(); this.set({ ...initialState(), phase: "error", message }); }
 
   private cleanup() {
+    this.stopRec("finished");   // what both agreed to, up to now, is kept; the call ending isn't a withdrawal
     clearInterval(this.statsTimer); clearInterval(this.clock); clearTimeout(this.graceTimer);
     this.socket?.close(); this.pc?.close();
     this.state.localStream?.getTracks().forEach((t) => t.stop());

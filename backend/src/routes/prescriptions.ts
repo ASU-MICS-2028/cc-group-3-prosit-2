@@ -16,10 +16,10 @@ const HOURLY_LIMIT = 20 // prescriptions from one prescriber in an hour
 
 type Row = Record<string, unknown>
 
-class Refusal extends Error {
+export class Refusal extends Error {
   constructor(readonly status: number, readonly body: Row, readonly outcome: AccessEntry['outcome'] = 'error') { super(String(body.message)) }
 }
-const invalid = (field: string, message: string) => new Refusal(400, { error: 'invalid_request', field, message })
+export const invalid = (field: string, message: string) => new Refusal(400, { error: 'invalid_request', field, message })
 const FORBIDDEN = (who: string, what: string) => new Refusal(403, { error: 'forbidden', message: `A ${who} account cannot ${what}` }, 'denied')
 
 const text = (b: Row, field: string, max = 200): string => {

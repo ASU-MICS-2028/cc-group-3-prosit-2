@@ -13,6 +13,7 @@ import { insurancePremium, insuranceRoutes } from './routes/insurance.js'
 import { patientRoutes } from './routes/patients.js'
 import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
 import { prescriptionRoutes } from './routes/prescriptions.js'
+import { recordingRoutes } from './routes/recordings.js'
 import { surveillanceRoutes } from './routes/surveillance.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
@@ -97,6 +98,7 @@ export function createApp(ctx: Ctx): Express {
   surveillanceRoutes(app, ctx)
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
+  recordingRoutes(app, ctx)
   paymentRoutes(app, ctx, { insurance_premium: insurancePremium })
   insuranceRoutes(app, ctx)
   adminRoutes(app, ctx)

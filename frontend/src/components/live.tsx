@@ -13,7 +13,7 @@ export function VideoSurface({ stream, muted, mirrored, hidden, className = "", 
 
 const mmss = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
-export function LiveCall({ state, api, remoteLabel, recording }: { state: CallState; api: CallApi; remoteLabel: string; recording?: boolean }) {
+export function LiveCall({ state, api, remoteLabel, children }: { state: CallState; api: CallApi; remoteLabel: string; children?: React.ReactNode }) {
   const { phase, remoteStream, localStream, remoteVideoOn, audioOnly, cameraOff, muted, quality, suggestAudio, seconds, message, remoteName } = state;
   const showRemoteVideo = phase === "connected" && remoteVideoOn && !!remoteStream;
   const title = remoteName ?? remoteLabel;
@@ -36,7 +36,7 @@ export function LiveCall({ state, api, remoteLabel, recording }: { state: CallSt
       <div className="call-top">
         {phase === "connected" || phase === "reconnecting" ? <ConnectionIndicator quality={phase === "reconnecting" ? "weak" : quality} /> : null}
         {phase === "connected" && <span className="badge conn tabular">{mmss(seconds)}</span>}
-        {recording && <RecordingIndicator />}
+        {state.rec.status === "on" && <RecordingIndicator />}
       </div>
       {!showRemoteVideo && (
         <div className="call-remote">
@@ -48,6 +48,7 @@ export function LiveCall({ state, api, remoteLabel, recording }: { state: CallSt
       )}
       {!audioOnly && !cameraOff && localStream && <VideoSurface stream={localStream} muted mirrored className="call-self" label="Your camera" />}
       {message && <p className="call-note" role="status">{message}</p>}
+      {children}
       {suggestAudio && !audioOnly && (
         <div className="call-suggest" role="alert">
           <span>The connection is weak. Switch to audio only?</span>
