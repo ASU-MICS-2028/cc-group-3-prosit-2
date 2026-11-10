@@ -63,6 +63,7 @@
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | README: app screens cropped from the progress deck | Joseph asked for them; slide checked by eye: made-up people only, and the slides with team faces were left out |
 | 2026-11-09 | Eugene | Claude Code | README: described the app screens image as part of the whole app, with every role and which parts are live | Screen list read from `frontend/src/screens/`; "live" claimed only for screens that call the API or offline store; previews say "Test mode" on screen |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Fixing a Postgres deadlock when two phones book the same doctor at once: a per-doctor lock in both booking routes | Found by a CI failure; Postgres logged the deadlocks; the race test now runs 30 rounds, failed 4 of 4 before the fix and passes after; run against Postgres 16 |
+| 2026-11-09 | Eugene | Claude Code | votex365 secret for the payments API in Terraform (empty secret, API read access, `VOTEX_SECRET_ARN` on the servers) | Same pattern as the sign-in key; `terraform fmt` and a targeted plan: 1 to add, 2 to change, 0 to destroy; no key values in git or state |
 
 ## Sign-off
 
@@ -72,4 +73,3 @@
 | Eugene Sewor | |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
-| 2026-11-09 | Eugene | Claude Code | votex365 secret for the payments API in Terraform (empty secret, API read access, `VOTEX_SECRET_ARN` on the servers) | Same pattern as the sign-in key; `terraform fmt` and a targeted plan: 1 to add, 2 to change, 0 to destroy; no key values in git or state |
