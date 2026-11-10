@@ -1,0 +1,14 @@
+Month-to-date AWS usage BEFORE credits, by service (whole shared account; E-month-to-date-spend.txt nets to ~0 because credits cover it).
+Period: 2026-11-01 to 2026-11-09
+AWS Secrets Manager                           $    0.32
+Amazon EC2 Container Registry (ECR)           $    0.03
+EC2 - Other                                   $    1.22
+Amazon Elastic Compute Cloud - Compute        $   13.25
+Amazon Elastic Load Balancing                 $    5.76
+Amazon Relational Database Service            $    9.68
+Amazon Simple Storage Service                 $    0.03
+Amazon Virtual Private Cloud                  $    4.81
+TOTAL (all projects in the account)           $   35.11
+
+HealthConnect only (Project=healthconnect tag), before credits:
+  $15.76

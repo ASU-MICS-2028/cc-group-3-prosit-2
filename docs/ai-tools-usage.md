@@ -66,6 +66,7 @@
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Report references and figures (DHS citation, sync, booking and ER diagrams) | Joseph checked the diagrams against the code and migrations |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Lab 9: approval gate, evidence runs, draft package | CI runs are real; the package needs team agreement |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | One AI agent per team member, drafting from that person's repo record: a simulated Lab 8 review, and first drafts of report slots | Labelled as simulation or AI draft; each owner must confirm or rewrite. Missing measurements left blank, none invented |
+| 2026-11-09 | Eugene | Claude Code | Ran `evidence/lab9/collect.sh` (read-only) for Lab 9 Parts D and E; redacted teammates' emails from the plan; added spend before credits | Outputs checked for emails, keys and IAM users before commit; plan drift traced to newer fck-nat and Ubuntu AMIs |
 
 ## Sign-off
 
