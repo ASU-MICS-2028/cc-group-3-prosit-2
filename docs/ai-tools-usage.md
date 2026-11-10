@@ -67,6 +67,7 @@
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | Lab 9: approval gate, evidence runs, draft package | CI runs are real; the package needs team agreement |
 | 2026-11-09 | Joseph Etse | Claude Code (Anthropic) | One AI agent per team member, drafting from that person's repo record: a simulated Lab 8 review, and first drafts of report slots | Labelled as simulation or AI draft; each owner must confirm or rewrite. Missing measurements left blank, none invented |
 | 2026-11-09 | Eugene | Claude Code | Ran `evidence/lab9/collect.sh` (read-only) for Lab 9 Parts D and E; redacted teammates' emails from the plan; added spend before credits | Outputs checked for emails, keys and IAM users before commit; plan drift traced to newer fck-nat and Ubuntu AMIs |
+| 2026-11-09 | Eugene | Claude Code | votex365 secret for the payments API in Terraform (empty secret, API read access, `VOTEX_SECRET_ARN` on the servers) | Same pattern as the sign-in key; `terraform fmt` and a targeted plan: 1 to add, 2 to change, 0 to destroy; no key values in git or state |
 
 ## Sign-off
 

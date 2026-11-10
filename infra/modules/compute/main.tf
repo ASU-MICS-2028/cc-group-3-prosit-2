@@ -45,14 +45,14 @@ resource "aws_iam_role_policy" "ec2_media_bucket" {
   policy = var.media_bucket_policy_json
 }
 
-# Secrets Manager read for exactly the app's secrets (the RDS-managed master secret and the sign-in token key). The app
+# Secrets Manager read for exactly the app's secrets (the RDS-managed master secret, the sign-in token key and the votex365 keys). The app
 # reads them at runtime (cached 5 minutes), so no secret value is ever written into user data or the
 # container environment.
 data "aws_iam_policy_document" "app_secrets_read" {
   statement {
     effect    = "Allow"
     actions   = ["secretsmanager:GetSecretValue"]
-    resources = compact([var.db_master_user_secret_arn, var.jwt_secret_arn])
+    resources = compact([var.db_master_user_secret_arn, var.jwt_secret_arn, var.votex_secret_arn])
   }
 }
 
@@ -183,6 +183,7 @@ locals {
       -e DB_NAME="${var.db_name}" \
       -e DB_SECRET_ARN="${var.db_master_user_secret_arn}" \
       -e JWT_SECRET_ARN="${var.jwt_secret_arn}" \
+      -e VOTEX_SECRET_ARN="${var.votex_secret_arn}" \
       -e APPOINTMENT_TOPIC_ARN="${var.appointment_topic_arn}" \
       "$IMAGE"
   EOT
