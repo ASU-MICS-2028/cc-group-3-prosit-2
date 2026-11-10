@@ -273,3 +273,6 @@ The HealthConnect API identifies every caller from a signed token checked agains
 each write in one transaction that tells the database who is acting, so the database's own triggers stamp and audit
 every change. Booking an appointment saves it and its audit record atomically, refuses double-bookings, survives
 offline retries, and then publishes one event that two independent serverless functions consume.
+
+## FB-9b: healers and stock (`routes/healersStock.ts`)
+Consent is recorded first through the normal sync (a `healer_referral` Consent), then `POST /healer-referrals` looks it up on the server; withdrawing it hides the referral from the healer at once. A healer sees only the patient's name and the reason. The directory comes from the seed script (`npm run seed:test-users`), synthetic and labelled; only Nana Yaw has a sign-in, so referrals to the other two entries go nowhere. Stock is per facility, taken from the account (`practitioners.facility_id`), never from the request. The low-stock alert is in the app only: nothing is sent by SMS or SNS.

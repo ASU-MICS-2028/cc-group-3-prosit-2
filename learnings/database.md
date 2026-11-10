@@ -263,3 +263,5 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 
 Where it happens: `backend/src/routes/appointments.ts` publishes after `COMMIT` and answers `"event": "not_published"` if SNS
 fails, but nothing retries it. Not built: no `outbox` table yet.
+
+**Migration 014 (FB-9b):** a referral to or from a healer needs a `healer_referral` consent, not `clinical_care`: its own purpose, because agreeing to clinical care isn't agreeing to be sent to someone outside the clinical team. Writing a row in `stock_transfers` moves the stock in the same statement (an AFTER INSERT trigger), so the record and the levels can't disagree; `stock_items`' CHECK refuses a move of more than is there. It's AFTER, not BEFORE, so a retried id stopped by `ON CONFLICT DO NOTHING` can't move stock twice.

@@ -195,7 +195,7 @@ function DoctorToday() {
 }
 
 export const visitScreens: Record<string, ScreenDef> = {
-  "chv.care": { title: "Care", render: () => (<><Tiles items={[{ icon: "calendar-check", label: "Book a visit", to: "chv.book" }, { icon: "users", label: "Referrals", to: "chv.referral" }, { icon: "users", label: "Emergencies", to: "chv.emergency" }]} /><Visits /></>) },
+  "chv.care": { title: "Care", render: () => (<><Tiles items={[{ icon: "calendar-check", label: "Book a visit", to: "chv.book" }, { icon: "users", label: "Referrals", to: "chv.referral" }, { icon: "users", label: "Healers", to: "chv.healers" }, { icon: "users", label: "Emergencies", to: "chv.emergency" }]} /><Visits /></>) },
   "chv.book": { title: "Book a visit", render: (id) => <Book patientId={id} key={id ?? "pick"} /> },
   "chv.visits": { title: "Visits", render: () => <Visits /> },
   "clinician.today": { title: "Hi Dr. Mensah", caption: "Visits booked with you", render: () => <DoctorToday /> },
