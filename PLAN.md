@@ -393,9 +393,9 @@ After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It is in `evidence/lab
 |---|---|---|---|
 | A | Passing and deliberately failed run | Joseph | ✅ Screenshots captured 9 Nov |
 | B | Gitleaks catching a fake key | Joseph | ✅ Captured 9 Nov; branch deleted |
-| C | Deploy pauses for approval, then deploys | Joseph, a teammate to approve | 🔄 `production` environment created; workflow in #71; screenshots after the first merge |
-| D | Terraform plan output | Eugene | ⛔ Run `evidence/lab9/collect.sh` |
-| E | Running resources, NAT, month-to-date spend | Eugene | ⛔ Same script; then the cost template |
+| C | Deploy pauses for approval, then deploys | Joseph, a teammate to approve | ✅ Paused and approved runs captured 10 Nov |
+| D | Terraform plan output | Eugene | ✅ `D-terraform-plan.txt` (#76) |
+| E | Running resources, NAT, month-to-date spend | Eugene | 🔄 Evidence in #76; cost template row still to add |
 | Package | 300-word report, sustainability paragraph, retention sentence | Team | 🔄 Drafted; team to agree |
 | Diagram | Add CI/CD and IaC layers | Perfect or Eugene | 🟢 Ready |
 
