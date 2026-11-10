@@ -397,7 +397,7 @@ After the midterm, **Week 9 (CI/CD) completes Prosit 2**. It is in `evidence/lab
 | D | Terraform plan output | Eugene | ✅ `D-terraform-plan.txt` (#76) |
 | E | Running resources, NAT, month-to-date spend | Eugene | 🔄 Evidence in #76; cost template row still to add |
 | Package | 300-word report, sustainability paragraph, retention sentence | Team | 🔄 Drafted; team to agree |
-| Diagram | Add CI/CD and IaC layers | Perfect or Eugene | 🟢 Ready |
+| Diagram | Add CI/CD and IaC layers | Joseph | ✅ `evidence/lab9/architecture-consolidated.png` |
 
 ## Phase 6: Full-brief build, breadth first (D-029)
 

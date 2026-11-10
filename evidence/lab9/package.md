@@ -40,4 +40,4 @@ HealthConnect is only useful if it outlasts this course, so ownership would pass
 - C: `C-paused.png`, `C-approved.png`
 - D: `infra/`, `D-terraform-plan.txt`
 - E: `E-running-resources.txt`, `E-month-to-date-spend.txt`, `E-month-to-date-usage-before-credits.txt`
-- Architecture diagram with CI/CD and IaC layers (**to update**)
+- Architecture diagram with CI/CD and IaC layers: `architecture-consolidated.png`
