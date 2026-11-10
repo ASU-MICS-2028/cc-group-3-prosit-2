@@ -40,7 +40,7 @@ async function commit(userId: string, items: Item[]): Promise<void> {
   });
 }
 
-async function audit(userId: string, action: string, resourceType: string, resourceId: string) {
+export async function audit(userId: string, action: string, resourceType: string, resourceId: string) {
   await transact(userId, ["audit"], "readwrite", (s) => add(s.audit, { at: new Date().toISOString(), userId, action, resourceType, resourceId } satisfies AuditEntry));
 }
 

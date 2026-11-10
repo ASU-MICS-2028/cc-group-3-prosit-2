@@ -181,6 +181,7 @@ function DoctorToday() {
       <SecondaryButton disabled={!online || busy} onClick={async () => { setBusy(true); await sync(); setBusy(false); }}>{busy ? "Checking…" : "Check for new visits"}</SecondaryButton>
       {!online && <span className="caption">You're offline. Showing what is saved on this phone.</span>}
     </div>
+    <SecondaryButton onClick={() => go("clinician.recordings")}>Recorded visits</SecondaryButton>
     <Heading>Visits booked with you</Heading>
     {upcoming.length === 0 ? <StateView kind="empty" text={`No visits yet, ${user?.name.split(" ")[0] ?? ""}. New bookings appear here.`} /> : (
       <div className="stack">{upcoming.map((v) => (
