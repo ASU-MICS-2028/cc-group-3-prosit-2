@@ -38,6 +38,7 @@ export function AppShell() {
         <span className="whoami-text">
           <span className="body-strong">{user.name}</span>
           <span className="caption">{ROLE_LABEL[user.role]}</span>
+          {session?.mode === "test" && <span className="caption">Test mode</span>}
         </span>
         {/* Test mode only: a live account has one role, chosen by the server. Sign out lives in Me. */}
         {session?.mode === "test" && <TextButton onClick={() => signOut()}>Switch account</TextButton>}

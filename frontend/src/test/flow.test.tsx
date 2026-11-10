@@ -47,7 +47,7 @@ describe("sign-in to the app", () => {
   it("shows the test-mode account list when signed out", async () => {
     render(<App />);
     expect(await screen.findByText(/Test mode: these are made-up people/)).toBeTruthy();
-    expect(screen.getAllByRole("button").length).toBe(8);
+    expect(screen.getAllByRole("button").length).toBe(9);   // eight people and the switch to a real sign-in
   });
 
   it("CHV signs in, sets a PIN, and sees only the CHV tabs", async () => {

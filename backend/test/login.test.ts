@@ -217,7 +217,9 @@ describe.skipIf(!TEST_DATABASE_URL)('sign-in', () => {
       expect(pre.status).toBe(204)
       expect(pre.headers.get('access-control-allow-origin')).toBe(APP)
       expect(pre.headers.get('access-control-allow-headers')).toMatch(/Authorization/)
-      expect((await fetch(`${url}/health`, { headers: { origin: APP } })).headers.get('access-control-allow-origin')).toBe(APP)
+      const allowed = await fetch(`${url}/health`, { headers: { origin: APP } })
+      expect(allowed.headers.get('access-control-allow-origin')).toBe(APP)
+      expect(allowed.headers.get('access-control-expose-headers')).toBe('Retry-After')
     })
     it('gives another website nothing, and never a wildcard', async () => {
       const res = await fetch(`${url}/health`, { headers: { origin: 'https://evil.example' } })

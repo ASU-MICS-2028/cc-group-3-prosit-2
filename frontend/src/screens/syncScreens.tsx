@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PrimaryButton, SecondaryButton, Chip } from "../components/buttons";
 import { PersonRow, StateView, SyncBadge } from "../components/display";
 import { Icon } from "../components/icons";
+import { useSession } from "../auth/Session";
 import { useData, useLoad } from "../data/DataProvider";
 import { listActivity } from "../data/repo";
 import { cancelRejected, conflictOf, rejectedOf, resolveConflict } from "../data/sync";
@@ -11,6 +12,7 @@ import { Heading, go, type ScreenDef } from "./kit";
 
 function SyncScreen() {
   const { userId, sync, online, simulatedOffline, setSimulatedOffline, server, notify, lastSync } = useData();
+  const { session } = useSession();
   const { data, error } = useLoad(() => listActivity(userId));
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string>();
@@ -20,7 +22,7 @@ function SyncScreen() {
     setBusy(true);
     const r = await sync();
     setBusy(false);
-    setNote(!r ? "Couldn't send. Your records are safe on this phone." : r.offline ? "No signal. Your records are safe on this phone and will be sent later." : r.sent + r.conflicts === 0 ? "Nothing to send." : `${r.sent} sent${r.conflicts ? `, ${r.conflicts} need your attention` : ""}.`);
+    setNote(!r ? "Couldn't send. Your records are safe on this phone." : r.retryAfterMs !== undefined ? "The server is having trouble. Your records are safe on this phone and will be sent soon." : r.offline ? "No signal. Your records are safe on this phone and will be sent later." : r.sent + r.conflicts === 0 ? "Nothing to send." : `${r.sent} sent${r.conflicts ? `, ${r.conflicts} need your attention` : ""}.`);
   }
   /** Edits a permission on the "server" as if another phone had. Then withdrawing that permission here makes a clash. */
   function pretendOtherPhone() {
@@ -54,13 +56,14 @@ function SyncScreen() {
     </div>
     <PrimaryButton loading={busy} disabled={waiting === 0 && online} onClick={send}>Send now</PrimaryButton>
     {note && <p role="status" className="caption">{note}</p>}
-    {lastSync?.offline && <p className="caption">Last try: no signal.</p>}
+    {lastSync?.offline && <p className="caption">{lastSync.retryAfterMs !== undefined ? "Last try: the server was busy." : "Last try: no signal."}</p>}
     {error && <StateView kind="error" plain text={error} />}
     <Heading>Your records</Heading>
     {data && data.length === 0 && <StateView kind="empty" text="Nothing saved on this phone yet." />}
     <div className="stack">
       {data?.map((a) => <PersonRow key={a.id} name={a.label} role={new Date(a.updatedAt).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} trailing={<SyncBadge status={a.syncState} />} onClick={a.syncState === "attention" ? () => go("conflict", a.id) : undefined} />)}
     </div>
+    {session?.mode === "test" && <>
     <Heading>Test tools</Heading>
     <p className="caption">For testing only. Not part of the real app.</p>
     <div className="row">
@@ -70,6 +73,7 @@ function SyncScreen() {
       <SecondaryButton onClick={() => { server.loseNextReply = true; setNote("The next send will reach the server, but the reply will be lost. Add a patient and press Send now."); }}>Lose the next reply</SecondaryButton>
       <SecondaryButton onClick={() => { server.clear(); notify(); setNote("The test server was emptied."); }}>Empty the test server</SecondaryButton>
     </div>
+    </>}
   </>);
 }
 
@@ -82,17 +86,27 @@ function flat(v: unknown, path = ""): Record<string, string> {
 }
 const human = (p: string) => p.replace(/\.(\d+)/g, "").replace(/\./g, " › ").replace(/^name › text$/, "Name").replace(/^address › city$/, "Village");
 
-const REJECTED: Record<string, string> = { "slot-taken": "Someone else booked that time first, so this visit was not made. Nothing else was lost." };
+const REJECTED: Record<string, string> = {
+  "slot-taken": "Someone else booked that time first, so this visit was not made. Nothing else was lost.",
+  "consent-withdrawn": "The patient withdrew permission, so the server refused this.",
+  "refused-by-rules": "The server refused this because a value isn't allowed. Check what was entered.",
+  "unknown-specialist": "That doctor can't be booked. Choose someone else.",
+  forbidden: "This account isn't allowed to send this record.",
+  invalid: "The server couldn't read this record.",
+  "too-large": "This record is too large to send.",
+};
 
 /** A booking the server refused for good: the person chooses another time or cancels. */
-function Rejected({ id, reason, patientId }: { id: string; reason: string; patientId: string | null }) {
+function Rejected({ id, reason, patientId, isBooking }: { id: string; reason: string; patientId: string | null; isBooking: boolean }) {
   const { userId, notify, sync } = useData();
   const [busy, setBusy] = useState(false);
   const done = async (next: () => void) => { setBusy(true); await cancelRejected(userId, id); notify(); void sync(); next(); };
   return (<>
     <p>{REJECTED[reason] ?? "The server could not accept this."}</p>
-    <PrimaryButton loading={busy} onClick={() => done(() => go("chv.book", patientId ?? undefined))}>Choose another time</PrimaryButton>
-    <SecondaryButton disabled={busy} onClick={() => done(() => go("chv.visits"))}>Cancel this visit</SecondaryButton>
+    {isBooking ? <>
+      <PrimaryButton loading={busy} onClick={() => done(() => go("chv.book", patientId ?? undefined))}>Choose another time</PrimaryButton>
+      <SecondaryButton disabled={busy} onClick={() => done(() => go("chv.visits"))}>Cancel this visit</SecondaryButton>
+    </> : <SecondaryButton onClick={() => go("sync")}>Back to sending</SecondaryButton>}
   </>);
 }
 
@@ -106,7 +120,7 @@ function Conflict({ id }: { id?: string }) {
   if (loading || refused.loading) return <StateView kind="loading" text="Opening…" />;
   if (refused.data && id) {
     const res = refused.data.resource;
-    return <Rejected id={id} reason={refused.data.reason} patientId={res.resourceType === "Appointment" ? res.participant[0].actor.reference.replace("Patient/", "") : null} />;
+    return <Rejected id={id} reason={refused.data.reason} patientId={res.resourceType === "Appointment" ? res.participant[0].actor.reference.replace("Patient/", "") : null} isBooking={res.resourceType === "Appointment"} />;
   }
   if (!data || !id) return <StateView kind="empty" plain text="Nothing needs your attention here." action={<SecondaryButton onClick={() => go("sync")}>Back to sending</SecondaryButton>} />;
 
