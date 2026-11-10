@@ -5,9 +5,9 @@ import { Icon } from "../components/icons";
 import { useSession } from "../auth/Session";
 import { ROLE_LABEL } from "../auth/roles";
 import { useLoad } from "../data/DataProvider";
-import { AdminError, adminApiFor, type AuditRow } from "../data/admin";
+import { AdminError, adminApiFor, type AuditRow, type ExportFormat } from "../data/admin";
 import { cedis } from "../data/payments";
-import { Heading, KV } from "./kit";
+import { Heading, KV, Tiles } from "./kit";
 
 const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
 const Loading = () => <StateView kind="loading" text="Loading…" />;
@@ -91,5 +91,74 @@ export function Revenue() {
     {data.data!.pending > 0 && <KV k="Still waiting for approval" v={data.data!.pending} />}
     <KV k="Training" v="No sales yet" />
     <ModeNote sample="only this device's test payments are counted" />
+  </>);
+}
+
+const FORMATS: { format: ExportFormat; label: string }[] = [{ format: "fhir", label: "FHIR-shaped file" }, { format: "dhis2", label: "DHIS2-shaped file" }, { format: "who", label: "WHO-style table" }];
+
+function saveFile(name: string, data: unknown) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** The SDG 3 page for GHS and the platform admin (every facility), and for a health centre admin (the server limits it to theirs). */
+export function Sdg3() {
+  const admin = useAdmin();
+  const report = useLoad(() => admin.sdg3());
+  const [problem, setProblem] = useState<string>();
+  const [saved, setSaved] = useState<string>();
+  async function download(format: ExportFormat) {
+    setProblem(undefined); setSaved(undefined);
+    try {
+      const file = await admin.exportFile(format);
+      saveFile(`healthconnect-SANDBOX-${format}-${file.period.code}.json`, file);
+      setSaved(`${file.notice.label} ${file.notice.conformance}`);
+    } catch (e) { setProblem(e instanceof AdminError ? e.message : "We couldn't do that. Please try again."); }
+  }
+  if (report.loading) return <Loading />;
+  if (report.error) return <Alert>{report.error}</Alert>;
+  const r = report.data!;
+  return (<>
+    <p className="caption">{r.scope}, {r.period.code}. Sandbox: counted from what this system holds, and its records are synthetic. These are activity counts related to SDG 3 targets, not the official indicators.</p>
+    <div className="stack">
+      {r.figures.map((f) => <div key={f.code}><KV k={`${f.label} (target ${f.target})`} v={`${f.value}${f.unit ? ` ${f.unit}` : ""}`} /><p className="caption">{f.counts}</p></div>)}
+    </div>
+    <Heading>Left out, and why</Heading>
+    <div className="stack">
+      {r.omitted.map((o) => <div key={o.label}><p className="body-strong">{o.label}</p><p className="caption">{o.why}</p></div>)}
+    </div>
+    <Heading>Sandbox exports</Heading>
+    <p className="caption">Totals only. Saved to this device and sent to no external system. FHIR files are FHIR-shaped, not FHIR-compatible, and none of these has been validated by DHIS2 or WHO.</p>
+    {problem && <Alert>{problem}</Alert>}
+    <div className="stack">{FORMATS.map((f) => <SecondaryButton key={f.format} onClick={() => void download(f.format)}>Download {f.label}</SecondaryButton>)}</div>
+    {saved && <p role="status" className="caption">{saved}</p>}
+    <ModeNote sample="these are sample numbers" />
+  </>);
+}
+
+export function FacilityHome() {
+  const admin = useAdmin();
+  const data = useLoad(() => admin.facilityPeople());
+  if (data.loading) return <Loading />;
+  if (data.error) return <Alert>{data.error}</Alert>;
+  return (<>
+    <p className="body-strong">{data.data!.facility}</p>
+    <KV k="People at this facility" v={data.data!.people.length} />
+    <Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }]} />
+    <ModeNote sample="this is the made-up demo facility" />
+  </>);
+}
+
+export function FacilityPeople() {
+  const admin = useAdmin();
+  const data = useLoad(() => admin.facilityPeople());
+  if (data.loading) return <Loading />;
+  if (data.error) return <Alert>{data.error}</Alert>;
+  return (<>
+    <div className="stack">{data.data!.people.map((p) => <PersonRow key={p.id} name={p.name} role={`${p.role ? ROLE_LABEL[p.role] : "No app role"}${p.active ? "" : " · Switched off"}`} />)}</div>
+    <p className="caption">To add someone, ask the platform admin.</p>
+    <ModeNote sample="these are the made-up demo accounts" />
   </>);
 }

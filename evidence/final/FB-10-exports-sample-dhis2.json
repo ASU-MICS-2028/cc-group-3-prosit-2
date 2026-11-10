@@ -1,0 +1,1452 @@
+{
+  "notice": {
+    "sandbox": true,
+    "synthetic": true,
+    "label": "SANDBOX: synthetic data, totals only. Generated as a download and sent to no external system.",
+    "conformance": "Follows the layout of a DHIS2 dataValueSet. Its data set, data element and organisation unit codes are local placeholders from no real DHIS2 instance. Not imported into or validated by DHIS2."
+  },
+  "format": "dhis2",
+  "scope": "All facilities",
+  "period": {
+    "code": "2026Q4",
+    "start": "2026-10-01T00:00:00.000Z",
+    "end": "2026-11-10T06:54:05.564Z"
+  },
+  "payload": {
+    "dataSet": "SANDBOX_HC_SDG3",
+    "idScheme": "code",
+    "completeDate": "2026-11-10",
+    "period": "2026Q4",
+    "orgUnit": "SANDBOX_GHANA",
+    "dataValues": [
+      {
+        "dataElement": "SANDBOX_PATIENTS_REGISTERED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "1",
+        "comment": "Every patient record held, from any date. All are synthetic people."
+      },
+      {
+        "dataElement": "SANDBOX_INSURANCE_ENROLMENTS",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Patients enrolled in a plan on this system, from any date, whether or not a premium has been paid."
+      },
+      {
+        "dataElement": "SANDBOX_OUTBREAKS_CONFIRMED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Suggested outbreak alerts a GHS official confirmed this quarter."
+      },
+      {
+        "dataElement": "SANDBOX_PATIENTS_WITH_READINGS",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Different patients with at least one reading this quarter, not marked entered-in-error. For a facility: taken by that facility's staff."
+      },
+      {
+        "dataElement": "SANDBOX_READINGS_RECORDED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Vital-sign and lab readings this quarter, not marked entered-in-error. For a facility: taken by that facility's staff."
+      },
+      {
+        "dataElement": "SANDBOX_APPOINTMENTS_BOOKED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Appointments starting this quarter that were not cancelled. For a facility: with that facility's doctors."
+      },
+      {
+        "dataElement": "SANDBOX_REFERRALS_RECEIVED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Referrals created this quarter, except cancelled ones. For a facility: sent to it or to one of its staff."
+      },
+      {
+        "dataElement": "SANDBOX_PRESCRIPTIONS_DISPENSED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Prescriptions a pharmacist dispensed this quarter. For a facility: dispensed there."
+      },
+      {
+        "dataElement": "SANDBOX_EMERGENCIES_RAISED",
+        "period": "2026Q4",
+        "orgUnit": "SANDBOX_GHANA",
+        "value": "0",
+        "comment": "Emergency alerts raised this quarter, except cancelled ones. For a facility: raised for it."
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "14",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "13",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_CHOLERA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "25",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "14",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "19",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "21",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "32",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "26",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W41",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "19",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "14",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "18",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "13",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_CHOLERA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "21",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "21",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "14",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "23",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "25",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "27",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "19",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W42",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "21",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_CHOLERA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "13",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "22",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "16",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "13",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "24",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "25",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "24",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "21",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W43",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "18",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "13",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_CHOLERA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "19",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "17",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "18",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "19",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "26",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "22",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "19",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W44",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_ASUNAFO_NORTH",
+        "value": "14",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_KUMASI",
+        "value": "9",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SUNYANI",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_TECHIMAN",
+        "value": "16",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_CAPE_COAST",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_NEW_JUABEN_SOUTH",
+        "value": "13",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_ADENTA",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_CHOLERA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_GA_EAST",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_GA_WEST",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "4",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SHAI_OSUDOKU",
+        "value": "3",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_EAST_MAMPRUSI",
+        "value": "24",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "12",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_TAMALE",
+        "value": "17",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "10",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_KRACHI_EAST",
+        "value": "15",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_WEST_GONJA",
+        "value": "20",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "6",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_BOLGATANGA",
+        "value": "30",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "5",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_WA_MUNICIPAL",
+        "value": "26",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "7",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_HO_MUNICIPAL",
+        "value": "11",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "2",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SEKONDI_TAKORADI",
+        "value": "18",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_DIARRHOEA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "8",
+        "comment": "source: synthetic"
+      },
+      {
+        "dataElement": "SANDBOX_CASES_MALARIA",
+        "period": "2026W45",
+        "orgUnit": "SANDBOX_SEFWI_WIAWSO",
+        "value": "9",
+        "comment": "source: synthetic"
+      }
+    ]
+  }
+}

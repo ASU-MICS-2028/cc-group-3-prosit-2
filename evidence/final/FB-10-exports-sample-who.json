@@ -1,0 +1,1647 @@
+{
+  "notice": {
+    "sandbox": true,
+    "synthetic": true,
+    "label": "SANDBOX: synthetic data, totals only. Generated as a download and sent to no external system.",
+    "conformance": "A plain weekly table of district disease cases, in a layout of our own. Not a WHO schema, and not validated by or submitted to WHO. Deaths are absent because they are not stored."
+  },
+  "format": "who",
+  "scope": "All facilities",
+  "period": {
+    "code": "2026Q4",
+    "start": "2026-10-01T00:00:00.000Z",
+    "end": "2026-11-10T06:54:05.589Z"
+  },
+  "payload": {
+    "country": "GH",
+    "reporter": "All facilities",
+    "period": "2026Q4",
+    "indicators": [
+      {
+        "code": "patients_registered",
+        "label": "Patients on the system",
+        "sdgTarget": "3.8",
+        "counts": "Every patient record held, from any date. All are synthetic people.",
+        "value": 1
+      },
+      {
+        "code": "insurance_enrolments",
+        "label": "Insurance enrolments",
+        "sdgTarget": "3.8",
+        "counts": "Patients enrolled in a plan on this system, from any date, whether or not a premium has been paid.",
+        "value": 0
+      },
+      {
+        "code": "outbreaks_confirmed",
+        "label": "Outbreaks confirmed",
+        "sdgTarget": "3.d",
+        "counts": "Suggested outbreak alerts a GHS official confirmed this quarter.",
+        "value": 0
+      },
+      {
+        "code": "patients_with_readings",
+        "label": "Patients with a reading",
+        "sdgTarget": "3.8",
+        "counts": "Different patients with at least one reading this quarter, not marked entered-in-error. For a facility: taken by that facility's staff.",
+        "value": 0
+      },
+      {
+        "code": "readings_recorded",
+        "label": "Readings recorded",
+        "sdgTarget": "3.8",
+        "counts": "Vital-sign and lab readings this quarter, not marked entered-in-error. For a facility: taken by that facility's staff.",
+        "value": 0
+      },
+      {
+        "code": "appointments_booked",
+        "label": "Appointments booked",
+        "sdgTarget": "3.8",
+        "counts": "Appointments starting this quarter that were not cancelled. For a facility: with that facility's doctors.",
+        "value": 0
+      },
+      {
+        "code": "referrals_received",
+        "label": "Referrals",
+        "sdgTarget": "3.8",
+        "counts": "Referrals created this quarter, except cancelled ones. For a facility: sent to it or to one of its staff.",
+        "value": 0
+      },
+      {
+        "code": "prescriptions_dispensed",
+        "label": "Prescriptions dispensed",
+        "sdgTarget": "3.8",
+        "counts": "Prescriptions a pharmacist dispensed this quarter. For a facility: dispensed there.",
+        "value": 0
+      },
+      {
+        "code": "emergencies_raised",
+        "label": "Emergencies raised",
+        "sdgTarget": "3.d",
+        "counts": "Emergency alerts raised this quarter, except cancelled ones. For a facility: raised for it.",
+        "value": 0
+      }
+    ],
+    "weeklyDiseaseCases": [
+      {
+        "epiWeek": "2026W41",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "malaria",
+        "cases": 14,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "diarrhoea",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "malaria",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "diarrhoea",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "malaria",
+        "cases": 13,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "diarrhoea",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "cholera",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "malaria",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "malaria",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "diarrhoea",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "malaria",
+        "cases": 25,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "diarrhoea",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "malaria",
+        "cases": 14,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "malaria",
+        "cases": 19,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "diarrhoea",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "malaria",
+        "cases": 21,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "malaria",
+        "cases": 32,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "diarrhoea",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "malaria",
+        "cases": 26,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "diarrhoea",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W41",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "malaria",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "malaria",
+        "cases": 19,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "diarrhoea",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "malaria",
+        "cases": 14,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "diarrhoea",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "malaria",
+        "cases": 18,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "diarrhoea",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "malaria",
+        "cases": 13,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "malaria",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "cholera",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "diarrhoea",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "malaria",
+        "cases": 21,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "diarrhoea",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "malaria",
+        "cases": 21,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "diarrhoea",
+        "cases": 14,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "malaria",
+        "cases": 23,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "malaria",
+        "cases": 25,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "malaria",
+        "cases": 27,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "malaria",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "diarrhoea",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "malaria",
+        "cases": 19,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W42",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "malaria",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "diarrhoea",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "diarrhoea",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "malaria",
+        "cases": 21,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "malaria",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "cholera",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "malaria",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "diarrhoea",
+        "cases": 13,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "malaria",
+        "cases": 22,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "diarrhoea",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "malaria",
+        "cases": 16,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "diarrhoea",
+        "cases": 13,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "malaria",
+        "cases": 24,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "malaria",
+        "cases": 25,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "diarrhoea",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "malaria",
+        "cases": 24,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "diarrhoea",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "malaria",
+        "cases": 21,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "diarrhoea",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W43",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "malaria",
+        "cases": 18,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "diarrhoea",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "malaria",
+        "cases": 13,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "malaria",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "cholera",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "malaria",
+        "cases": 19,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "diarrhoea",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "malaria",
+        "cases": 17,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "malaria",
+        "cases": 18,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "diarrhoea",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "malaria",
+        "cases": 19,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "malaria",
+        "cases": 26,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "malaria",
+        "cases": 22,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "diarrhoea",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "malaria",
+        "cases": 19,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W44",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "malaria",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Ahafo",
+        "district": "Asunafo North",
+        "disease": "malaria",
+        "cases": 14,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "diarrhoea",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Ashanti",
+        "district": "Kumasi",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Bono",
+        "district": "Sunyani",
+        "disease": "malaria",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Bono East",
+        "district": "Techiman",
+        "disease": "malaria",
+        "cases": 16,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "diarrhoea",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Central",
+        "district": "Cape Coast",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Eastern",
+        "district": "New Juaben South",
+        "disease": "malaria",
+        "cases": 13,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Adenta",
+        "disease": "malaria",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "cholera",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Ga East",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Ga West",
+        "disease": "malaria",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "diarrhoea",
+        "cases": 4,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Greater Accra",
+        "district": "Shai-Osudoku",
+        "disease": "malaria",
+        "cases": 3,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "diarrhoea",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "North East",
+        "district": "East Mamprusi",
+        "disease": "malaria",
+        "cases": 24,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "diarrhoea",
+        "cases": 12,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Northern",
+        "district": "Tamale",
+        "disease": "malaria",
+        "cases": 17,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "diarrhoea",
+        "cases": 10,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Oti",
+        "district": "Krachi East",
+        "disease": "malaria",
+        "cases": 15,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "diarrhoea",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Savannah",
+        "district": "West Gonja",
+        "disease": "malaria",
+        "cases": 20,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "diarrhoea",
+        "cases": 6,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Upper East",
+        "district": "Bolgatanga",
+        "disease": "malaria",
+        "cases": 30,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "diarrhoea",
+        "cases": 5,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Upper West",
+        "district": "Wa Municipal",
+        "disease": "malaria",
+        "cases": 26,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "diarrhoea",
+        "cases": 7,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Volta",
+        "district": "Ho Municipal",
+        "disease": "malaria",
+        "cases": 11,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "diarrhoea",
+        "cases": 2,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Western",
+        "district": "Sekondi-Takoradi",
+        "disease": "malaria",
+        "cases": 18,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "diarrhoea",
+        "cases": 8,
+        "source": "synthetic"
+      },
+      {
+        "epiWeek": "2026W45",
+        "region": "Western North",
+        "district": "Sefwi Wiawso",
+        "disease": "malaria",
+        "cases": 9,
+        "source": "synthetic"
+      }
+    ]
+  }
+}

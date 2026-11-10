@@ -1,0 +1,138 @@
+{
+  "sandbox": true,
+  "synthetic": true,
+  "scope": "All facilities",
+  "period": {
+    "code": "2026Q4",
+    "start": "2026-10-01T00:00:00.000Z",
+    "end": "2026-11-10T06:54:05.660Z"
+  },
+  "figures": [
+    {
+      "code": "patients_registered",
+      "target": "3.8",
+      "label": "Patients on the system",
+      "counts": "Every patient record held, from any date. All are synthetic people.",
+      "value": 1
+    },
+    {
+      "code": "insurance_enrolments",
+      "target": "3.8",
+      "label": "Insurance enrolments",
+      "counts": "Patients enrolled in a plan on this system, from any date, whether or not a premium has been paid.",
+      "value": 0
+    },
+    {
+      "code": "outbreaks_confirmed",
+      "target": "3.d",
+      "label": "Outbreaks confirmed",
+      "counts": "Suggested outbreak alerts a GHS official confirmed this quarter.",
+      "value": 0
+    },
+    {
+      "code": "patients_with_readings",
+      "target": "3.8",
+      "label": "Patients with a reading",
+      "counts": "Different patients with at least one reading this quarter, not marked entered-in-error. For a facility: taken by that facility's staff.",
+      "value": 0
+    },
+    {
+      "code": "readings_recorded",
+      "target": "3.8",
+      "label": "Readings recorded",
+      "counts": "Vital-sign and lab readings this quarter, not marked entered-in-error. For a facility: taken by that facility's staff.",
+      "value": 0
+    },
+    {
+      "code": "appointments_booked",
+      "target": "3.8",
+      "label": "Appointments booked",
+      "counts": "Appointments starting this quarter that were not cancelled. For a facility: with that facility's doctors.",
+      "value": 0
+    },
+    {
+      "code": "referrals_received",
+      "target": "3.8",
+      "label": "Referrals",
+      "counts": "Referrals created this quarter, except cancelled ones. For a facility: sent to it or to one of its staff.",
+      "value": 0
+    },
+    {
+      "code": "prescriptions_dispensed",
+      "target": "3.8",
+      "label": "Prescriptions dispensed",
+      "counts": "Prescriptions a pharmacist dispensed this quarter. For a facility: dispensed there.",
+      "value": 0
+    },
+    {
+      "code": "emergencies_raised",
+      "target": "3.d",
+      "label": "Emergencies raised",
+      "counts": "Emergency alerts raised this quarter, except cancelled ones. For a facility: raised for it.",
+      "value": 0
+    },
+    {
+      "code": "cases_diarrhoea_synthetic",
+      "target": "3.3",
+      "label": "Diarrhoea cases (synthetic)",
+      "counts": "Weekly district case counts added up for weeks starting this quarter. Source: synthetic. A count, not a rate.",
+      "value": 651
+    },
+    {
+      "code": "cases_malaria_synthetic",
+      "target": "3.3",
+      "label": "Malaria cases (synthetic)",
+      "counts": "Weekly district case counts added up for weeks starting this quarter. Source: synthetic. A count, not a rate.",
+      "value": 1278
+    },
+    {
+      "code": "cases_cholera_synthetic",
+      "target": "3.3",
+      "label": "Cholera cases (synthetic)",
+      "counts": "Weekly district case counts added up for weeks starting this quarter. Source: synthetic. A count, not a rate.",
+      "value": 24
+    }
+  ],
+  "omitted": [
+    {
+      "label": "Maternal mortality ratio (3.1.1)",
+      "why": "No deaths or live births are stored."
+    },
+    {
+      "label": "Births with a skilled attendant (3.1.2)",
+      "why": "No delivery records are stored."
+    },
+    {
+      "label": "Under-5 and newborn mortality (3.2.1, 3.2.2)",
+      "why": "No births or deaths are stored."
+    },
+    {
+      "label": "Disease incidence per 1,000 people (3.3)",
+      "why": "Case counts are stored, but no population for any district."
+    },
+    {
+      "label": "Universal health coverage index (3.8.1)",
+      "why": "It is a composite of tracer services measured across a population, none of which we hold."
+    },
+    {
+      "label": "Share of the population insured",
+      "why": "Enrolments are counted above, but no population figure is stored."
+    },
+    {
+      "label": "Share of appointments kept",
+      "why": "Nothing in the system records whether a visit took place."
+    },
+    {
+      "label": "Rural and urban gap",
+      "why": "Patients and facilities carry no rural or urban marker."
+    },
+    {
+      "label": "Change over time against a baseline",
+      "why": "No baseline measurement exists."
+    },
+    {
+      "label": "Median time to acknowledge an emergency",
+      "why": "Nothing has happened yet this quarter to measure it from."
+    }
+  ]
+}
