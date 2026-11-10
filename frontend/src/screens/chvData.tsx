@@ -50,7 +50,7 @@ function Today() {
       ? <StateView kind="empty" text="No patients yet. Add the first one." action={<PrimaryButton onClick={() => go("chv.register")}>Add patient</PrimaryButton>} />
       : <div className="stack">{data.patients.slice(0, 4).map((v) => <PersonRow key={v.resource.id} name={name(v.resource)} role={(v.resource.address?.[0].city ?? "Patient") + withTags(data.patients)(v)} trailing={badge(v.syncState)} onClick={() => go("chv.patient", v.resource.id)} />)}</div>}
     <Heading>Quick actions</Heading>
-    <Tiles items={[{ icon: "users", label: "Add patient", to: "chv.register" }, { icon: "baby", label: "Mothers & babies", to: "chv.maternal" }, { icon: "calendar-check", label: "Survey", to: "chv.survey" }]} />
+    <Tiles items={[{ icon: "users", label: "Add patient", to: "chv.register" }, { icon: "baby", label: "Mothers & babies", to: "chv.maternal" }, { icon: "calendar-check", label: "Survey", to: "chv.survey" }, { icon: "chat-circle-text", label: "Symptom check", to: "chv.symptoms" }]} />
     <PromoCard title="Vaccination day: Saturday at the clinic" action="Learn more" />
   </>);
 }

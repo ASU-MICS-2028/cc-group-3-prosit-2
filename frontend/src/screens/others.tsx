@@ -26,7 +26,7 @@ export const patient: Record<string, ScreenDef> = {
     <Rows items={[{ name: "Dr. Kofi Mensah", role: "Video visit", hours: "Tue 4 Nov, 8:00 am", to: "patient.visits" }]} />
     <Heading>Reminders</Heading>
     <Rows items={[{ name: "Take your tablets", role: "Every morning" }]} />
-    <Tiles items={[{ icon: "calendar-check", label: "Visits", to: "patient.visits" }, { icon: "pill", label: "Medicines", to: "patient.medicines" }, { icon: "pill", label: "Insurance", to: "patient.insurance" }, { icon: "users", label: "Permission", to: "patient.consent" }]} />
+    <Tiles items={[{ icon: "calendar-check", label: "Visits", to: "patient.visits" }, { icon: "pill", label: "Medicines", to: "patient.medicines" }, { icon: "pill", label: "Insurance", to: "patient.insurance" }, { icon: "users", label: "Permission", to: "patient.consent" }, { icon: "baby", label: "My pregnancy & children", to: "patient.maternal" }]} />
   </>) },
   "patient.visits": { title: "Visits", render: () => <PatientVisits /> },
   "patient.medicines": { title: "Your medicines", caption: "Show the code at the pharmacy", render: () => <Medicines /> },

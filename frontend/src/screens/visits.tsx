@@ -190,6 +190,7 @@ function DoctorToday() {
         </div>
       ))}</div>
     )}
+    <Tiles items={[{ icon: "baby", label: "Mothers & babies", to: "clinician.maternal" }, { icon: "chat-circle-text", label: "Symptom check", to: "clinician.symptoms" }]} />
   </>);
 }
 

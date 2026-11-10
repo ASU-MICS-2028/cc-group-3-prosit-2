@@ -9,6 +9,7 @@ import type { CheckoutProvider } from './votex.js'
 import { adminRoutes } from './routes/admin.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
+import { communityRoutes } from './routes/community.js'
 import { insurancePremium, insuranceRoutes } from './routes/insurance.js'
 import { patientRoutes } from './routes/patients.js'
 import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
@@ -95,6 +96,7 @@ export function createApp(ctx: Ctx): Express {
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
   surveillanceRoutes(app, ctx)
+  communityRoutes(app, ctx)
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
   paymentRoutes(app, ctx, { insurance_premium: insurancePremium })

@@ -46,6 +46,34 @@ export function surveillanceRoutes(app: Express, ctx: Ctx) {
   })
 
   /**
+   * Next week's estimate per district and condition. Stated method: the average of the last 4 weekly counts, with the
+   * lowest and highest of those 4 as the range. Districts missing a week get no estimate. It's a plain average, so a
+   * recent spike lifts it, and the data underneath is synthetic (D-034).
+   */
+  app.get('/surveillance/forecast', signedIn, async (req: Request, res: Response) => {
+    if (!viewer(res)) return
+    const region = typeof req.query.region === 'string' && req.query.region ? req.query.region : null
+    const { rows } = await ctx.db.query(
+      `SELECT region, district, condition, round(avg(case_count))::int AS estimate, min(case_count)::int AS low, max(case_count)::int AS high,
+              bool_or(source = 'synthetic') AS synthetic, max(week_start) + 7 AS week_start
+       FROM weekly_case_counts
+       WHERE week_start > (SELECT max(week_start) - 28 FROM weekly_case_counts)
+         AND ($1::text IS NULL OR region = $1)
+       GROUP BY region, district, condition
+       HAVING count(*) = 4
+       ORDER BY region, district, condition`,
+      [region],
+    )
+    res.json({
+      estimate: true,
+      synthetic: rows.some((r) => r.synthetic),
+      method: 'Average of the last 4 weekly counts. The range is the lowest and highest of those 4.',
+      week_start: rows[0] ? isoDate(rows[0].week_start) : null,
+      forecasts: rows.map(({ week_start: _w, ...r }) => r),
+    })
+  })
+
+  /**
    * The alerts list. New outbreak signals become `suggested` alerts first (once each: the database
    * refuses a second alert for the same district, condition and week), so the list is always current.
    */
