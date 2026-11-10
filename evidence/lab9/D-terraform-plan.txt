@@ -1,0 +1,766 @@
+Initializing the backend...
+Initializing modules...
+Initializing provider plugins...
+- Reusing previous version of hashicorp/archive from the dependency lock file
+- Reusing previous version of hashicorp/aws from the dependency lock file
+- Reusing previous version of hashicorp/tls from the dependency lock file
+- Using previously-installed hashicorp/archive v2.8.1
+- Using previously-installed hashicorp/aws v5.100.0
+- Using previously-installed hashicorp/tls v4.4.2
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+module.cicd.data.tls_certificate.github: Reading...
+module.events.data.archive_file.function["reminders"]: Reading...
+module.events.data.archive_file.function["specialist-notify"]: Reading...
+module.events.data.archive_file.function["specialist-notify"]: Read complete after 0s [id=240d1ec2300830e44fda8c6100b3006e5cecb60f]
+module.events.data.archive_file.function["reminders"]: Read complete after 0s [id=776289230ef14fef3c7160b9b1298dc83f46193e]
+module.observability.data.aws_region.current: Reading...
+module.cicd.data.aws_region.current: Reading...
+module.frontend.aws_cloudfront_origin_access_control.site: Refreshing state... [id=E273MDD5R7DO4K]
+module.frontend.data.aws_cloudfront_response_headers_policy.security: Reading...
+module.frontend.aws_cloudfront_function.spa: Refreshing state... [id=healthconnect-dev-frontend-spa]
+module.events.aws_sqs_queue.dlq["reminders"]: Refreshing state... [id=https://sqs.af-south-1.amazonaws.com/315224414532/healthconnect-dev-reminders-dlq]
+module.events.aws_sqs_queue.dlq["specialist-notify"]: Refreshing state... [id=https://sqs.af-south-1.amazonaws.com/315224414532/healthconnect-dev-specialist-notify-dlq]
+module.observability.data.aws_region.current: Read complete after 0s [id=af-south-1]
+module.cicd.data.aws_region.current: Read complete after 0s [id=af-south-1]
+module.compute.data.aws_iam_policy_document.ec2_assume: Reading...
+module.compute.aws_cloudwatch_log_group.app: Refreshing state... [id=/healthconnect-dev/app]
+module.observability.aws_budgets_budget.monthly: Refreshing state... [id=315224414532:healthconnect-dev-monthly-budget]
+module.compute.data.aws_iam_policy_document.ec2_assume: Read complete after 0s [id=2851119427]
+module.call[0].aws_cloudwatch_log_group.call: Refreshing state... [id=/healthconnect-dev/call]
+module.cicd.data.tls_certificate.github: Read complete after 1s [id=971f0877d5c8ee4a631a46b5509679ce58ff025d]
+module.events.data.aws_iam_policy_document.lambda_assume: Reading...
+module.events.data.aws_iam_policy_document.lambda_assume: Read complete after 0s [id=2690255455]
+module.frontend.data.aws_cloudfront_cache_policy.optimized: Reading...
+module.cicd.aws_ssm_parameter.app_image_tag: Refreshing state... [id=/healthconnect-dev/app-image-tag]
+module.events.aws_dynamodb_table.reminders_sent: Refreshing state... [id=healthconnect-dev-reminders-sent]
+module.observability.aws_sns_topic.alarms: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms]
+module.nat.data.aws_iam_policy_document.nat_assume: Reading...
+module.alb.aws_acm_certificate.api[0]: Refreshing state... [id=arn:aws:acm:af-south-1:315224414532:certificate/3144ac20-bf87-4cc7-ad78-1dd74a85c428]
+module.nat.data.aws_iam_policy_document.nat_assume: Read complete after 0s [id=2851119427]
+module.cicd.data.aws_caller_identity.current: Reading...
+module.cicd.data.aws_caller_identity.current: Read complete after 0s [id=315224414532]
+module.network.aws_vpc.main: Refreshing state... [id=vpc-0ff22996705637550]
+data.aws_caller_identity.current: Reading...
+data.aws_caller_identity.current: Read complete after 0s [id=315224414532]
+module.ecr.aws_ecr_repository.backend: Refreshing state... [id=healthconnect-dev-backend]
+module.frontend.data.aws_cloudfront_response_headers_policy.security: Read complete after 1s [id=67f7725c-6f97-4210-82d7-5512b31e9d03]
+module.storage.aws_s3_bucket.media: Refreshing state... [id=healthconnect-dev-media]
+module.call[0].data.aws_ssm_parameter.al2023: Reading...
+data.aws_ssm_parameter.ubuntu: Reading...
+module.frontend.data.aws_cloudfront_cache_policy.optimized: Read complete after 0s [id=658327ea-f89d-4fab-a63d-7e88639e58f6]
+module.events.aws_cloudwatch_log_group.function["reminders"]: Refreshing state... [id=/aws/lambda/healthconnect-dev-reminders]
+module.call[0].data.aws_ssm_parameter.al2023: Read complete after 1s [id=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64]
+module.events.aws_cloudwatch_log_group.function["specialist-notify"]: Refreshing state... [id=/aws/lambda/healthconnect-dev-specialist-notify]
+module.frontend.aws_s3_bucket.site: Refreshing state... [id=healthconnect-dev-frontend]
+data.aws_ssm_parameter.ubuntu: Read complete after 1s [id=/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id]
+module.nat.data.aws_ami.fck_nat: Reading...
+module.call[0].data.aws_iam_policy_document.assume: Reading...
+module.call[0].data.aws_iam_policy_document.assume: Read complete after 0s [id=2851119427]
+module.ecr_call[0].aws_ecr_repository.backend: Refreshing state... [id=healthconnect-dev-call]
+module.events.aws_sns_topic.appointment_events: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-appointment-events]
+module.observability.aws_ce_cost_allocation_tag.project: Refreshing state... [id=Project]
+aws_secretsmanager_secret.jwt: Refreshing state... [id=arn:aws:secretsmanager:af-south-1:315224414532:secret:healthconnect-dev-jwt-secret-Frth3J]
+module.nat.data.aws_ami.fck_nat: Read complete after 0s [id=ami-015bb4511d72c2ddd]
+module.cicd.aws_iam_openid_connect_provider.github: Refreshing state... [id=arn:aws:iam::315224414532:oidc-provider/token.actions.githubusercontent.com]
+module.compute.aws_iam_role.ec2: Refreshing state... [id=healthconnect-dev-ec2-role]
+module.events.aws_iam_role.function["specialist-notify"]: Refreshing state... [id=healthconnect-dev-specialist-notify-fn]
+module.events.aws_iam_role.function["reminders"]: Refreshing state... [id=healthconnect-dev-reminders-fn]
+module.frontend.aws_acm_certificate.site: Refreshing state... [id=arn:aws:acm:us-east-1:315224414532:certificate/56fb66c9-ba86-457f-b8a9-4e6551cc8ed9]
+module.call[0].data.aws_iam_policy_document.logs: Reading...
+module.call[0].data.aws_iam_policy_document.logs: Read complete after 0s [id=2565858838]
+module.compute.data.aws_iam_policy_document.log_write: Reading...
+module.compute.data.aws_iam_policy_document.log_write: Read complete after 0s [id=2940164522]
+module.events.aws_sqs_queue.main["reminders"]: Refreshing state... [id=https://sqs.af-south-1.amazonaws.com/315224414532/healthconnect-dev-reminders]
+module.events.aws_sqs_queue.main["specialist-notify"]: Refreshing state... [id=https://sqs.af-south-1.amazonaws.com/315224414532/healthconnect-dev-specialist-notify]
+module.nat.aws_iam_role.nat: Refreshing state... [id=healthconnect-dev-nat-role]
+module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"]: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms:ee2b49b1-0e6f-4205-9344-23880dc1c7b2]
+module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"]: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms:28dc7dee-4f20-453a-a462-97f224f3db80]
+module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"]: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms:77f9da57-8174-4755-b46b-cdc94fa9211d]
+module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"]: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms:080c1a3d-07f1-455e-aa86-a6b33f98a7e8]
+module.alb.aws_acm_certificate_validation.api[0]: Refreshing state... [id=0001-01-01 00:00:00 +0000 UTC]
+module.call[0].aws_iam_role.call: Refreshing state... [id=healthconnect-dev-call-role]
+module.network.aws_subnet.data[0]: Refreshing state... [id=subnet-0693fbfc6c739bb71]
+module.network.aws_subnet.data[1]: Refreshing state... [id=subnet-06b11f923845cb039]
+module.network.aws_subnet.public[1]: Refreshing state... [id=subnet-00de6af2305b1c442]
+module.network.aws_subnet.public[0]: Refreshing state... [id=subnet-0a7113dfd59c638f3]
+module.network.aws_subnet.private[1]: Refreshing state... [id=subnet-07e169a196ec611a6]
+module.network.aws_subnet.private[0]: Refreshing state... [id=subnet-08c8089c0eccf91c6]
+module.network.aws_route_table.data: Refreshing state... [id=rtb-0af6e32082c6b8bca]
+module.network.aws_internet_gateway.igw: Refreshing state... [id=igw-03cc4cd848cfab955]
+module.cicd.data.aws_iam_policy_document.gha_assume: Reading...
+module.cicd.data.aws_iam_policy_document.gha_assume: Read complete after 0s [id=3693922779]
+module.events.data.aws_iam_policy_document.function["reminders"]: Reading...
+module.events.data.aws_iam_policy_document.function["reminders"]: Read complete after 0s [id=428843095]
+module.events.data.aws_iam_policy_document.function["specialist-notify"]: Reading...
+module.events.data.aws_iam_policy_document.function["specialist-notify"]: Read complete after 0s [id=1793134512]
+module.events.data.aws_iam_policy_document.queue["reminders"]: Reading...
+module.events.data.aws_iam_policy_document.queue["reminders"]: Read complete after 0s [id=4258011010]
+module.events.data.aws_iam_policy_document.queue["specialist-notify"]: Reading...
+module.events.data.aws_iam_policy_document.queue["specialist-notify"]: Read complete after 0s [id=3115079572]
+module.storage.aws_s3_bucket_public_access_block.media: Refreshing state... [id=healthconnect-dev-media]
+module.storage.data.aws_iam_policy_document.app_access: Reading...
+module.storage.data.aws_iam_policy_document.app_access: Read complete after 0s [id=1167494573]
+module.storage.aws_s3_bucket_lifecycle_configuration.media: Refreshing state... [id=healthconnect-dev-media]
+module.storage.aws_s3_bucket_server_side_encryption_configuration.media: Refreshing state... [id=healthconnect-dev-media]
+module.storage.aws_s3_bucket_versioning.media: Refreshing state... [id=healthconnect-dev-media]
+module.frontend.aws_s3_bucket_public_access_block.site: Refreshing state... [id=healthconnect-dev-frontend]
+module.frontend.aws_s3_bucket_server_side_encryption_configuration.site: Refreshing state... [id=healthconnect-dev-frontend]
+module.frontend.aws_acm_certificate_validation.site: Refreshing state... [id=0001-01-01 00:00:00 +0000 UTC]
+module.nat.aws_iam_instance_profile.nat: Refreshing state... [id=healthconnect-dev-nat-profile]
+module.nat.aws_iam_role_policy_attachment.nat_ssm: Refreshing state... [id=healthconnect-dev-nat-role-20261026130544518200000001]
+module.cicd.aws_iam_role.gha_deploy: Refreshing state... [id=healthconnect-dev-gha-deploy]
+module.events.aws_sqs_queue_policy.main["reminders"]: Refreshing state... [id=https://sqs.af-south-1.amazonaws.com/315224414532/healthconnect-dev-reminders]
+module.events.aws_sqs_queue_policy.main["specialist-notify"]: Refreshing state... [id=https://sqs.af-south-1.amazonaws.com/315224414532/healthconnect-dev-specialist-notify]
+module.network.aws_route_table_association.data[0]: Refreshing state... [id=rtbassoc-02d46e6541d22c1bd]
+module.network.aws_route_table_association.data[1]: Refreshing state... [id=rtbassoc-00d186661f05a5ba6]
+module.compute.data.aws_iam_policy_document.image_tag_read: Reading...
+module.compute.data.aws_iam_policy_document.image_tag_read: Read complete after 0s [id=1176765384]
+module.compute.data.aws_iam_policy_document.ecr_pull: Reading...
+module.compute.data.aws_iam_policy_document.ecr_pull: Read complete after 0s [id=3549021533]
+module.compute.data.aws_iam_policy_document.events_publish: Reading...
+module.compute.data.aws_iam_policy_document.events_publish: Read complete after 0s [id=2713059711]
+module.alb.data.aws_vpc.this: Reading...
+module.alb.aws_lb_target_group.app: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f]
+module.call[0].aws_lb_target_group.call: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:targetgroup/healthconnect-dev-call-tg/666d02b16f399fff]
+module.nat.aws_security_group.nat: Refreshing state... [id=sg-043eb8beb4c53a66d]
+module.network.aws_route_table.public: Refreshing state... [id=rtb-00c453c989b6cad8f]
+module.events.aws_iam_role_policy.function["reminders"]: Refreshing state... [id=healthconnect-dev-reminders-fn:healthconnect-dev-reminders-fn]
+module.events.aws_iam_role_policy.function["specialist-notify"]: Refreshing state... [id=healthconnect-dev-specialist-notify-fn:healthconnect-dev-specialist-notify-fn]
+module.frontend.aws_cloudfront_distribution.site: Refreshing state... [id=E2DDTG0STZ3U3H]
+module.events.aws_sns_topic_subscription.queue["specialist-notify"]: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-appointment-events:ca1a96d6-6e8b-4cff-abe3-5d1daeaa0634]
+module.events.aws_sns_topic_subscription.queue["reminders"]: Refreshing state... [id=arn:aws:sns:af-south-1:315224414532:healthconnect-dev-appointment-events:500dc098-c154-406e-96a9-ed1a35cbf8a4]
+module.call[0].aws_iam_instance_profile.call: Refreshing state... [id=healthconnect-dev-call-profile]
+module.alb.data.aws_vpc.this: Read complete after 1s [id=vpc-0ff22996705637550]
+module.call[0].aws_iam_role_policy_attachment.ssm: Refreshing state... [id=healthconnect-dev-call-role-20261023123806315000000003]
+module.call[0].aws_iam_role_policy_attachment.ecr: Refreshing state... [id=healthconnect-dev-call-role-20261023123805786700000002]
+module.call[0].aws_iam_role_policy.logs: Refreshing state... [id=healthconnect-dev-call-role:healthconnect-dev-call-logs]
+module.database.aws_db_subnet_group.main: Refreshing state... [id=healthconnect-dev-db-subnet-group]
+module.database.data.aws_subnet.first_data: Reading...
+module.network.aws_route_table_association.public[0]: Refreshing state... [id=rtbassoc-0a33216c9caf7d253]
+module.database.data.aws_subnet.first_data: Read complete after 0s [id=subnet-0693fbfc6c739bb71]
+module.network.aws_route_table_association.public[1]: Refreshing state... [id=rtbassoc-0b15da7c7b1dfacd7]
+module.nat.aws_network_interface.nat: Refreshing state... [id=eni-06a763513ecb7322b]
+module.events.aws_lambda_function.function["specialist-notify"]: Refreshing state... [id=healthconnect-dev-specialist-notify]
+module.events.aws_lambda_function.function["reminders"]: Refreshing state... [id=healthconnect-dev-reminders]
+module.alb.aws_security_group.alb: Refreshing state... [id=sg-060842f81e5f43421]
+module.compute.aws_iam_role_policy.ec2_logs: Refreshing state... [id=healthconnect-dev-ec2-role:healthconnect-dev-ec2-logs]
+module.compute.aws_iam_role_policy.ec2_media_bucket: Refreshing state... [id=healthconnect-dev-ec2-role:healthconnect-dev-ec2-media-bucket]
+module.compute.aws_iam_role_policy.ec2_events_publish: Refreshing state... [id=healthconnect-dev-ec2-role:healthconnect-dev-ec2-events-publish]
+module.compute.aws_iam_role_policy_attachment.ec2_ssm: Refreshing state... [id=healthconnect-dev-ec2-role-20261022092202462400000002]
+module.compute.aws_iam_instance_profile.ec2: Refreshing state... [id=healthconnect-dev-ec2-profile]
+module.compute.aws_iam_role_policy.ec2_image_tag: Refreshing state... [id=healthconnect-dev-ec2-role:healthconnect-dev-ec2-image-tag]
+module.compute.aws_iam_role_policy.ec2_ecr: Refreshing state... [id=healthconnect-dev-ec2-role:healthconnect-dev-ec2-ecr-pull]
+module.frontend.data.aws_iam_policy_document.site: Reading...
+module.frontend.data.aws_iam_policy_document.site: Read complete after 0s [id=1869318312]
+module.alb.aws_lb.app: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:loadbalancer/app/healthconnect-dev-alb/7a4da7e7c95843fb]
+module.alb.aws_security_group.app: Refreshing state... [id=sg-0acb39719a308922b]
+module.nat.aws_instance.nat: Refreshing state... [id=i-0df0c1e05e47f5b9a]
+module.frontend.aws_s3_bucket_policy.site: Refreshing state... [id=healthconnect-dev-frontend]
+module.call[0].aws_security_group.call: Refreshing state... [id=sg-044ae4d98bfe3f103]
+module.network.aws_route_table.private: Refreshing state... [id=rtb-0c5ba95f11714ab20]
+module.database.aws_security_group.db: Refreshing state... [id=sg-09ad7d093eba9e97e]
+module.call[0].aws_instance.call: Refreshing state... [id=i-0a5c1b13ee934a046]
+module.observability.aws_cloudwatch_metric_alarm.alb_latency_p95: Refreshing state... [id=healthconnect-dev-alb-target-latency-p95]
+module.observability.aws_cloudwatch_metric_alarm.alb_5xx_rate: Refreshing state... [id=healthconnect-dev-alb-target-5xx]
+module.database.aws_db_instance.main: Refreshing state... [id=db-Z2VZGIXB6ERK25JG5YLXV2T6JQ]
+module.alb.aws_lb_listener.https[0]: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:listener/app/healthconnect-dev-alb/7a4da7e7c95843fb/2853c926b566f8ab]
+module.observability.aws_cloudwatch_metric_alarm.alb_unhealthy_hosts: Refreshing state... [id=healthconnect-dev-alb-unhealthy-hosts]
+module.events.aws_lambda_event_source_mapping.queue["reminders"]: Refreshing state... [id=55e2124f-97c0-4116-bd9a-a0707c35f81c]
+module.events.aws_lambda_event_source_mapping.queue["specialist-notify"]: Refreshing state... [id=e7c34709-6524-4a62-8ca1-f93b7ef85b34]
+module.network.aws_route_table_association.private[0]: Refreshing state... [id=rtbassoc-05672999e41f5426f]
+module.network.aws_route_table_association.private[1]: Refreshing state... [id=rtbassoc-0441adca047ebfd25]
+module.alb.aws_lb_listener.http: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:listener/app/healthconnect-dev-alb/7a4da7e7c95843fb/5134c2c34b9a4a0e]
+module.compute.data.aws_iam_policy_document.app_secrets_read: Reading...
+module.compute.data.aws_iam_policy_document.app_secrets_read: Read complete after 0s [id=2622235243]
+module.observability.aws_cloudwatch_metric_alarm.rds_freeable_memory: Refreshing state... [id=healthconnect-dev-rds-freeable-memory-low]
+module.observability.aws_cloudwatch_metric_alarm.rds_cpu: Refreshing state... [id=healthconnect-dev-rds-cpu-high]
+module.call[0].aws_lb_listener_rule.call: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:listener-rule/app/healthconnect-dev-alb/7a4da7e7c95843fb/2853c926b566f8ab/81b7a66eac58e085]
+module.observability.aws_cloudwatch_metric_alarm.rds_free_storage: Refreshing state... [id=healthconnect-dev-rds-free-storage-low]
+module.compute.aws_iam_role_policy.ec2_app_secrets: Refreshing state... [id=healthconnect-dev-ec2-role:healthconnect-dev-ec2-app-secrets]
+module.compute.aws_launch_template.app: Refreshing state... [id=lt-0634753075466526e]
+module.compute.aws_autoscaling_group.app: Refreshing state... [id=healthconnect-dev-asg]
+module.observability.aws_cloudwatch_metric_alarm.nat_status_check: Refreshing state... [id=healthconnect-dev-nat-status-check-failed]
+module.compute.aws_autoscaling_policy.request_count: Refreshing state... [id=healthconnect-dev-requests-per-target]
+module.observability.aws_cloudwatch_metric_alarm.asg_status_check: Refreshing state... [id=healthconnect-dev-asg-status-check-failed]
+module.observability.aws_cloudwatch_dashboard.main: Refreshing state... [id=healthconnect-dev-overview]
+module.call[0].aws_lb_target_group_attachment.call: Refreshing state... [id=arn:aws:elasticloadbalancing:af-south-1:315224414532:targetgroup/healthconnect-dev-call-tg/666d02b16f399fff-20261026125442956100000002]
+module.cicd.data.aws_iam_policy_document.gha_deploy: Reading...
+module.cicd.data.aws_iam_policy_document.gha_deploy: Read complete after 0s [id=1944922645]
+module.cicd.aws_iam_role_policy.gha_deploy: Refreshing state... [id=healthconnect-dev-gha-deploy:healthconnect-dev-gha-deploy]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+  ~ update in-place
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # module.compute.aws_launch_template.app will be updated in-place
+  ~ resource "aws_launch_template" "app" {
+        id                                   = "lt-0634753075466526e"
+      ~ image_id                             = (sensitive value)
+      ~ latest_version                       = 3 -> (known after apply)
+        name                                 = "healthconnect-dev-lt-20261022093108493900000008"
+        tags                                 = {}
+        # (16 unchanged attributes hidden)
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # module.nat.aws_instance.nat must be replaced
+-/+ resource "aws_instance" "nat" {
+      ~ ami                                  = "ami-0f92272a3b69c7fb9" -> "ami-015bb4511d72c2ddd" # forces replacement
+      ~ arn                                  = "arn:aws:ec2:af-south-1:315224414532:instance/i-0df0c1e05e47f5b9a" -> (known after apply)
+      ~ associate_public_ip_address          = true -> (known after apply)
+      ~ availability_zone                    = "af-south-1a" -> (known after apply)
+      ~ cpu_core_count                       = 2 -> (known after apply)
+      ~ cpu_threads_per_core                 = 1 -> (known after apply)
+      ~ disable_api_stop                     = false -> (known after apply)
+      ~ disable_api_termination              = false -> (known after apply)
+      ~ ebs_optimized                        = false -> (known after apply)
+      + enable_primary_ipv6                  = (known after apply)
+      - hibernation                          = false -> null
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      ~ id                                   = "i-0df0c1e05e47f5b9a" -> (known after apply)
+      ~ instance_initiated_shutdown_behavior = "stop" -> (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      ~ instance_state                       = "running" -> (known after apply)
+      ~ ipv6_address_count                   = 0 -> (known after apply)
+      ~ ipv6_addresses                       = [] -> (known after apply)
+      + key_name                             = (known after apply)
+      ~ monitoring                           = false -> (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      ~ placement_partition_number           = 0 -> (known after apply)
+      ~ primary_network_interface_id         = "eni-06a763513ecb7322b" -> (known after apply)
+      ~ private_dns                          = "ip-10-30-1-174.af-south-1.compute.internal" -> (known after apply)
+      ~ private_ip                           = "10.30.1.174" -> (known after apply)
+      ~ public_dns                           = "ec2-13-245-7-237.af-south-1.compute.amazonaws.com" -> (known after apply)
+      ~ public_ip                            = "13.245.7.237" -> (known after apply)
+      ~ secondary_private_ips                = [] -> (known after apply)
+      ~ security_groups                      = [] -> (known after apply)
+      - source_dest_check                    = false -> null
+      + spot_instance_request_id             = (known after apply)
+      ~ subnet_id                            = "subnet-0a7113dfd59c638f3" -> (known after apply)
+        tags                                 = {
+            "Name" = "healthconnect-dev-fck-nat"
+        }
+      ~ tenancy                              = "default" -> (known after apply)
+      + user_data                            = (known after apply)
+      + user_data_base64                     = (known after apply)
+      ~ vpc_security_group_ids               = [
+          - "sg-043eb8beb4c53a66d",
+        ] -> (known after apply)
+        # (5 unchanged attributes hidden)
+
+      ~ capacity_reservation_specification (known after apply)
+      - capacity_reservation_specification {
+          - capacity_reservation_preference = "open" -> null
+        }
+
+      ~ cpu_options (known after apply)
+      - cpu_options {
+          - core_count       = 2 -> null
+          - threads_per_core = 1 -> null
+            # (1 unchanged attribute hidden)
+        }
+
+      - credit_specification {
+          - cpu_credits = "unlimited" -> null
+        }
+
+      ~ ebs_block_device (known after apply)
+
+      ~ enclave_options (known after apply)
+      - enclave_options {
+          - enabled = false -> null
+        }
+
+      ~ ephemeral_block_device (known after apply)
+
+      ~ instance_market_options (known after apply)
+
+      ~ maintenance_options (known after apply)
+      - maintenance_options {
+          - auto_recovery = "default" -> null
+        }
+
+      ~ metadata_options {
+          ~ http_put_response_hop_limit = 2 -> (known after apply)
+          ~ instance_metadata_tags      = "disabled" -> (known after apply)
+            # (3 unchanged attributes hidden)
+        }
+
+      ~ private_dns_name_options (known after apply)
+      - private_dns_name_options {
+          - enable_resource_name_dns_a_record    = false -> null
+          - enable_resource_name_dns_aaaa_record = false -> null
+          - hostname_type                        = "ip-name" -> null
+        }
+
+      ~ root_block_device (known after apply)
+      - root_block_device {
+          - delete_on_termination = true -> null
+          - device_name           = "/dev/xvda" -> null
+          - encrypted             = false -> null
+          - iops                  = 3000 -> null
+          - tags                  = {
+              - "Env"       = "dev"
+              - "ManagedBy" = "terraform"
+              - "Project"   = "healthconnect"
+              - "Team"      = "highlanders"
+            } -> null
+          - tags_all              = {
+              - "Env"       = "dev"
+              - "ManagedBy" = "terraform"
+              - "Project"   = "healthconnect"
+              - "Team"      = "highlanders"
+            } -> null
+          - throughput            = 125 -> null
+          - volume_id             = "vol-077ed8aeaf0e28234" -> null
+          - volume_size           = 4 -> null
+          - volume_type           = "gp3" -> null
+            # (1 unchanged attribute hidden)
+        }
+
+        # (1 unchanged block hidden)
+    }
+
+  # module.observability.aws_cloudwatch_dashboard.main will be updated in-place
+  ~ resource "aws_cloudwatch_dashboard" "main" {
+      ~ dashboard_body = jsonencode(
+            {
+              - widgets = [
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "RequestCount",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - label = "Requests (sum)"
+                                      - stat  = "Sum"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "TargetResponseTime",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - label = "Latency avg (s)"
+                                      - stat  = "Average"
+                                      - yAxis = "right"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "ALB — request volume & latency"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 0
+                      - y          = 0
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "HTTPCode_Target_2XX_Count",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - color = "#2ca02c"
+                                      - label = "2xx"
+                                      - stat  = "Sum"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "HTTPCode_Target_4XX_Count",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - color = "#ff7f0e"
+                                      - label = "4xx"
+                                      - stat  = "Sum"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "HTTPCode_Target_5XX_Count",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - color = "#d62728"
+                                      - label = "5xx"
+                                      - stat  = "Sum"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "ALB — HTTP status codes"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 12
+                      - y          = 0
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "HealthyHostCount",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - color = "#2ca02c"
+                                      - label = "Healthy"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/ApplicationELB",
+                                  - "UnHealthyHostCount",
+                                  - "LoadBalancer",
+                                  - "app/healthconnect-dev-alb/7a4da7e7c95843fb",
+                                  - "TargetGroup",
+                                  - "targetgroup/healthconnect-dev-tg/a3d80a6e4da64a9f",
+                                  - {
+                                      - color = "#d62728"
+                                      - label = "Unhealthy"
+                                      - stat  = "Maximum"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "ALB — target health"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 0
+                      - y          = 6
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/RDS",
+                                  - "CPUUtilization",
+                                  - "DBInstanceIdentifier",
+                                  - "healthconnect-dev-postgres",
+                                  - {
+                                      - label = "CPU %"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/RDS",
+                                  - "FreeableMemory",
+                                  - "DBInstanceIdentifier",
+                                  - "healthconnect-dev-postgres",
+                                  - {
+                                      - label = "Freeable memory"
+                                      - stat  = "Average"
+                                      - yAxis = "right"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "RDS — CPU & freeable memory"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 12
+                      - y          = 6
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/RDS",
+                                  - "FreeStorageSpace",
+                                  - "DBInstanceIdentifier",
+                                  - "healthconnect-dev-postgres",
+                                  - {
+                                      - label = "Free storage"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/RDS",
+                                  - "DatabaseConnections",
+                                  - "DBInstanceIdentifier",
+                                  - "healthconnect-dev-postgres",
+                                  - {
+                                      - label = "Connections"
+                                      - stat  = "Average"
+                                      - yAxis = "right"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "RDS — storage & connections"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 0
+                      - y          = 12
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/RDS",
+                                  - "ReadLatency",
+                                  - "DBInstanceIdentifier",
+                                  - "healthconnect-dev-postgres",
+                                  - {
+                                      - label = "Read (s)"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/RDS",
+                                  - "WriteLatency",
+                                  - "DBInstanceIdentifier",
+                                  - "healthconnect-dev-postgres",
+                                  - {
+                                      - label = "Write (s)"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "RDS — disk read/write latency"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 12
+                      - y          = 12
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/AutoScaling",
+                                  - "GroupInServiceInstances",
+                                  - "AutoScalingGroupName",
+                                  - "healthconnect-dev-asg",
+                                  - {
+                                      - label = "In service"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/AutoScaling",
+                                  - "GroupDesiredCapacity",
+                                  - "AutoScalingGroupName",
+                                  - "healthconnect-dev-asg",
+                                  - {
+                                      - label = "Desired"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "ASG — capacity"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 0
+                      - y          = 18
+                    },
+                  - {
+                      - height     = 6
+                      - properties = {
+                          - annotations = {
+                              - horizontal = []
+                              - vertical   = []
+                            }
+                          - metrics     = [
+                              - [
+                                  - "AWS/EC2",
+                                  - "CPUUtilization",
+                                  - "InstanceId",
+                                  - "i-0df0c1e05e47f5b9a",
+                                  - {
+                                      - label = "CPU %"
+                                      - stat  = "Average"
+                                    },
+                                ],
+                              - [
+                                  - "AWS/EC2",
+                                  - "StatusCheckFailed",
+                                  - "InstanceId",
+                                  - "i-0df0c1e05e47f5b9a",
+                                  - {
+                                      - color = "#d62728"
+                                      - label = "Status check failed"
+                                      - stat  = "Maximum"
+                                      - yAxis = "right"
+                                    },
+                                ],
+                            ]
+                          - period      = 60
+                          - region      = "af-south-1"
+                          - title       = "fck-nat host — CPU & status"
+                          - view        = "timeSeries"
+                        }
+                      - type       = "metric"
+                      - width      = 12
+                      - x          = 12
+                      - y          = 18
+                    },
+                ]
+            }
+        ) -> (known after apply)
+        id             = "healthconnect-dev-overview"
+        # (2 unchanged attributes hidden)
+    }
+
+  # module.observability.aws_cloudwatch_metric_alarm.nat_status_check will be updated in-place
+  ~ resource "aws_cloudwatch_metric_alarm" "nat_status_check" {
+      ~ dimensions                            = {
+          - "InstanceId" = "i-0df0c1e05e47f5b9a"
+        } -> (known after apply)
+        id                                    = "healthconnect-dev-nat-status-check-failed"
+        tags                                  = {}
+        # (21 unchanged attributes hidden)
+    }
+
+  # module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"] will be created
+  + resource "aws_sns_topic_subscription" "email" {
+      + arn                             = (known after apply)
+      + confirmation_timeout_in_minutes = 1
+      + confirmation_was_authenticated  = (known after apply)
+      + endpoint                        = "<team-email-redacted>"
+      + endpoint_auto_confirms          = false
+      + filter_policy_scope             = (known after apply)
+      + id                              = (known after apply)
+      + owner_id                        = (known after apply)
+      + pending_confirmation            = (known after apply)
+      + protocol                        = "email"
+      + raw_message_delivery            = false
+      + topic_arn                       = "arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms"
+    }
+
+  # module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"] will be created
+  + resource "aws_sns_topic_subscription" "email" {
+      + arn                             = (known after apply)
+      + confirmation_timeout_in_minutes = 1
+      + confirmation_was_authenticated  = (known after apply)
+      + endpoint                        = "<team-email-redacted>"
+      + endpoint_auto_confirms          = false
+      + filter_policy_scope             = (known after apply)
+      + id                              = (known after apply)
+      + owner_id                        = (known after apply)
+      + pending_confirmation            = (known after apply)
+      + protocol                        = "email"
+      + raw_message_delivery            = false
+      + topic_arn                       = "arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms"
+    }
+
+  # module.observability.aws_sns_topic_subscription.email["<team-email-redacted>"] will be created
+  + resource "aws_sns_topic_subscription" "email" {
+      + arn                             = (known after apply)
+      + confirmation_timeout_in_minutes = 1
+      + confirmation_was_authenticated  = (known after apply)
+      + endpoint                        = "<team-email-redacted>"
+      + endpoint_auto_confirms          = false
+      + filter_policy_scope             = (known after apply)
+      + id                              = (known after apply)
+      + owner_id                        = (known after apply)
+      + pending_confirmation            = (known after apply)
+      + protocol                        = "email"
+      + raw_message_delivery            = false
+      + topic_arn                       = "arn:aws:sns:af-south-1:315224414532:healthconnect-dev-alarms"
+    }
+
+Plan: 4 to add, 3 to change, 1 to destroy.
+
+Changes to Outputs:
+  + app_url                          = "https://app-hc.agroconnect.space"
+  ~ nat_instance_id                  = "i-0df0c1e05e47f5b9a" -> (known after apply)
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.

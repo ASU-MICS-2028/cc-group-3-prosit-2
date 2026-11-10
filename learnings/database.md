@@ -154,6 +154,8 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
   Since then: 004 and 006 applied 9 Nov morning, 005 and 007 the same afternoon, then `db/seed/surveillance_synthetic.sql`
   (312 synthetic rows, weeks 14 Sep to 2 Nov). Numbers already taken by open PRs: 008 (#57), 009 (#58), 011 (#60); 010 is
   kept for E-M part 2. `migrate.sh` applies a lower number that arrives late (005 ran after 006), so gaps are fine.
+  9 Nov evening: 008, 009 and 011 applied (after #57, #58 and #60 merged), so RDS now holds 001–009 and 011; 010 is
+  still free for E-M part 2.
 - **L7-H2 is live** (checked 9 Nov): table `healthconnect-dev-reminders-sent` exists and the reminder function's
   `SENT_TABLE` points at it. The live duplicate check (book twice, look for `duplicate_skipped`) is still to be captured.
 - **The specialist-notify function still has no duplicate check.** A repeated event notifies the specialist twice.
