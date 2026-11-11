@@ -96,7 +96,7 @@ export const ghs: Record<string, ScreenDef> = {
 
 /* ---------------- Health centre admin ---------------- */
 export const facility: Record<string, ScreenDef> = {
-  "facility.home": { title: "Hi Kwabena", caption: "Dodowa clinic area", render: () => (<><div className="row"><VitalCard label="People" value="14" unit="" taken="Volunteers and staff" /><VitalCard label="Low stock" value="3" unit="items" taken="Needs a request" flag="check" /></div><Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }]} /></>) },
+  "facility.home": { title: "Hi Kwabena", caption: "Dodowa clinic area", render: () => (<><div className="row"><VitalCard label="People" value="14" unit="" taken="Volunteers and staff" /><VitalCard label="Low stock" value="3" unit="items" taken="Needs a request" flag="check" /></div><Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }, { icon: "calendar-check", label: "Quality review", to: "facility.qa" }]} /></>) },
   "facility.users": { title: "People", render: () => (<><Rows items={[{ name: "Ama Serwaa", role: "Community health volunteer" }, { name: "Nurse Adjei", role: "Nurse" }]} /><PrimaryButton>Add a person</PrimaryButton></>) },
   "facility.stock": { title: "Stock", render: () => (<><Rows items={[{ name: "ORS sachets", role: "40 left", trailing: <RangeFlag flag="check" /> }, { name: "Test kits", role: "200 left" }]} /><PrimaryButton>Request stock</PrimaryButton></>) },
   "facility.training": { title: "Training", render: () => <Rows items={[{ name: "Safe home visits", role: "9 of 14 finished" }, { name: "Recording vitals", role: "14 of 14 finished" }]} /> },
