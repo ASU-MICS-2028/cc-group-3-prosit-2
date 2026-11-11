@@ -13,12 +13,15 @@ export type Alert = {
   case_count: number; baseline: number; reason: string;
   status: "suggested" | "confirmed" | "dismissed"; decided_at: string | null; decision_note: string | null; alert_sent_at: string | null;
 };
+export type Forecast = { region: string; district: string; condition: Condition; estimate: number; low: number; high: number; synthetic: boolean };
+export type Forecasts = { estimate: true; synthetic: boolean; method: string; week_start: string | null; forecasts: Forecast[] };
 export class SurveillanceError extends Error { constructor(readonly code: string, message: string) { super(message); this.name = "SurveillanceError"; } }
 
 export interface SurveillanceApi {
   summary(region?: string): Promise<Summary>;
   alerts(): Promise<Alert[]>;
   decide(id: string, decision: "confirmed" | "dismissed", note?: string): Promise<Alert>;
+  forecast(region?: string): Promise<Forecasts>;
 }
 
 /* ---------------- Test mode ---------------- */
@@ -79,6 +82,7 @@ export function outbreakSignals(rows: Row[]): Omit<Alert, "id" | "status" | "dec
   return out;
 }
 
+const FORECAST_METHOD = "Average of the last 4 weekly counts. The range is the lowest and highest of those 4.";
 const VIEWERS = new Set(["ghs", "platform_admin"]);
 const DECIDERS = new Set(["ghs"]); // a public health decision: admins can view, not decide
 const storeKey = (userId: string) => `hc.mock.surveillance.v1.${userId}`;
@@ -112,6 +116,17 @@ export function mockSurveillanceApi(session: Session): SurveillanceApi {
       write(saved);
       return [...saved].sort((a, b) => b.week_start.localeCompare(a.week_start) || b.case_count - a.case_count);
     },
+    async forecast(region) {
+      allowed();
+      const recent = WEEKS.slice(-4);
+      const groups = new Map<string, Row[]>();
+      for (const r of rows.filter((r) => recent.includes(r.week) && (!region || r.region === region))) groups.set(`${r.district}|${r.condition}`, [...(groups.get(`${r.district}|${r.condition}`) ?? []), r]);
+      const forecasts = [...groups.values()].filter((g) => g.length === 4).map((g) => {
+        const counts = g.map((r) => r.case_count);
+        return { region: g[0].region, district: g[0].district, condition: g[0].condition, estimate: Math.round(counts.reduce((a, b) => a + b, 0) / 4), low: Math.min(...counts), high: Math.max(...counts), synthetic: true };
+      });
+      return { estimate: true as const, synthetic: true, method: FORECAST_METHOD, week_start: "2026-11-09", forecasts };
+    },
     async decide(id, decision, note) {
       allowed();
       if (!DECIDERS.has(session.user.role)) throw new SurveillanceError("forbidden", "Only a GHS official can confirm or dismiss an outbreak.");
@@ -141,6 +156,7 @@ export function liveSurveillanceApi(session: Session, base = API_URL): Surveilla
   return {
     summary: (region) => call<Summary>(`/surveillance/summary${region ? `?region=${encodeURIComponent(region)}` : ""}`),
     alerts: async () => (await call<{ alerts: Alert[] }>("/surveillance/alerts")).alerts,
+    forecast: (region) => call<Forecasts>(`/surveillance/forecast${region ? `?region=${encodeURIComponent(region)}` : ""}`),
     decide: (id, decision, note) => call<Alert>(`/surveillance/alerts/${id}/decision`, { method: "POST", body: JSON.stringify({ decision, note }) }),
   };
 }

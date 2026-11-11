@@ -196,6 +196,8 @@ The insurance tables were taken out of E-M part 2 and are `011`, so `010` stays 
 
 **What isn't real:** the plans, the prices and the NHIS check. We have no insurer as a partner and no access to NHIS.
 
+**Community programmes and forecasts (FB-7b).** `src/routes/community.ts` (surveys, `/maternal`, `/decision-support/symptoms`) and `GET /surveillance/forecast`. Every route checks role and, for patient data, `canReach`; maternal reads and writes are in `access_log` under `Patient`. Survey results are totals only. Decision support stores nothing; `src/symptomRules.ts` is copied byte for byte to `frontend/src/data/symptomRules.ts` for test mode, and a test fails if they drift. **Not done:** SMS reminders (nothing is sent; the app says so); the rules and visit timings are unreviewed.
+
 ## 3. Why it works this way
 
 - **The database is the last line of defence.** Even if the API had a bug, Postgres would still refuse a write with no

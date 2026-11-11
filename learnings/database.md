@@ -76,6 +76,13 @@ The database stores patients, their vital signs, their consent, health workers a
      screens (`frontend/src/screens/surveillance.tsx`), with a test mode that follows the same rule.
    Tests: schema 68 deny / 34 allow / 0 problems; API 7 tests; app 11 tests. Evidence: `evidence/final/FB-7-outbreak-*.png`.
 
+9. **Migration 010: E-M part 2 (with FB-7b).** `db/migrations/010_community_programs.sql`:
+   - **`surveys` / `survey_answers`:** only a GHS official builds; only a CHV or nurse records; choices only (free text would invite names), every question answered, a closed survey stays closed. **Answers name nobody.**
+   - **`pregnancies` / `children`:** the mother's clinical-care consent is required (same trigger as referrals); only the expected due date, or a given name and date of birth, is kept (Act 843). One active pregnancy per person. Not editable: close them, or mark `entered_in_error` and add again.
+   - **`visit_schedules`:** one row per planned visit, for a pregnancy or a child. Done once.
+   - **`courses`, `course_progress`, `stock_items`:** tables only, for FB-8 and later.
+   Insurance is in 011. Tests: **104 deny / 45 allow / 0 problems** (`db/tests/run_tests.sh`).
+
 ## 3. Why we did it this way
 
 | Choice | Why | Rejected |
