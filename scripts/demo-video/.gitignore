@@ -1,0 +1,8 @@
+node_modules/
+test-results/
+playwright-report/
+build/
+.state/
+assets/titles/
+*.mp4
+*.log
