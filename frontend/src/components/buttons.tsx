@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Icon, type IconName } from "./icons";
+import { t } from "../i18n";
 
 /** Gallery-only: forces a visual state so pressed/focus can be shown without a finger. */
 export type ForcedState = "pressed" | "focus";
@@ -21,7 +22,7 @@ export function PrimaryButton({ variant = "full", loading, forceState, children,
       {loading ? (
         <>
           <span className="dots" aria-hidden><i /><i /><i /></span>
-          <span className="sr-only">{children}, loading</span>
+          <span className="sr-only">{children}, {t("loading")}</span>
         </>
       ) : (
         <>
@@ -60,7 +61,7 @@ export function Chip({ selected, forceState, children, className = "", ...rest }
   return (
     <button {...rest} aria-pressed={selected} className={`chip${selected ? " is-selected" : ""}${forced(forceState)} ${className}`}>
       {selected && <Icon name="check" size="sm" />}
-      {children}
+      {typeof children === "string" ? t(children) : children}
     </button>
   );
 }
@@ -68,7 +69,7 @@ export function Chip({ selected, forceState, children, className = "", ...rest }
 /** 7.18: plays recorded audio of the text next to it, in the chosen language. */
 export function ListenButton({ playing, label = "Listen", forceState, ...rest }: BtnProps & { playing?: boolean; label?: string }) {
   return (
-    <button {...rest} aria-label={label} aria-pressed={playing} className={`listen-btn${playing ? " is-playing" : ""}${forced(forceState)}`}>
+    <button {...rest} aria-label={t(label)} aria-pressed={playing} className={`listen-btn${playing ? " is-playing" : ""}${forced(forceState)}`}>
       {playing ? <span className="bars" aria-hidden><i /><i /><i /><i /></span> : <Icon name="speaker-high" size="sm" />}
     </button>
   );
@@ -80,7 +81,7 @@ export function MicButton({ recording, seconds = 0, forceState, ...rest }: BtnPr
   const ss = String(seconds % 60).padStart(2, "0");
   if (recording) {
     return (
-      <button {...rest} aria-label="Stop recording" className={`mic-recording${forced(forceState)}`}>
+      <button {...rest} aria-label={t("Stop recording")} className={`mic-recording${forced(forceState)}`}>
         <span className="rec-dot" aria-hidden />
         <span className="tabular">{mm}:{ss}</span>
         <span className="bars" aria-hidden><i /><i /><i /><i /><i /></span>
@@ -89,7 +90,7 @@ export function MicButton({ recording, seconds = 0, forceState, ...rest }: BtnPr
     );
   }
   return (
-    <button {...rest} aria-label="Record a voice note" className={`listen-btn mic-btn${forced(forceState)}`}>
+    <button {...rest} aria-label={t("Record a voice note")} className={`listen-btn mic-btn${forced(forceState)}`}>
       <Icon name="microphone" size="sm" />
     </button>
   );

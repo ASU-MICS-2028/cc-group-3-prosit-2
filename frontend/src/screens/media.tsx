@@ -7,10 +7,11 @@ import { RepoError, addMedia, markMediaInError, type View } from "../data/repo";
 import { fromBase64, type Media } from "../data/model";
 import { ImageError, compressImage } from "../media/image";
 import { MAX_SECONDS, RecorderError, startRecording, type Recording } from "../media/recorder";
+import { t } from "../i18n";
 
 const kb = (n: number) => `${Math.max(1, Math.round(n / 1000))} KB`;
 const when = (iso: string) => new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
-const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
+const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{typeof children === "string" ? t(children) : children}</p>;
 
 /** An object URL for stored bytes, released when the picture or player goes away. */
 export function useObjectUrl(m: Media): string {
@@ -34,14 +35,14 @@ function MediaRow({ v, onMistake }: { v: View<Media>; onMistake?: (id: string) =
   const isPhoto = m.type.coding[0].code === "image";
   return (
     <div className="photo-done">
-      {mistake ? <span className="photo-thumb" aria-hidden /> : isPhoto ? <img className="photo-thumb" src={url} alt="Photo of the patient" /> : null}
+      {mistake ? <span className="photo-thumb" aria-hidden /> : isPhoto ? <img className="photo-thumb" src={url} alt={t("Photo of the patient")} /> : null}
       <div className="photo-meta">
-        <span className="body-strong tabular">{isPhoto ? "Photo" : "Voice note"} · {kb(m.content.size)}</span>
+        <span className="body-strong tabular">{isPhoto ? t("Photo") : t("Voice note")} · {kb(m.content.size)}</span>
         <span className="caption tabular">{when(m.createdDateTime)}</span>
-        {!isPhoto && !mistake && <audio controls src={url} aria-label="Play voice note" />}
-        {!isPhoto && !mistake && <span className="caption">Written text will be added when there is a signal.</span>}
-        {mistake ? <span className="caption">Marked as a mistake</span> : <SyncBadge status={v.syncState} />}
-        {!mistake && onMistake && <TextButton onClick={() => onMistake(m.id)}>Mark as a mistake</TextButton>}
+        {!isPhoto && !mistake && <audio controls src={url} aria-label={t("Play voice note")} />}
+        {!isPhoto && !mistake && <span className="caption">{t("Written text will be added when there is a signal.")}</span>}
+        {mistake ? <span className="caption">{t("Marked as a mistake")}</span> : <SyncBadge status={v.syncState} />}
+        {!mistake && onMistake && <TextButton onClick={() => onMistake(m.id)}>{t("Mark as a mistake")}</TextButton>}
       </div>
     </div>
   );
@@ -67,13 +68,13 @@ export function PhotosSection({ patientId, media, readOnly }: { patientId: strin
   }
   async function mistake(id: string) { try { await markMediaInError(userId, id); notify(); void sync(); } catch (e) { setProblem(messageOf(e)); } }
 
-  if (readOnly) return photos.length === 0 ? <p className="caption">No photos.</p> : <>{photos.map((v) => <MediaRow key={v.resource.id} v={v} />)}</>;
+  if (readOnly) return photos.length === 0 ? <p className="caption">{t("No photos.")}</p> : <>{photos.map((v) => <MediaRow key={v.resource.id} v={v} />)}</>;
 
   return (<>
-    <input ref={input} type="file" accept="image/*" capture="environment" hidden onChange={picked} aria-label="Choose a photo" />
+    <input ref={input} type="file" accept="image/*" capture="environment" hidden onChange={picked} aria-label={t("Choose a photo")} />
     <button className="photo-tile" disabled={busy} onClick={() => input.current?.click()}>
       <Icon name="camera" />
-      {busy ? "Preparing photo…" : "Take photo"}
+      {busy ? t("Preparing photo…") : t("Take photo")}
     </button>
     {problem && <Alert>{problem}</Alert>}
     {photos.map((v) => <MediaRow key={v.resource.id} v={v} onMistake={mistake} />)}
@@ -114,13 +115,13 @@ export function VoiceSection({ patientId, media, readOnly }: { patientId: string
   function cancel() { clearInterval(timer.current); rec.current?.cancel(); rec.current = null; setState("idle"); }
   async function mistake(id: string) { try { await markMediaInError(userId, id); notify(); void sync(); } catch (e) { setProblem(messageOf(e)); } }
 
-  if (readOnly) return notes.length === 0 ? <p className="caption">No voice notes.</p> : <>{notes.map((v) => <MediaRow key={v.resource.id} v={v} />)}</>;
+  if (readOnly) return notes.length === 0 ? <p className="caption">{t("No voice notes.")}</p> : <>{notes.map((v) => <MediaRow key={v.resource.id} v={v} />)}</>;
 
   return (<>
     <div className="row">
       {state === "recording" ? <MicButton recording seconds={seconds} onClick={stop} /> : <MicButton onClick={start} disabled={state !== "idle"} />}
-      <span className="caption">{state === "recording" ? "Recording. Tap to finish." : state === "saving" ? "Saving…" : state === "starting" ? "Starting…" : "Record a voice note (up to 2 minutes)"}</span>
-      {state === "recording" && <SecondaryButton onClick={cancel}>Cancel</SecondaryButton>}
+      <span className="caption">{state === "recording" ? t("Recording. Tap to finish.") : state === "saving" ? t("Saving…") : state === "starting" ? t("Starting…") : t("Record a voice note (up to 2 minutes)")}</span>
+      {state === "recording" && <SecondaryButton onClick={cancel}>{t("Cancel")}</SecondaryButton>}
     </div>
     {problem && <Alert>{problem}</Alert>}
     {notes.map((v) => <MediaRow key={v.resource.id} v={v} onMistake={mistake} />)}

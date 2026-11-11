@@ -7,6 +7,7 @@ import { Field } from "../components/inputs";
 import { SignInRefused } from "../auth/liveApi";
 import { ROLE_LABEL } from "../auth/roles";
 import { useSession } from "../auth/Session";
+import { t } from "../i18n";
 
 /** A real account signs in with a password. The switch underneath opens test mode: made-up people, no server. */
 export function Login() {
@@ -25,10 +26,10 @@ export function Login() {
 
   return (
     <main className="gallery">
-      <div className="gallery-onboard"><Wordmark /><h1 className="display">Welcome</h1><p className="caption">{testMode ? "Choose who you are to continue." : "Sign in to continue."}</p></div>
-      {expired && <p role="alert" className="banner"><Icon name="warning" size="sm" /> Your sign-in has ended. Sign in again. Your records are safe on this phone and will be sent afterwards.</p>}
+      <div className="gallery-onboard"><Wordmark /><h1 className="display">{t("Welcome")}</h1><p className="caption">{testMode ? t("Choose who you are to continue.") : t("Sign in to continue.")}</p></div>
+      {expired && <p role="alert" className="banner"><Icon name="warning" size="sm" />{" "}{t("Your sign-in has ended. Sign in again. Your records are safe on this phone and will be sent afterwards.")}</p>}
       {testMode ? (<>
-        <p className="banner"><Icon name="warning" size="sm" /> Test mode: these are made-up people.</p>
+        <p className="banner"><Icon name="warning" size="sm" />{" "}{t("Test mode: these are made-up people.")}</p>
         <div className="stack login-list">
           {api.demoAccounts().map((a) => (
             <PersonRow key={a.id} name={a.name} role={ROLE_LABEL[a.role]} hours={a.facility} onClick={busy ? undefined : () => attempt(a.id, () => signIn(a.id))} />
@@ -36,13 +37,13 @@ export function Login() {
         </div>
       </>) : (
         <form className="stack" onSubmit={submit}>
-          <Field label="Username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" required />
-          <Field label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
-          <PrimaryButton type="submit" loading={busy === "live"}>Sign in</PrimaryButton>
+          <Field label={t("Username")} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoCapitalize="none" required />
+          <Field label={t("Password")} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+          <PrimaryButton type="submit" loading={busy === "live"}>{t("Sign in")}</PrimaryButton>
         </form>
       )}
-      {error && <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{error}</p>}
-      <TextButton onClick={() => { setTestMode(!testMode); setError(null); }}>{testMode ? "Sign in with a real account" : "Use test mode (made-up people)"}</TextButton>
+      {error && <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{t(error)}</p>}
+      <TextButton onClick={() => { setTestMode(!testMode); setError(null); }}>{testMode ? t("Sign in with a real account") : t("Use test mode (made-up people)")}</TextButton>
     </main>
   );
 }

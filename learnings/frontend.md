@@ -247,3 +247,13 @@ E2E_API_URL=http://127.0.0.1:18441 E2E_PASSWORD=<same> E2E_PG_CONTAINER=<contain
 - **Who reviews:** a health centre admin, for finished recordings by doctors at their own facility. A doctor sees their own and can't review them. Withdrawn recordings never reach the list. A reviewer can only hear the sound on the doctor's phone.
 - **Limit:** consent is enforced by the app; nothing can stop a tampered phone recording on its own. Test mode can't store the other phone's yes, so its list shows "No" for the patient's side on unfinished ones.
 - **Checked** with two real Chrome browsers and fake microphones: ask, no, yes, withdraw, end of call, encrypted row, playback.
+
+## FB-11: languages and 200% text
+
+- **Adding a string:** write the English inside `t()` from `src/i18n` (`t("Save")`, or `t("Hi {name}", { name })` for values), then add the same English as a key to `src/i18n/tw.ts` with the Twi, and to `ee.ts`, `dag.ts`, `ha.ts` with `""` (empty shows English). A test fails if the four files' keys differ.
+- **Never translate data:** names, places, medicine names, codes and anything sent to the server stay as they are. Translate only what is shown: keep the English value in state or in the request, and call `t()` where it is rendered.
+- Shared components already translate their string props (Heading, Chip, Field label/helper/error/placeholder, KV key, tiles, nav, header title/caption, StateView, PersonRow role, badges). Text passed to them still needs a key.
+- `src/test/i18n.test.tsx` signs in as every role in Twi, opens every screen it may open, and fails on any English UI text with no Twi entry. If it flags real data, add a pattern to `DATA` there.
+- Twi in `tw.ts` was drafted with an AI tool. A native Twi speaker must check it before real patients use it.
+- Text size (Me screen: Normal / Large / Largest = 100/150/200%) sets the root font size; all type tokens are in `rem`, so the browser's own text size also scales them. Buttons, chips, badges and inputs use `min-height` so long text wraps instead of spilling. Screenshots at 360 px, 200%: `evidence/final/FB-11-*.png`.
+- Not translated: messages the server writes (outbreak reasons, emergency event log, the `A <role> account cannot …` refusals, vital-range messages that include a number). They arrive in English.

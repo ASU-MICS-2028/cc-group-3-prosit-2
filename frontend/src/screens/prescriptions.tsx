@@ -11,8 +11,9 @@ import { newId, type Media, consentPurpose, consentWithdrawnAt } from "../data/m
 import { RxError, rxApiFor, type Rx, type RxFlag } from "../data/prescriptions";
 import { useObjectUrl } from "./media";
 import { Heading, KV, TestMode, go } from "./kit";
+import { t } from "../i18n";
 
-const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
+const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{typeof children === "string" ? t(children) : children}</p>;
 const messageOf = (e: unknown) => (e instanceof RxError ? e.message : "We couldn't do that. Please try again.");
 const spaced = (code?: string) => (code ? `${code.slice(0, 4)} ${code.slice(4)}` : undefined);
 const cardStatus: Record<Rx["status"], RxStatus> = { active: "issued", dispensed: "dispensed", cancelled: "cancelled", expired: "expired" };
@@ -25,8 +26,8 @@ function useRx() {
 const ModeNote = () => {
   const { session } = useSession();
   return session?.mode === "live"
-    ? <p className="caption">The licence check uses a test register, not the real GMDC list.</p>
-    : <TestMode what="This prescription and licence check" />;
+    ? <p className="caption">{t("The licence check uses a test register, not the real GMDC list.")}</p>
+    : <TestMode what={t("This prescription and licence check")} />;
 };
 
 function Card({ rx }: { rx: Rx }) {
@@ -35,7 +36,7 @@ function Card({ rx }: { rx: Rx }) {
 }
 function Flags({ flags }: { flags: RxFlag[] }) {
   if (flags.length === 0) return null;
-  return <div className="stack" aria-label="Warnings">{flags.map((f) => <p key={f.kind} className="field-note has-error"><Icon name="warning" size="sm" />{f.detail}</p>)}</div>;
+  return <div className="stack" aria-label={t("Warnings")}>{flags.map((f) => <p key={f.kind} className="field-note has-error"><Icon name="warning" size="sm" />{f.detail}</p>)}</div>;
 }
 
 /* ---------------- Doctor ---------------- */
@@ -77,31 +78,31 @@ export function Prescribe() {
   }
 
   if (issued) return (<>
-    <KV k="For" v={issued.patient.name} />
+    <KV k={t("For")} v={issued.patient.name} />
     <Card rx={issued} />
     <Flags flags={issued.flags} />
     {problem && <Alert>{problem}</Alert>}
-    {issued.status === "active" && <SecondaryButton onClick={() => void cancel()}>Cancel this prescription</SecondaryButton>}
-    <PrimaryButton onClick={() => { setIssued(undefined); setMedicine(""); setDose(""); setFrequency(""); }}>Write another</PrimaryButton>
+    {issued.status === "active" && <SecondaryButton onClick={() => void cancel()}>{t("Cancel this prescription")}</SecondaryButton>}
+    <PrimaryButton onClick={() => { setIssued(undefined); setMedicine(""); setDose(""); setFrequency(""); }}>{t("Write another")}</PrimaryButton>
     <ModeNote />
   </>);
 
   const whole = (v: string, max: number) => /^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= max;
   const ready = chosen && medicine.trim() && dose.trim() && frequency.trim() && whole(days, 365) && whole(quantity, 10_000);
   return (<>
-    <Heading>Patient</Heading>
-    {patients.loading ? <StateView kind="loading" text="Loading…" /> : list.length === 0
-      ? <StateView kind="empty" text="No patients on this phone yet. They arrive when a visit is booked with you." />
+    <Heading>{t("Patient")}</Heading>
+    {patients.loading ? <StateView kind="loading" text={t("Loading…")} /> : list.length === 0
+      ? <StateView kind="empty" text={t("No patients on this phone yet. They arrive when a visit is booked with you.")} />
       : <div className="row">{list.map((p) => <Chip key={p.resource.id} selected={p.resource.id === patientId} onClick={() => setPatientId(p.resource.id)}>{p.resource.name[0].text}</Chip>)}</div>}
-    <Field label="Medicine" value={medicine} onChange={(e) => setMedicine(e.target.value)} helper="Name and strength, e.g. Amlodipine 5 mg" />
-    <Field label="How much each time" value={dose} onChange={(e) => setDose(e.target.value)} helper="e.g. 1 tablet" />
-    <Field label="How often" value={frequency} onChange={(e) => setFrequency(e.target.value)} helper="e.g. each morning" />
+    <Field label={t("Medicine")} value={medicine} onChange={(e) => setMedicine(e.target.value)} helper={t("Name and strength, e.g. Amlodipine 5 mg")} />
+    <Field label={t("How much each time")} value={dose} onChange={(e) => setDose(e.target.value)} helper={t("e.g. 1 tablet")} />
+    <Field label={t("How often")} value={frequency} onChange={(e) => setFrequency(e.target.value)} helper={t("e.g. each morning")} />
     <div className="row">
-      <Field label="Days" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} />
-      <Field label="Quantity" inputMode="numeric" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+      <Field label={t("Days")} inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} />
+      <Field label={t("Quantity")} inputMode="numeric" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
     </div>
     {problem && <Alert>{problem}</Alert>}
-    <PrimaryButton disabled={!ready} loading={busy} onClick={() => void issue()}>Issue prescription</PrimaryButton>
+    <PrimaryButton disabled={!ready} loading={busy} onClick={() => void issue()}>{t("Issue prescription")}</PrimaryButton>
     <ModeNote />
   </>);
 }
@@ -136,8 +137,8 @@ function Scanner({ onResult, onClose }: { onResult: (qr: string) => void; onClos
     return () => { stopped = true; clearTimeout(timer); stream?.getTracks().forEach((t) => t.stop()); };   // leaving the page turns the camera off
   }, [onResult]);
   return (<>
-    {problem ? <Alert>{problem}</Alert> : <video ref={video} className="scan-video" muted playsInline aria-label="Camera view for scanning" />}
-    <SecondaryButton onClick={onClose}>Stop scanning</SecondaryButton>
+    {problem ? <Alert>{problem}</Alert> : <video ref={video} className="scan-video" muted playsInline aria-label={t("Camera view for scanning")} />}
+    <SecondaryButton onClick={onClose}>{t("Stop scanning")}</SecondaryButton>
   </>);
 }
 
@@ -158,7 +159,7 @@ export function Verify() {
       const r = await rx.verify(by);
       setFound(r);
       setUsedCode("code" in by ? by.code : by.qr.split(":")[3] ?? "");
-      if (r.status === "dispensed") setProblem(`Already dispensed on ${fmtDate(r.dispensedAt as string)}${r.dispensedAtPlace ? ` at ${r.dispensedAtPlace}` : ""}. Do not give the medicine.`);
+      if (r.status === "dispensed") setProblem(r.dispensedAtPlace ? t("Already dispensed on {date} at {place}. Do not give the medicine.", { date: fmtDate(r.dispensedAt as string), place: r.dispensedAtPlace }) : t("Already dispensed on {date}. Do not give the medicine.", { date: fmtDate(r.dispensedAt as string) }));
     } catch (e) { setProblem(messageOf(e)); } finally { setBusy(false); }
   }
   async function dispense() {
@@ -174,19 +175,19 @@ export function Verify() {
   const open = found?.flags.filter((f) => !f.reviewed) ?? [];
 
   return (<>
-    <Field label="Verification code" inputMode="numeric" value={code} onChange={(e) => setCode(e.target.value)} helper="Type the code, or scan the QR" />
-    <PrimaryButton disabled={code.trim() === ""} loading={busy && !found} onClick={() => void check({ code })}>Check code</PrimaryButton>
-    {scannerAvailable() && !scanning && <SecondaryButton onClick={() => setScanning(true)}>Scan QR</SecondaryButton>}
+    <Field label={t("Verification code")} inputMode="numeric" value={code} onChange={(e) => setCode(e.target.value)} helper={t("Type the code, or scan the QR")} />
+    <PrimaryButton disabled={code.trim() === ""} loading={busy && !found} onClick={() => void check({ code })}>{t("Check code")}</PrimaryButton>
+    {scannerAvailable() && !scanning && <SecondaryButton onClick={() => setScanning(true)}>{t("Scan QR")}</SecondaryButton>}
     {scanning && <Scanner onClose={() => setScanning(false)} onResult={(qr) => { setScanning(false); void check({ qr }); }} />}
     {problem && <Alert>{problem}</Alert>}
     {found && <>
-      <KV k="For" v={found.patient.name} />
+      <KV k={t("For")} v={found.patient.name} />
       <Card rx={found} />
-      {found.status === "dispensed" && !problem && <p className="caption">Dispensed. This code can't be used again.</p>}
+      {found.status === "dispensed" && !problem && <p className="caption">{t("Dispensed. This code can't be used again.")}</p>}
       {found.status === "active" && <>
         <Flags flags={held.length ? held : open} />
-        {open.length > 0 && <label className="check-row"><input type="checkbox" checked={read} onChange={(e) => setRead(e.target.checked)} /><span>I've read the warnings and checked with the patient</span></label>}
-        <PrimaryButton disabled={open.length > 0 && !read} loading={busy} onClick={() => void dispense()}>Dispense</PrimaryButton>
+        {open.length > 0 && <label className="check-row"><input type="checkbox" checked={read} onChange={(e) => setRead(e.target.checked)} /><span>{t("I've read the warnings and checked with the patient")}</span></label>}
+        <PrimaryButton disabled={open.length > 0 && !read} loading={busy} onClick={() => void dispense()}>{t("Dispense")}</PrimaryButton>
       </>}
     </>}
     <ModeNote />
@@ -196,7 +197,7 @@ export function Verify() {
 function ListOf({ empty }: { empty: string }) {
   const rx = useRx();
   const list = useLoad(() => rx.mine());
-  if (list.loading) return <StateView kind="loading" text="Loading…" />;
+  if (list.loading) return <StateView kind="loading" text={t("Loading…")} />;
   if (list.error) return <Alert>{list.error}</Alert>;
   if (!list.data?.length) return <StateView kind="empty" text={empty} />;
   return <div className="stack">{list.data.map((r) => <Card key={r.id} rx={r} />)}</div>;
@@ -213,10 +214,10 @@ function BigPhoto({ v }: { v: View<Media> }) {
   return (
     <div className="stack">
       {/* Full width, and the phone's own pinch-to-zoom does the rest. */}
-      <button className="plain-button" onClick={() => setLarge(!large)} aria-expanded={large} aria-label={large ? "Show smaller" : "Show larger"}>
-        <img className={large ? "photo-full" : "photo-thumb"} src={url} alt="Photo shared by a health worker" />
+      <button className="plain-button" onClick={() => setLarge(!large)} aria-expanded={large} aria-label={large ? t("Show smaller") : t("Show larger")}>
+        <img className={large ? "photo-full" : "photo-thumb"} src={url} alt={t("Photo shared by a health worker")} />
       </button>
-      <span className="caption tabular">{Math.max(1, Math.round(v.resource.content.size / 1000))} KB · {new Date(v.resource.createdDateTime).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span>
+      <span className="caption tabular">{t("{kb} KB ·", { kb: Math.max(1, Math.round(v.resource.content.size / 1000)) })}{" "}{new Date(v.resource.createdDateTime).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span>
     </div>
   );
 }
@@ -233,8 +234,8 @@ export function ImageViewer({ patientId }: { patientId?: string | undefined }) {
     }
     return out;
   }, [patientId]);
-  if (data.loading) return <StateView kind="loading" text="Loading…" />;
-  if (!data.data?.length) return <StateView kind="empty" text="No images yet. They arrive when a health worker shares a photo of a patient with a visit booked with you." />;
+  if (data.loading) return <StateView kind="loading" text={t("Loading…")} />;
+  if (!data.data?.length) return <StateView kind="empty" text={t("No images yet. They arrive when a health worker shares a photo of a patient with a visit booked with you.")} />;
   return (<>
     {data.data.map((p) => (
       <section key={p.id} className="stack">
@@ -242,6 +243,6 @@ export function ImageViewer({ patientId }: { patientId?: string | undefined }) {
         {patientId && p.photos.map((v) => <BigPhoto key={v.resource.id} v={v} />)}
       </section>
     ))}
-    {patientId && <TextButton onClick={() => go("clinician.images")}>All patients</TextButton>}
+    {patientId && <TextButton onClick={() => go("clinician.images")}>{t("All patients")}</TextButton>}
   </>);
 }

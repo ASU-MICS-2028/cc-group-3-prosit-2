@@ -9,6 +9,7 @@ import { DataProvider } from "./data/DataProvider";
 import { CallProvider } from "./call/useCall";
 import type { CallApi } from "./call/engine";
 import { LockScreen, PinSetup } from "./shell/PinScreens";
+import { useLang } from "./i18n";
 
 export function Routes({ callEngine }: { callEngine?: CallApi } = {}) {
   const path = usePath();
@@ -30,5 +31,6 @@ export function Routes({ callEngine }: { callEngine?: CallApi } = {}) {
 }
 
 export function App({ callEngine }: { callEngine?: CallApi } = {}) {
+  useLang();   // a language change re-renders the whole app, keeping what was typed
   return <SessionProvider><Routes callEngine={callEngine} /></SessionProvider>;
 }

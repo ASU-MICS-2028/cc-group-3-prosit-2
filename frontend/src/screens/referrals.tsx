@@ -14,9 +14,10 @@ import { CareError, DANGER_SIGNS, NO_CONNECTION, careApiFor, type CareEvent, typ
 import { getPatient, listObservations, listPatients } from "../data/repo";
 import { toNumber, vitalProblem } from "../data/validate";
 import { Heading, KV, TestMode, go, type ScreenDef } from "./kit";
+import { t } from "../i18n";
 
 type Family = "chv" | "clinician" | "facility" | "ghs";
-const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
+const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{typeof children === "string" ? t(children) : children}</p>;
 const messageOf = (e: unknown) => (e instanceof CareError ? e.message : "We couldn't do that. Please try again.");
 const isOffline = (e: unknown) => e instanceof CareError && e.code === "offline";
 const when = (iso: string) => new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
@@ -41,26 +42,26 @@ function usePoll() {
 }
 const ModeNote = () => {
   const { session } = useSession();
-  return session?.mode === "live" ? null : <TestMode what="This referral and emergency flow" />;
+  return session?.mode === "live" ? null : <TestMode what={t("This referral and emergency flow")} />;
 };
-const RulesNote = () => <p className="caption">Example rules. {THRESHOLDS.note}</p>;
+const RulesNote = () => <p className="caption">{t("Example rules. {note}", { note: t(THRESHOLDS.note) })}</p>;
 
 /** Offline, this is the whole of what the app can do, so it says so and gets out of the way. */
 function CallOrSms({ noSignal, sms }: { noSignal: boolean; sms?: string }) {
   return (<>
-    {noSignal && <Alert>No signal. This app can't reach anyone right now. Call or text instead.</Alert>}
-    {!noSignal && <p className="caption">If there is no signal:</p>}
+    {noSignal && <Alert>{t("No signal. This app can't reach anyone right now. Call or text instead.")}</Alert>}
+    {!noSignal && <p className="caption">{t("If there is no signal:")}</p>}
     <OfflineEmergencyActions number={EMERGENCY_NUMBER} {...(sms ? { body: sms } : {})} />
-    <p className="caption">Placeholder number for testing. The real emergency line has not been set.</p>
+    <p className="caption">{t("Placeholder number for testing. The real emergency line has not been set.")}</p>
   </>);
 }
 
 function Messages({ events }: { events: CareEvent[] }) {
   if (events.length === 0) return null;
   return (<>
-    <Heading>Messages</Heading>
-    {events.map((m, i) => <p key={i} className="caption">{m.notified ? `To ${m.notified}: ` : ""}{m.message} · {when(m.at)}</p>)}
-    <p className="caption">Logged in this app only. No SMS was sent.</p>
+    <Heading>{t("Messages")}</Heading>
+    {events.map((m, i) => <p key={i} className="caption">{m.notified ? `${t("To {name}", { name: t(m.notified) })}: ` : ""}{t(m.message)} · {when(m.at)}</p>)}
+    <p className="caption">{t("Logged in this app only. No SMS was sent.")}</p>
   </>);
 }
 
@@ -130,36 +131,36 @@ export function Refer({ patientId, family }: { patientId?: string; family: "chv"
   }
 
   return (<>
-    {!patientId && <Heading>Patient</Heading>}
-    {patients.loading ? <StateView kind="loading" text="Loading…" /> : (patients.data ?? []).length === 0
-      ? <StateView kind="empty" text="No patients on this phone yet." />
+    {!patientId && <Heading>{t("Patient")}</Heading>}
+    {patients.loading ? <StateView kind="loading" text={t("Loading…")} /> : (patients.data ?? []).length === 0
+      ? <StateView kind="empty" text={t("No patients on this phone yet.")} />
       : <div className="row">{patients.data!.filter((p) => !patientId || p.resource.id === patientId).map((p) => <Chip key={p.resource.id} selected={p.resource.id === chosen} onClick={() => setChosen(p.resource.id)}>{p.resource.name[0].text}</Chip>)}</div>}
-    <Field label="Reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} helper="What's happening, in a few words" />
-    <Heading>Danger signs</Heading>
+    <Field label={t("Reason")} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} helper={t("What's happening, in a few words")} />
+    <Heading>{t("Danger signs")}</Heading>
     <div className="row">{DANGER_SIGNS.map((s) => <Chip key={s.id} selected={signs.includes(s.id)} onClick={() => toggle(s.id)}>{s.label}</Chip>)}</div>
     <div className="row">
-      <Field label="Top BP" inputMode="numeric" value={vitals.systolic} onChange={set("systolic")} error={vitalProblem("systolic", vitals.systolic) ?? undefined} />
-      <Field label="Bottom BP" inputMode="numeric" value={vitals.diastolic} onChange={set("diastolic")} error={vitalProblem("diastolic", vitals.diastolic) ?? undefined} />
-      <Field label="Temperature" inputMode="decimal" value={vitals.temperature} onChange={set("temperature")} error={vitalProblem("temperature", vitals.temperature) ?? undefined} />
+      <Field label={t("Top BP")} inputMode="numeric" value={vitals.systolic} onChange={set("systolic")} error={vitalProblem("systolic", vitals.systolic) ?? undefined} />
+      <Field label={t("Bottom BP")} inputMode="numeric" value={vitals.diastolic} onChange={set("diastolic")} error={vitalProblem("diastolic", vitals.diastolic) ?? undefined} />
+      <Field label={t("Temperature")} inputMode="decimal" value={vitals.temperature} onChange={set("temperature")} error={vitalProblem("temperature", vitals.temperature) ?? undefined} />
     </div>
-    <Heading>Priority</Heading>
+    <Heading>{t("Priority")}</Heading>
     {suggestion && <>
       <div className="row"><PriorityBadge priority={shown ?? suggestion.priority} /></div>
-      <p className="caption">{suggestion.reason}</p>
-      <p className="caption">{suggestion.note}. You decide.{locked ? " An emergency can't be lowered." : ""}</p>
+      <p className="caption">{t(suggestion.reason)}</p>
+      <p className="caption">{t("{note}. You decide.", { note: t(suggestion.note) })}{locked ? " " + t("An emergency can't be lowered.") : ""}</p>
       {!locked && <div className="row">{PRIORITIES.map((p) => <Chip key={p} selected={p === shown} onClick={() => setPick(p)}>{p[0].toUpperCase() + p.slice(1)}</Chip>)}</div>}
     </>}
-    <Heading>Send to</Heading>
+    <Heading>{t("Send to")}</Heading>
     <div className="row">{SPECIALISTS.map((s) => <Chip key={s.id} selected={s.id === to} onClick={() => setTo(s.id)}>{s.name}</Chip>)}</div>
     {problem && <Alert>{problem}</Alert>}
     {(noSignal || !online)
       ? <CallOrSms noSignal sms={`Referral for ${patient ? patient.resource.name[0].text : "a patient"}: ${reason.trim()}`} />
-      : <PrimaryButton disabled={!patient || !reason.trim() || !suggestion} loading={busy} onClick={() => void send()}>Send referral</PrimaryButton>}
+      : <PrimaryButton disabled={!patient || !reason.trim() || !suggestion} loading={busy} onClick={() => void send()}>{t("Send referral")}</PrimaryButton>}
     {family === "chv" && locked && <div className="stack"><EmergencyButton onClick={() => go("chv.emergency", chosen)} /></div>}
     <RulesNote />
     <ModeNote />
     {(sent.data ?? []).length > 0 && <>
-      <Heading>Referrals you sent</Heading>
+      <Heading>{t("Referrals you sent")}</Heading>
       <div className="stack">{sent.data!.map((r) => <PersonRow key={r.id} name={r.patient.name} role={`${r.to} · ${r.status}`} hours={when(r.sentAt)} trailing={<PriorityBadge priority={r.priority} />} onClick={() => openReferral(family, r.id)} />)}</div>
     </>}
   </>);
@@ -174,23 +175,23 @@ export function ReferralDetail({ id, family }: { id?: string; family: Family }) 
   const [problem, setProblem] = useState<string>();
   const { data, error } = useLoad(() => care.referral(id!), [id, bump]);
   if (error) return <StateView kind="error" plain text={error} />;
-  if (!data) return <StateView kind="loading" text="Loading…" />;
+  if (!data) return <StateView kind="loading" text={t("Loading…")} />;
   const act = async (action: string) => {
     setProblem(undefined);
     try { await care.actOnReferral(data.id, action); if (action === "accept") void sync(); setBump((n) => n + 1); } catch (e) { setProblem(messageOf(e)); }
   };
   return (<>
-    <KV k="Patient" v={data.patient.name} />
-    <KV k="From" v={data.from} />
-    <KV k="To" v={data.to} />
-    <KV k="Status" v={data.status} />
-    <KV k="Reason" v={data.reason} />
+    <KV k={t("Patient")} v={data.patient.name} />
+    <KV k={t("From")} v={data.from} />
+    <KV k={t("To")} v={data.to} />
+    <KV k={t("Status")} v={data.status} />
+    <KV k={t("Reason")} v={data.reason} />
     <div className="row"><PriorityBadge priority={data.priority} /></div>
     <p className="caption">{data.priorityReason}</p>
-    <p className="caption">A suggestion from example rules, not a diagnosis.</p>
+    <p className="caption">{t("A suggestion from example rules, not a diagnosis.")}</p>
     {problem && <Alert>{problem}</Alert>}
     {data.actions.map((a) => a === "accept" ? <PrimaryButton key={a} onClick={() => void act(a)}>{REFERRAL_ACTIONS[a]}</PrimaryButton> : <SecondaryButton key={a} onClick={() => void act(a)}>{REFERRAL_ACTIONS[a]}</SecondaryButton>)}
-    {family === "clinician" && (data.status === "accepted" || data.status === "completed") && data.relation === "received" && <SecondaryButton onClick={() => go("clinician.patient", data.patient.id)}>Open patient record</SecondaryButton>}
+    {family === "clinician" && (data.status === "accepted" || data.status === "completed") && data.relation === "received" && <SecondaryButton onClick={() => go("clinician.patient", data.patient.id)}>{t("Open patient record")}</SecondaryButton>}
     <Messages events={data.events ?? []} />
     <ModeNote />
   </>);
@@ -231,21 +232,21 @@ export function RaiseEmergency({ patientId }: { patientId?: string }) {
 
   return (<>
     {(open.data ?? []).length > 0 && <>
-      <Heading>Open emergencies</Heading>
-      <div className="stack">{open.data!.map((e) => <PersonRow key={e.id} name={e.patient?.name ?? "No patient linked"} role={e.description} hours={when(e.raisedAt)} trailing={<PriorityBadge priority="emergency" />} onClick={() => go("chv.emergencyDetail", e.id)} />)}</div>
+      <Heading>{t("Open emergencies")}</Heading>
+      <div className="stack">{open.data!.map((e) => <PersonRow key={e.id} name={e.patient?.name ?? t("No patient linked")} role={e.description} hours={when(e.raisedAt)} trailing={<PriorityBadge priority="emergency" />} onClick={() => go("chv.emergencyDetail", e.id)} />)}</div>
     </>}
-    {name && <KV k="Patient" v={name} />}
-    <Heading>What is happening?</Heading>
+    {name && <KV k={t("Patient")} v={name} />}
+    <Heading>{t("What is happening?")}</Heading>
     <div className="row">{EMERGENCY_SIGNS.map((s) => <Chip key={s.id} selected={signs.includes(s.id)} onClick={() => setSigns((all) => (all.includes(s.id) ? all.filter((x) => x !== s.id) : [...all, s.id]))}>{s.label}</Chip>)}</div>
-    <Field label="Anything else (optional)" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} />
-    <Field label="Where (optional)" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={200} helper="e.g. house behind the market" />
+    <Field label={t("Anything else (optional)")} value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} />
+    <Field label={t("Where (optional)")} value={location} onChange={(e) => setLocation(e.target.value)} maxLength={200} helper={t("e.g. house behind the market")} />
     {problem && <Alert>{problem}</Alert>}
     {noSignal
       ? <CallOrSms noSignal sms={[description, location.trim()].filter(Boolean).join(" · ")} />
       : <>
         <div className="stack"><EmergencyButton disabled={busy} onClick={() => setConfirm(true)} /></div>
-        {confirm && <ConfirmDialog title="Raise an emergency?" body={`It appears in nurses' apps now. If nobody answers, it goes further every 5 minutes. No SMS is sent. ${description}`}
-          confirm={<PrimaryButton loading={busy} onClick={() => void raise()}>Yes, raise it</PrimaryButton>} cancel={<SecondaryButton onClick={() => setConfirm(false)}>Not now</SecondaryButton>} onClose={() => setConfirm(false)} />}
+        {confirm && <ConfirmDialog title={t("Raise an emergency?")} body={t("It appears in nurses' apps now. If nobody answers, it goes further every 5 minutes. No SMS is sent. {description}", { description })}
+          confirm={<PrimaryButton loading={busy} onClick={() => void raise()}>{t("Yes, raise it")}</PrimaryButton>} cancel={<SecondaryButton onClick={() => setConfirm(false)}>{t("Not now")}</SecondaryButton>} onClose={() => setConfirm(false)} />}
         <CallOrSms noSignal={false} sms={[description, location.trim()].filter(Boolean).join(" · ")} />
       </>}
     <ModeNote />
@@ -264,7 +265,7 @@ export function EmergencyDetail({ id, family }: { id?: string; family: Family })
   const last = useRef<Emergency | undefined>(undefined);
   if (data) last.current = data;
   const e = data ?? last.current;
-  if (!e) return error ? <><StateView kind="error" plain text={error} /><CallOrSms noSignal={false} /></> : <StateView kind="loading" text="Loading…" />;
+  if (!e) return error ? <><StateView kind="error" plain text={error} /><CallOrSms noSignal={false} /></> : <StateView kind="loading" text={t("Loading…")} />;
   const act = async (action: string) => {
     setProblem(undefined);
     try { await care.actOnEmergency(e.id, action); setBump((n) => n + 1); } catch (x) { setProblem(messageOf(x)); }
@@ -276,13 +277,13 @@ export function EmergencyDetail({ id, family }: { id?: string; family: Family })
   if (e.status === "raised") steps.push({ label: "Acknowledged", state: "waiting" });
   if (e.nextEscalationAt) steps.push({ label: "Next escalation", who: "If nobody answers", time: clock(e.nextEscalationAt), state: "todo" });
   return (<>
-    <KV k="What" v={e.description} />
-    {e.location && <KV k="Where" v={e.location} />}
-    <KV k="Raised by" v={e.raisedBy} />
+    <KV k={t("What")} v={e.description} />
+    {e.location && <KV k={t("Where")} v={e.location} />}
+    <KV k={t("Raised by")} v={e.raisedBy} />
     <EscalationTimeline steps={steps} />
     {problem && <Alert>{problem}</Alert>}
     {e.actions.map((a) => a === "acknowledge" ? <PrimaryButton key={a} onClick={() => void act(a)}>{ACTION_LABEL[a]}</PrimaryButton> : <SecondaryButton key={a} onClick={() => void act(a)}>{ACTION_LABEL[a]}</SecondaryButton>)}
-    {family === "clinician" && <TextButton onClick={() => go("clinician.call")}>Start a call</TextButton>}
+    {family === "clinician" && <TextButton onClick={() => go("clinician.call")}>{t("Start a call")}</TextButton>}
     <CallOrSms noSignal={error === NO_CONNECTION} sms={e.description} />
     <Messages events={e.events ?? []} />
     <RulesNote />
@@ -299,16 +300,16 @@ export function Inbox({ family, referrals }: { family: Family; referrals: boolea
     referrals: referrals ? (await care.referrals()).filter((r) => r.relation === "received") : [],
   }), [tick]);
   if (error) return <><StateView kind="error" plain text={error} /><CallOrSms noSignal={error === NO_CONNECTION} /></>;
-  if (!data) return <StateView kind="loading" text="Loading…" />;
+  if (!data) return <StateView kind="loading" text={t("Loading…")} />;
   const empty = data.emergencies.length === 0 && data.referrals.length === 0;
   return (<>
-    {empty && <StateView kind="empty" text="Nothing waiting for you." />}
+    {empty && <StateView kind="empty" text={t("Nothing waiting for you.")} />}
     <div className="stack">
-      {data.emergencies.map((e) => <PersonRow key={e.id} name={e.patient?.name ?? "No patient linked"} role={`Emergency · ${e.status === "raised" ? `not acknowledged, level ${e.level}` : `with ${e.acknowledgedBy}`} · ${e.description}`} hours={when(e.raisedAt)} trailing={<PriorityBadge priority="emergency" />} onClick={() => openEmergency[family](e.id)} />)}
-      {data.referrals.map((r) => <PersonRow key={r.id} name={r.patient.name} role={`Referral · ${r.reason}`} hours={when(r.sentAt)} trailing={<PriorityBadge priority={r.priority} />} onClick={() => openReferral(family, r.id)} />)}
+      {data.emergencies.map((e) => <PersonRow key={e.id} name={e.patient?.name ?? t("No patient linked")} role={t("Emergency · {state} · {description}", { state: e.status === "raised" ? t("not acknowledged, level {level}", { level: e.level }) : t("with {name}", { name: e.acknowledgedBy ?? "" }), description: e.description })} hours={when(e.raisedAt)} trailing={<PriorityBadge priority="emergency" />} onClick={() => openEmergency[family](e.id)} />)}
+      {data.referrals.map((r) => <PersonRow key={r.id} name={r.patient.name} role={t("Referral · {reason}", { reason: r.reason })} hours={when(r.sentAt)} trailing={<PriorityBadge priority={r.priority} />} onClick={() => openReferral(family, r.id)} />)}
     </div>
-    {family === "clinician" && <SecondaryButton onClick={() => go("clinician.refer")}>Refer a patient</SecondaryButton>}
-    <p className="caption">Priorities are suggestions from example rules, not diagnoses.</p>
+    {family === "clinician" && <SecondaryButton onClick={() => go("clinician.refer")}>{t("Refer a patient")}</SecondaryButton>}
+    <p className="caption">{t("Priorities are suggestions from example rules, not diagnoses.")}</p>
     <ModeNote />
   </>);
 }
@@ -318,7 +319,7 @@ export const careScreens: Record<string, ScreenDef> = {
   "chv.referralDetail": { title: "Referral", render: (id) => <ReferralDetail id={id} family="chv" key={id} /> },
   "chv.emergency": { title: "Emergency", render: (id) => <RaiseEmergency patientId={id} key={id ?? "none"} /> },
   "chv.emergencyDetail": { title: "Emergency", render: (id) => <EmergencyDetail id={id} family="chv" key={id} /> },
-  "clinician.inbox": { title: "Referrals & emergencies", caption: "Most urgent first", render: () => (<><Inbox family="clinician" referrals /><SecondaryButton onClick={() => go("clinician.healers")}>Traditional healers</SecondaryButton></>) },
+  "clinician.inbox": { title: "Referrals & emergencies", caption: "Most urgent first", render: () => (<><Inbox family="clinician" referrals /><SecondaryButton onClick={() => go("clinician.healers")}>{t("Traditional healers")}</SecondaryButton></>) },
   "clinician.refer": { title: "Refer a patient", render: () => <Refer family="clinician" /> },
   "clinician.referralDetail": { title: "Referral", render: (id) => <ReferralDetail id={id} family="clinician" key={id} /> },
   "clinician.emergencyDetail": { title: "Emergency", render: (id) => <EmergencyDetail id={id} family="clinician" key={id} /> },

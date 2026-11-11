@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import { DuotoneIcon, Icon, type DuotoneName, type IconName } from "./icons";
 import { Mascot, type Mood } from "./brand";
+import { t } from "../i18n";
 
 /** 7.6: lavender-tint tile, duotone icon top-left, label bottom-left. */
 export function CategoryTile({ icon, label, onClick }: { icon: DuotoneName; label: string; onClick?: () => void }) {
   return (
     <button className="tile" onClick={onClick}>
       <DuotoneIcon name={icon} />
-      <span className="tile-label">{label}</span>
+      <span className="tile-label">{t(label)}</span>
     </button>
   );
 }
@@ -17,8 +18,8 @@ export function PromoCard({ title, action, mood = "welcoming" }: { title: string
   return (
     <section className="promo">
       <div className="promo-body">
-        <h3 className="promo-title">{title}</h3>
-        <button className="pill-small">{action}</button>
+        <h3 className="promo-title">{t(title)}</h3>
+        <button className="pill-small">{t(action)}</button>
       </div>
       <div className="promo-art"><Mascot mood={mood} /></div>
     </section>
@@ -39,7 +40,7 @@ export function PersonRow({ name, role, hours, trailing, onClick }: { name: stri
       <Avatar name={name} />
       <span className="person-text">
         <span className="person-name">{name}</span>
-        <span className="caption">{role}</span>
+        <span className="caption">{t(role)}</span>
         {hours && <span className="caption tabular">{hours}</span>}
       </span>
       {trailing}
@@ -61,7 +62,7 @@ export function SyncBadge({ status }: { status: SyncStatus }) {
   return (
     <span className={`badge sync-${status}`}>
       {icon ? <Icon name={icon} size="sm" /> : <span className="dots dots-sm" aria-hidden><i /><i /><i /></span>}
-      {copy}
+      {t(copy)}
     </span>
   );
 }
@@ -71,7 +72,7 @@ export function OfflineBanner({ mode }: { mode: "offline" | "back" }) {
   return (
     <div className="banner" role="status">
       <Icon name="cloud-slash" size="sm" />
-      {mode === "offline" ? "You're offline. Changes are saved on this phone." : "Back online, sending…"}
+      {mode === "offline" ? t("You're offline. Changes are saved on this phone.") : t("Back online, sending…")}
     </div>
   );
 }
@@ -79,7 +80,7 @@ export function OfflineBanner({ mode }: { mode: "offline" | "back" }) {
 /** 7.16: skeleton blocks, never a lone spinner. */
 export function Skeleton({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="skeleton" aria-busy="true" aria-label="Loading">
+    <div className="skeleton" aria-busy="true" aria-label={t("Loading")}>
       {Array.from({ length: lines }, (_, i) => <span key={i} className="skeleton-line" />)}
     </div>
   );
@@ -92,7 +93,7 @@ export function StateView({ kind, text, action, plain }: { kind: "empty" | "load
     <div className="state-view">
       {!plain && <Mascot mood={mood} size={120} />}
       {kind === "loading" && <Skeleton lines={2} />}
-      <p className="state-text">{text}</p>
+      <p className="state-text">{t(text)}</p>
       {action}
     </div>
   );

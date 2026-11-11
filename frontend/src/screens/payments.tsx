@@ -10,8 +10,9 @@ import { newId } from "../data/model";
 import { NETWORKS, PayError, cedis, payApiFor, type Network, type Payment } from "../data/payments";
 import { ghanaPhone } from "../data/validate";
 import { Heading, KV } from "./kit";
+import { t } from "../i18n";
 
-const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
+const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{typeof children === "string" ? t(children) : children}</p>;
 const POLL_MS = 2_000;
 const LABEL: Record<Payment["status"], string> = { pending: "Waiting for approval", successful: "Paid", failed: "Failed" };
 const WHAT: Record<Payment["purpose"], string> = { consultation_fee: "Consultation fee", insurance_premium: "Insurance premium" };
@@ -56,22 +57,22 @@ export function PayForm({ purpose, subjectId, amount, onDone }: { purpose: Payme
     } finally { setBusy(false); }
   }
 
-  if (payment?.status === "successful") return <p className="body-strong"><Icon name="check-circle" size="sm" /> Paid {cedis(payment.amount)}. Your receipt is below.</p>;
+  if (payment?.status === "successful") return <p className="body-strong"><Icon name="check-circle" size="sm" />{" "}{t("Paid {cedis}. Your receipt is below.", { cedis: cedis(payment.amount) })}</p>;
   if (payment?.status === "pending") return (<>
-    <p className="body-strong">{cedis(payment.amount)}: waiting for approval</p>
+    <p className="body-strong">{t("{cedis}: waiting for approval", { cedis: cedis(payment.amount) })}</p>
     {payment.checkoutUrl
-      ? <a className="btn btn-primary btn-full" href={payment.checkoutUrl}>Approve the payment</a>
-      : <p className="caption">In real use, your phone would ask for your mobile money PIN. This test pretends it was approved.</p>}
-    <p className="caption">Keep this page open. It updates by itself.</p>
+      ? <a className="btn btn-primary btn-full" href={payment.checkoutUrl}>{t("Approve the payment")}</a>
+      : <p className="caption">{t("In real use, your phone would ask for your mobile money PIN. This test pretends it was approved.")}</p>}
+    <p className="caption">{t("Keep this page open. It updates by itself.")}</p>
   </>);
   return (<>
-    <KV k="To pay" v={cedis(amount)} />
-    {payment?.status === "failed" && <Alert>That payment didn't go through. You weren't charged. Check the number and try again.</Alert>}
-    <Heading>Mobile money network</Heading>
+    <KV k={t("To pay")} v={cedis(amount)} />
+    {payment?.status === "failed" && <Alert>{t("That payment didn't go through. You weren't charged. Check the number and try again.")}</Alert>}
+    <Heading>{t("Mobile money network")}</Heading>
     <div className="row">{NETWORKS.map((n) => <Chip key={n.id} selected={network === n.id} onClick={() => setNetwork(n.id)}>{n.label}</Chip>)}</div>
-    <PhoneField label="Mobile money number" value={phone} onChange={(e) => setPhone(e.target.value)} {...(checked.problem ? { error: checked.problem } : {})} />
+    <PhoneField label={t("Mobile money number")} value={phone} onChange={(e) => setPhone(e.target.value)} {...(checked.problem ? { error: checked.problem } : {})} />
     {problem && <Alert>{problem}</Alert>}
-    <PrimaryButton disabled={!network || !e164} loading={busy} onClick={() => void start()}>Pay {cedis(amount)}</PrimaryButton>
+    <PrimaryButton disabled={!network || !e164} loading={busy} onClick={() => void start()}>{t("Pay {cedis}", { cedis: cedis(amount) })}</PrimaryButton>
   </>);
 }
 
@@ -79,13 +80,13 @@ export function Receipts({ refreshKey = 0 }: { refreshKey?: number }) {
   const pay = usePay();
   const list = useLoad(() => pay.mine(), [refreshKey]);
   return (<>
-    <Heading>Receipts</Heading>
-    {list.loading ? <StateView kind="loading" text="Loading…" /> : list.error ? <Alert>{list.error}</Alert> : !list.data?.length ? <p className="caption">No payments yet.</p>
-      : list.data.map((p) => <KV key={p.id} k={`${WHAT[p.purpose]}, ${when(p.createdAt)}`} v={`${cedis(p.amount)} · ${LABEL[p.status]}`} />)}
+    <Heading>{t("Receipts")}</Heading>
+    {list.loading ? <StateView kind="loading" text={t("Loading…")} /> : list.error ? <Alert>{list.error}</Alert> : !list.data?.length ? <p className="caption">{t("No payments yet.")}</p>
+      : list.data.map((p) => <KV key={p.id} k={`${t(WHAT[p.purpose])}, ${when(p.createdAt)}`} v={`${cedis(p.amount)} · ${t(LABEL[p.status])}`} />)}
   </>);
 }
 
-export const PaymentModeNote = () => <p className="caption">Test mode: no real money moves. Prices are examples.</p>;
+export const PaymentModeNote = () => <p className="caption">{t("Test mode: no real money moves. Prices are examples.")}</p>;
 
 /** The consultation fee, for the visit that's next. */
 export function PayFee() {
@@ -98,11 +99,11 @@ export function PayFee() {
   const visit = list.find((v) => v.resource.id === picked) ?? list[0];
 
   return (<>
-    {visits.loading ? <StateView kind="loading" text="Loading…" /> : !visit
-      ? <StateView kind="empty" text="No visits to pay for. When a visit is booked, you can pay for it here." />
+    {visits.loading ? <StateView kind="loading" text={t("Loading…")} /> : !visit
+      ? <StateView kind="empty" text={t("No visits to pay for. When a visit is booked, you can pay for it here.")} />
       : <>
-        <KV k="Visit" v={new Date(visit.resource.start).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} />
-        {list.length > 1 && <SecondaryButton onClick={() => setPicked(list[(list.indexOf(visit) + 1) % list.length]!.resource.id)}>Choose another visit</SecondaryButton>}
+        <KV k={t("Visit")} v={new Date(visit.resource.start).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} />
+        {list.length > 1 && <SecondaryButton onClick={() => setPicked(list[(list.indexOf(visit) + 1) % list.length]!.resource.id)}>{t("Choose another visit")}</SecondaryButton>}
         <PayForm key={visit.resource.id} purpose="consultation_fee" subjectId={visit.resource.id} amount={25} onDone={() => setDone((n) => n + 1)} />
       </>}
     <Receipts refreshKey={done} />
