@@ -9,6 +9,7 @@ import { hashPassword } from '../src/passwords.js'
 const SYSTEM_ID = '00000000-0000-0000-0000-000000000000'
 const PATIENT_ID = '00000000-0000-4000-8000-000000000002'
 const PHARMACY_ID = '00000000-0000-4000-8000-000000000021'
+const CLINIC_ID = '00000000-0000-4000-8000-000000000022'
 
 /** username (the app's role name) → database role, id and name */
 export const TEST_USERS = [
@@ -41,6 +42,24 @@ export async function seedTestUsers(db: Db, password: string) {
       )
     }
     await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = $2`, [PHARMACY_ID, TEST_USERS.find((u) => u.username === 'pharmacist')!.id])
+    await q.query(`INSERT INTO facilities (id, name, type, region, district) VALUES ($1, 'Dodowa clinic', 'health_centre', 'Greater Accra', 'Shai Osudoku') ON CONFLICT (id) DO NOTHING`, [CLINIC_ID])
+    await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = $2`, [CLINIC_ID, TEST_USERS.find((u) => u.username === 'facility_admin')!.id])
+    // Synthetic healer directory and stock (FB-9b). Made-up people and numbers, labelled so in the app.
+    await q.query(`UPDATE practitioners SET community = 'Kintampo', practice = 'Herbal care (synthetic entry)' WHERE id = $1`, [TEST_USERS.find((u) => u.username === 'healer')!.id])
+    for (const [id, name, community, practice] of [
+      ['00000000-0000-4000-8000-000000000031', 'Maame Afia Pokuaa', 'Techiman', 'Herbal care (synthetic entry)'],
+      ['00000000-0000-4000-8000-000000000032', 'Togbe Kwasi Dzidzor', 'Ho', 'Bone setting (synthetic entry)'],
+    ] as const) {
+      await q.query(
+        `INSERT INTO practitioners (id, full_name, role, community, practice) VALUES ($1, $2, 'traditional_healer', $3, $4)
+         ON CONFLICT (id) DO UPDATE SET community = EXCLUDED.community, practice = EXCLUDED.practice`, [id, name, community, practice])
+    }
+    for (const [facility, name, unit, quantity, reorder] of [
+      [PHARMACY_ID, 'Amlodipine 5 mg', 'tablets', 120, 30], [PHARMACY_ID, 'Paracetamol 500 mg', 'tablets', 14, 50],
+      [CLINIC_ID, 'ORS sachets', 'sachets', 40, 60], [CLINIC_ID, 'Paracetamol 500 mg', 'tablets', 300, 50],
+    ] as const) {
+      await q.query(`INSERT INTO stock_items (facility_id, name, unit, quantity, reorder_level) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (facility_id, name) DO NOTHING`, [facility, name, unit, quantity, reorder])
+    }
     // The sandbox licence register (D-038): not the real GMDC list.
     await q.query(
       `INSERT INTO prescriber_licences (practitioner_id, licence_number, valid_until) VALUES ($1, 'MDC-TEST-0001', '2030-12-31') ON CONFLICT (practitioner_id) DO NOTHING`,

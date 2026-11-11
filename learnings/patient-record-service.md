@@ -281,3 +281,6 @@ offline retries, and then publishes one event that two independent serverless fu
 - **Who can act:** a referral belongs to its sender and receiver only. Acknowledge needs a responder who isn't the person who raised it. An emergency with no facility recorded is visible to all nurses, because `practitioners.facility_id` isn't filled in everywhere yet.
 - **Accepting a referral** opens the patient's record to that doctor, re-numbering older records so their phone downloads them.
 
+
+## FB-9b: healers and stock (`routes/healersStock.ts`)
+Consent is recorded first through the normal sync (a `healer_referral` Consent), then `POST /healer-referrals` looks it up on the server; withdrawing it hides the referral from the healer at once. A healer sees only the patient's name and the reason. The directory comes from the seed script (`npm run seed:test-users`), synthetic and labelled; only Nana Yaw has a sign-in, so referrals to the other two entries go nowhere. Stock is per facility, taken from the account (`practitioners.facility_id`), never from the request. The low-stock alert is in the app only: nothing is sent by SMS or SNS.

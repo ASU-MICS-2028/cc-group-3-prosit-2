@@ -526,3 +526,42 @@ INSERT INTO stock_items (facility_id, name, unit, quantity) VALUES (:stockf, 'OR
 UPDATE stock_items SET quantity = -1 WHERE facility_id = :stockf;
 \echo 'SHOULD FAIL: delete a stock item'
 DELETE FROM stock_items WHERE facility_id = :stockf;
+
+\echo '--- 014: healer referrals and stock transfers ---'
+\set healer '''0d000000-0000-0000-0000-000000000001'''
+\set c_heal '''cccccccc-0000-0000-0000-0000000000a1'''
+\set stock2 '''0e000000-0000-0000-0000-000000000010'''
+INSERT INTO practitioners (id, full_name, role, community, practice) VALUES (:healer, 'Synthetic Healer', 'traditional_healer', 'Kintampo', 'Herbal care');
+\echo 'SHOULD FAIL: a directory community on someone who is not a healer'
+UPDATE practitioners SET community = 'Kintampo' WHERE id = :spec;
+SET app.user_id = '11111111-1111-1111-1111-111111111111';  -- the CHV
+\echo 'SHOULD FAIL: a healer referral on clinical-care consent alone'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_kofi, :healer, 'Back pain', 'routine');
+\echo 'SHOULD PASS: record consent for a healer referral'
+INSERT INTO consents (id, patient_id, purpose, given_by, recorded_by, given_at) VALUES (:c_heal, :kofi, 'healer_referral', 'patient', :chv, '2026-11-01 09:00Z');
+\echo 'SHOULD PASS: refer to a healer with that consent'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_heal, :healer, 'Back pain', 'routine');
+\echo 'SHOULD FAIL: that consent does not cover a referral to a doctor'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_heal, :spec, 'Back pain', 'routine');
+\echo 'SHOULD PASS: withdraw the healer consent'
+UPDATE consents SET withdrawn_at = now() WHERE id = :c_heal;
+\echo 'SHOULD FAIL: refer to a healer after consent was withdrawn'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_heal, :healer, 'Back pain', 'routine');
+SET app.user_id = '99999999-9999-9999-9999-999999999999';  -- act as the admin
+INSERT INTO facilities (id, name, type, region) VALUES (:stock2, 'Kintampo stock test', 'chps', 'Bono East');
+\set tr1 '''0f000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: move 30 ORS sachets to a facility that has none yet'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (:tr1, :stockf, :stock2, 'ORS sachets', 'sachets', 30);
+SELECT f.name, s.quantity FROM stock_items s JOIN facilities f ON f.id = s.facility_id WHERE s.name = 'ORS sachets' ORDER BY f.name;
+\echo 'SHOULD FAIL: move more than is left (10 left, asked for 11)'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stock2, 'ORS sachets', 'sachets', 11);
+\echo 'SHOULD FAIL: move in the wrong units'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stock2, 'ORS sachets', 'tablets', 1);
+\echo 'SHOULD FAIL: move to the same facility'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stockf, 'ORS sachets', 'sachets', 1);
+\echo 'SHOULD FAIL: move zero'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stock2, 'ORS sachets', 'sachets', 0);
+\echo 'SHOULD FAIL: change a recorded transfer'
+UPDATE stock_transfers SET quantity = 1 WHERE id = :tr1;
+\echo 'SHOULD FAIL: delete a transfer'
+DELETE FROM stock_transfers WHERE id = :tr1;

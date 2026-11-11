@@ -318,7 +318,7 @@ export const careScreens: Record<string, ScreenDef> = {
   "chv.referralDetail": { title: "Referral", render: (id) => <ReferralDetail id={id} family="chv" key={id} /> },
   "chv.emergency": { title: "Emergency", render: (id) => <RaiseEmergency patientId={id} key={id ?? "none"} /> },
   "chv.emergencyDetail": { title: "Emergency", render: (id) => <EmergencyDetail id={id} family="chv" key={id} /> },
-  "clinician.inbox": { title: "Referrals & emergencies", caption: "Most urgent first", render: () => <Inbox family="clinician" referrals /> },
+  "clinician.inbox": { title: "Referrals & emergencies", caption: "Most urgent first", render: () => (<><Inbox family="clinician" referrals /><SecondaryButton onClick={() => go("clinician.healers")}>Traditional healers</SecondaryButton></>) },
   "clinician.refer": { title: "Refer a patient", render: () => <Refer family="clinician" /> },
   "clinician.referralDetail": { title: "Referral", render: (id) => <ReferralDetail id={id} family="clinician" key={id} /> },
   "clinician.emergencyDetail": { title: "Emergency", render: (id) => <EmergencyDetail id={id} family="clinician" key={id} /> },
