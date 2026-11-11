@@ -132,14 +132,14 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 |---|---|---|---|---|
 | X1 | Ask the facilitator: final report and presentation due dates and format; Lab 8 session date and partner team; Week 9 lab handout; are the weekly 500-word reports and the 1,000-word milestone required? Record the answers here | Fri 6 | 1 | `docs/decisions.md` or this file |
 | L7-R | Submit the Lab 7 report if it hasn't gone in yet; mark it done | Fri 6 | 1 | ✅ Submitted (Joseph confirmed 7 Nov); PDF in Drive |
-| J1 | SVC-1: `POST /auth/login` with test users and refresh, all eight roles in tokens, CORS for `app-hc` | Sat 7 | 1 | `evidence/final/J1-login-roles.txt` (including a wrong-role 403) · 🔄 In PR 7 Nov, tested locally (D-036); live run after E1 |
-| J2 | Real sync: upload, role-filtered download (D-032), 409 on double booking | Sat 7 | 1 | `evidence/final/J2-sync.txt` · 🔄 In PR 7 Nov, tested locally (D-037); live run after E1 |
+| J1 | SVC-1: `POST /auth/login` with test users and refresh, all eight roles in tokens, CORS for `app-hc` | Sat 7 | 1 | `evidence/final/J1-login-roles.txt` (including a wrong-role 403) · ✅ Merged (#53) and deployed; on RDS by 11 Nov (Eugene) |
+| J2 | Real sync: upload, role-filtered download (D-032), 409 on double booking | Sat 7 | 1 | `evidence/final/J2-sync.txt` · ✅ Merged (#54) and deployed; on RDS by 11 Nov (Eugene) |
 | L8-A2 | Commit the script in `docs/peer-review.md`; rehearse it once, timed | Sun 8 | 1 | Script in the repo · 🔄 Script done 7 Nov; rehearsal is for people |
 | L8-A3 | Collate everyone's answers; list the questions we'll ask the partner team (30% of the grade) | Sun 8 | 1 | `docs/peer-review.md` · 🔄 Joseph's parts and the questions done 7 Nov; Eugene's numbers and restore time to add |
-| FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused · 🔄 In PR 7 Nov (D-038); screens in Test mode, API tested locally |
-| SVC-4 | Fee and premiums through votex365 test mode; share the endpoints with Perfect | Mon 9 | 2 | `evidence/final/SVC-4-*.png` · 🔄 In PR 7 Nov (D-039); simulated until a votex365 test key is set |
-| FB-9a | Insurance plans, enrolment, premium, NHIS check (sandbox) | Tue 10 | 2 | `evidence/final/FB-9-insurance-*.png` · 🔄 Screens and API in PR #60 (8 Nov). Joseph took the insurance tables as `011`, so E-M part 2 (`010`) no longer needs them; tested locally, not on RDS. `evidence/final/FB-9-api.txt` |
-| FB-10a | Platform admin: users, roles, audit viewer, revenue view | Tue 10 | 3 | `evidence/final/FB-10-admin-*.png` · 🔄 In PR 7 Nov; screens in Test mode, API tested locally |
+| FB-6 | SVC-6: prescriptions: signed code, one-time dispense, duplicate and unlicensed-prescriber flags, pharmacist screen, image sharing | Mon 9 | 1 | `evidence/final/FB-6-*.png`, a second dispense refused · ✅ Merged (#57) and deployed; on RDS by 11 Nov (Eugene) |
+| SVC-4 | Fee and premiums through votex365 test mode; share the endpoints with Perfect | Mon 9 | 2 | `evidence/final/SVC-4-*.png` · ✅ Merged (#58) and deployed; on RDS by 11 Nov (Eugene) |
+| FB-9a | Insurance plans, enrolment, premium, NHIS check (sandbox) | Tue 10 | 2 | `evidence/final/FB-9-insurance-*.png` · ✅ Merged (#60) and deployed; on RDS by 11 Nov (Eugene) |
+| FB-10a | Platform admin: users, roles, audit viewer, revenue view | Tue 10 | 3 | `evidence/final/FB-10-admin-*.png` · ✅ Merged (#59) and deployed; on RDS by 11 Nov (Eugene) |
 | F1 | Edit the final report: outline Sun 8, sections in Wed 11, finished Fri 13. Also writes the Act 843 part and the project story | Fri 13 | 1 | Report PDF |
 
 ### Eugene: cloud, security, load test
@@ -155,7 +155,7 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 | E3 | 99.7% uptime case: health checks, alarms, a restore from backup actually tested | Tue 10 | 1 | `evidence/final/E3-*.png` |
 | SVC-2 | Media: presigned S3 uploads with size limits, for photos, voice notes, images and lessons | Mon 9 | 2 | `evidence/final/SVC-2-*.txt` |
 | FB-8 | Education library, offline download, training modules, quiz, certificate (S3 for the files; Perfect checks the screens) | Tue 10 | 3 | `evidence/final/FB-8-*.png` |
-| E4 | Lab 9 / CI/CD evidence: pipeline runs, scan results, a deploy from a merge, per the handout | Wed 11 | 1 | `evidence/lab9/` |
+| E4 | Lab 9 / CI/CD evidence: pipeline runs, scan results, a deploy from a merge, per the handout | Wed 11 | 1 | `evidence/lab9/` · ✅ Evidence and draft package in the repo (#74, #76, #77) |
 | R-E | Report: architecture as built, cost and budget, load test results, TURN, cloud health platform choice, backup and uptime | Wed 11 | 1 | Section sent to Joseph |
 
 ### Elise: data, public health, exports
@@ -163,11 +163,11 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 | ID | Task | Due | Tier | Evidence |
 |---|---|---|---|---|
 | E-M | Migration 004: the new roles (`pharmacist`, `traditional_healer`, `health_centre_admin`) and tables for prescriptions, referrals, emergencies, surveys, pregnancies and children, courses, insurance, stock, facilities. Tested with `db/migrate.sh`, never editing an applied file | Sat 7 | 1 | `evidence/final/E-M-schema-tests.txt` · **🔄 Part 1 in PR (6 Nov):** `004` = roles (+ `patient` logins, Joseph's request), facilities, referrals, emergencies, prescriptions; 57 deny / 30 allow / 0 problems. Part 2 (`005`: surveys, pregnancies and children, courses, insurance, stock) on Sat 7 |
-| S8 | Shared vocabulary in `knowledge/` (short: roles and data resources) | Sat 7 | 2 | Merged |
+| S8 | Shared vocabulary in `knowledge/` (short: roles and data resources) | Sat 7 | 2 | ✅ `knowledge/vocabulary.md` |
 | FB-7a | SVC-8: surveillance: synthetic cases shaped by DHS regional figures (cited, labelled synthetic, D-034), dashboard, district map, explainable outbreak rule, official confirms, alert in test mode | Mon 9 | 1 | `evidence/final/FB-7-outbreak-*.png` · **🔄 In PR (8 Nov):** `005_surveillance.sql`, DHS-shaped seed, API routes, the three GHS screens; works in local test mode. Live once merged, 005 is applied on RDS and J1 login is live. E-M part 2 moves to `010` |
-| FB-7b | Surveys, maternal and child records with reminders, symptom decision support ("not a diagnosis"), forecasts labelled as estimates | Tue 10 | 2 | `evidence/final/FB-7-*.png` |
-| FB-9b | Healer directory and consented referral; stock, low-stock alert, redistribution | Tue 10 | 3 | `evidence/final/FB-9-*.png` |
-| FB-10b | SDG 3 dashboard; FHIR, DHIS2 and WHO exports (sandbox) | Tue 10 | 3 | `evidence/final/FB-10-exports-*` |
+| FB-7b | Surveys, maternal and child records with reminders, symptom decision support ("not a diagnosis"), forecasts labelled as estimates | Tue 10 | 2 | `evidence/final/FB-7-*.png` · ✅ Merged (#79) and deployed; on RDS by 11 Nov (Eugene) |
+| FB-9b | Healer directory and consented referral; stock, low-stock alert, redistribution | Tue 10 | 3 | `evidence/final/FB-9-*.png` · ✅ Merged (#82) and deployed; on RDS by 11 Nov (Eugene) |
+| FB-10b | SDG 3 dashboard; FHIR, DHIS2 and WHO exports (sandbox) | Tue 10 | 3 | `evidence/final/FB-10-exports-*` · ✅ Merged (#81) and deployed; on RDS by 11 Nov (Eugene) |
 | L8-B3 | Written peer review, 200 words, from everyone's notes: one strength, one risk, one question; names the team | End of Week 8 | 1 | `evidence/lab8/lab8-peer-review.pdf` |
 | R-L | Report: FHIR mapping, data minimisation, HIPAA safeguard-to-control mapping (D-028), the DHS data, why synthetic (D-034), community engagement | Wed 11 | 1 | Section sent to Joseph |
 
@@ -176,11 +176,11 @@ The Lab 8 session date is on Canvas (X1). The written review (L8-B3) and the rev
 | ID | Task | Due | Tier | Evidence |
 |---|---|---|---|---|
 | P1 | Phone checks on `https://app-hc.agroconnect.space`: install, offline start, fingerprint, voice notes, airplane-mode demo. Tick everything in `BUILD-CHECKLIST.md` FB-2, FB-3 and FB-4 that now works, so the progress bars are true | Sat 7 | 1 | `evidence/final/P1-*.png`, airplane-mode video in Drive |
-| P2 | Point the app at the real login and sync when J1 and J2 land, keeping mock mode as a switch | Sun 8 | 1 | `evidence/final/P2-real-sync.png` |
-| FB-5 | Referrals with automatic priority; emergency button, auto-escalation timeline, offline Call and SMS (with SVC-7 endpoints) | Mon 9 | 1 | `evidence/final/FB-5-*.png`, an unacknowledged emergency escalating |
+| P2 | Point the app at the real login and sync when J1 and J2 land, keeping mock mode as a switch | Sun 8 | 1 | `evidence/final/P2-real-sync.png` · ✅ Merged (#78) and deployed; on RDS by 11 Nov (Eugene) |
+| FB-5 | Referrals with automatic priority; emergency button, auto-escalation timeline, offline Call and SMS (with SVC-7 endpoints) | Mon 9 | 1 | `evidence/final/FB-5-*.png`, an unacknowledged emergency escalating · ✅ Merged (#80) and deployed; on RDS by 11 Nov (Eugene) |
 | L8-B2 | Before and after diagrams, right after the Lab 8 session; also redraw the PWA box as built (S3 + CloudFront) **before** the session | Session day | 1 | `evidence/lab8/B1-before.png`, `B2-after.png` |
-| FB-4b | Recording with both-side consent and a visible indicator; QA review list; fee screen on SVC-4 | Tue 10 | 2 | `evidence/final/FB-4-*.png` |
-| FB-10c | Health centre admin sees only their own facility | Tue 10 | 3 | `evidence/final/FB-10-facility-*.png` |
+| FB-4b | Recording with both-side consent and a visible indicator; QA review list; fee screen on SVC-4 | Tue 10 | 2 | `evidence/final/FB-4-*.png` · ✅ Merged (#83) and deployed; on RDS by 11 Nov (Eugene) |
+| FB-10c | Health centre admin sees only their own facility | Tue 10 | 3 | `evidence/final/FB-10-facility-*.png` · ✅ Merged (#81) and deployed; on RDS by 11 Nov (Eugene) |
 | FB-11 | Language switch on every screen, English and Twi complete, other three files ready; 200% text size | Tue 10 | 3 | `evidence/final/FB-11-*.png` |
 | UI | Check teammates' screens against the design system when they come up for review | Daily | 1 | PR reviews |
 | F2 | Screenshots for every role; demo script and fallback recording; rework the progress deck into the final presentation, with Joseph | Wed 11 and Fri 13 | 1 | `evidence/final/F2-role-*.png`, deck in Drive |
