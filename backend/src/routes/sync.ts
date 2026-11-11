@@ -102,7 +102,7 @@ async function project(q: Queryable, r: Json, actor: Actor) {
 }
 
 /** The same rule the app's mock server follows (D-032): the person's own records, plus those of their patients. */
-const VISIBLE = `(
+export const VISIBLE = `(
   s.owner = $1
   OR ($2 = 'patient' AND s.patient_id = $3)
   OR ($2 = 'chv' AND s.patient_id IN (SELECT id FROM sync_records WHERE resource_type = 'Patient' AND owner = $1))

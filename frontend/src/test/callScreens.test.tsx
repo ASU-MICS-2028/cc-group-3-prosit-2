@@ -19,6 +19,9 @@ class FakeEngine implements CallApi {
   toggleCamera = vi.fn(async () => this.set({ cameraOff: !this.state.cameraOff }));
   setAudioOnly = vi.fn(async (on: boolean) => this.set({ audioOnly: on, quality: on ? "audio" : "good", suggestAudio: false }));
   dismissSuggestion = vi.fn(() => this.set({ suggestAudio: false }));
+  askToRecord = vi.fn(() => false);
+  agreeToRecord = vi.fn();
+  withdrawRecording = vi.fn();
   getState = () => this.state;
   subscribe = (l: () => void) => { this.listeners.add(l); return () => { this.listeners.delete(l); }; };
   set(p: Partial<CallState>) { this.state = { ...this.state, ...p }; this.listeners.forEach((l) => l()); }

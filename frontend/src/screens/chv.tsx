@@ -20,17 +20,6 @@ function Book() {
   </>);
 }
 
-function Survey() {
-  const [a, setA] = useState<string>();
-  return (<>
-    <p className="body-strong">In the last 2 weeks, did anyone in the household have a fever?</p>
-    <div className="row">{["Yes", "No", "Not sure"].map((c) => <Chip key={c} selected={a === c} onClick={() => setA(c)}>{c}</Chip>)}</div>
-    <Field label="Notes" voice />
-    <PrimaryButton disabled={!a}>Save answer</PrimaryButton>
-    {sync("saved")}
-  </>);
-}
-
 export const chv: Record<string, ScreenDef> = {
   "chv.today": { title: "Hi Ama", caption: "Here is your day", render: () => (<>
     <div className="row">{sync("saved")}<span className="caption">3 changes waiting to send</span></div>
@@ -110,14 +99,6 @@ export const chv: Record<string, ScreenDef> = {
   </>) },
   "chv.book": { title: "Book a visit", render: () => <Book /> },
   "chv.call": { title: "Video visit", render: () => (<><PreCall provider="Dr. Kofi Mensah" time="Tue 4 Nov, 8:00 am" /><CallScreen name="Dr. Kofi Mensah" quality="weak" /></>) },
-  "chv.survey": { title: "Health survey", caption: "Fever in the household", render: () => <Survey /> },
-  "chv.maternal": { title: "Mothers & babies", render: () => (<>
-    <Rows items={[
-      { name: "Abena Tetteh", role: "Pregnant, 28 weeks", hours: "Next visit Thu 6 Nov", trailing: sync("sent") },
-      { name: "Baby Kwesi", role: "9 months", hours: "Vaccine due Mon 10 Nov" },
-    ]} />
-    <p className="caption">Reminders go out by SMS in the mother's language (test mode).</p>
-  </>) },
   "chv.learn": { title: "Learn", render: () => (<>
     <Rows items={[
       { name: "Washing hands", role: "Audio · 2 min", trailing: <ListenButton /> },

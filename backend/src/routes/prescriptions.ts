@@ -7,7 +7,7 @@ import { requireActor, type Actor } from '../auth.js'
 import type { Queryable } from '../db.js'
 import { canReach } from './sync.js'
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PRESCRIBERS = new Set(['doctor', 'specialist'])
 const VALID_DAYS = 30
 // Illustrative thresholds. No medical partner or regulator has signed them off, and the report says so.

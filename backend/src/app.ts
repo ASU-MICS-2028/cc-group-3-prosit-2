@@ -9,11 +9,13 @@ import type { CheckoutProvider } from './votex.js'
 import { adminRoutes } from './routes/admin.js'
 import { appointmentRoutes } from './routes/appointments.js'
 import { authRoutes } from './routes/auth.js'
+import { communityRoutes } from './routes/community.js'
 import { insurancePremium, insuranceRoutes } from './routes/insurance.js'
 import { patientRoutes } from './routes/patients.js'
 import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
 import { prescriptionRoutes } from './routes/prescriptions.js'
 import { referralRoutes } from './routes/referrals.js'
+import { recordingRoutes } from './routes/recordings.js'
 import { surveillanceRoutes } from './routes/surveillance.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
@@ -54,6 +56,7 @@ export function createApp(ctx: Ctx): Express {
       res.set('Access-Control-Allow-Origin', origin)
       res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type')
       res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.set('Access-Control-Expose-Headers', 'Retry-After') // otherwise the app can't read it from another origin
       res.set('Access-Control-Max-Age', '600')
     }
     if (req.method === 'OPTIONS') return void res.status(204).end()
@@ -96,9 +99,11 @@ export function createApp(ctx: Ctx): Express {
   appointmentRoutes(app, ctx)
   patientRoutes(app, ctx)
   surveillanceRoutes(app, ctx)
+  communityRoutes(app, ctx)
   syncRoutes(app, ctx)
   prescriptionRoutes(app, ctx)
   referralRoutes(app, ctx)
+  recordingRoutes(app, ctx)
   paymentRoutes(app, ctx, { insurance_premium: insurancePremium })
   insuranceRoutes(app, ctx)
   adminRoutes(app, ctx)

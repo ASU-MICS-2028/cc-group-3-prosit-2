@@ -1,0 +1,32 @@
+<!doctype html><meta charset="utf-8"><title>HealthConnect consolidated architecture</title>
+<style>
+body{margin:0;background:#fff;width:1912px;font:15px/1.3 Helvetica,Arial,sans-serif;color:#1b1b1b}
+img{display:block;width:1912px}
+.band{margin:0 22px 18px;border:1.5px solid #232f3e;padding:14px 18px 16px}
+h2{font-size:18px;margin:0 0 2px}.sub{color:#555;font-size:13.5px;margin-bottom:12px}
+.row{display:flex;align-items:stretch;gap:0}
+.b{flex:1;border:1.5px solid;border-radius:6px;padding:9px 11px;font-size:13.5px;min-width:0}
+.b b{display:block;font-size:14.5px;margin-bottom:3px}
+.a{flex:0 0 34px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#232f3e}
+.g{border-color:#3b48cc;background:#f0f1fd}.t{border-color:#1d8102;background:#eff8ec}.s{border-color:#d13212;background:#fdf0ed}.h{border-color:#d86613;background:#fff4e8;flex:.8}.d{border-color:#232f3e;background:#f4f5f6}.p{border-color:#7b42bc;background:#f5effc}
+.label{font-weight:700;font-size:14px;margin:0 0 7px}
+.gap{height:15px}
+</style>
+<img src="../../docs/architecture-healthconnect.png" alt="HealthConnect AWS architecture">
+<div class="band"><h2>Delivery layers: how the system above is built and changed</h2><div class="sub">Added for Lab 9. Repo: github.com/ASU-MICS-2028/cc-group-3-prosit-2 · workflow .github/workflows/ci.yml · Terraform in infra/</div>
+<p class="label">CI/CD layer (GitHub Actions)</p>
+<div class="row">
+<div class="b g"><b>Pull request to main</b>Protected branch: one approval from someone other than the author</div><div class="a">→</div>
+<div class="b t"><b>Build and test</b>API on a real Postgres with every migration · schema · Lambda functions · PWA · call page · Terraform validate</div><div class="a">→</div>
+<div class="b s"><b>Security scan</b>gitleaks: secrets in all history · Trivy: vulnerable packages · Trivy: IaC misconfiguration</div><div class="a">→</div>
+<div class="b h"><b>Human approval</b>GitHub Environment "production": one of four reviewers</div><div class="a">→</div>
+<div class="b d"><b>Deploy (OIDC, no stored keys)</b>API: ECR image, then rolling instance refresh · call page · PWA: S3 and CloudFront · health checks after</div>
+</div>
+<div class="gap"></div>
+<p class="label">Infrastructure as Code layer (Terraform)</p>
+<div class="row">
+<div class="b p"><b>infra/: 12 modules</b>network · nat · alb · compute · database · storage · events · cicd · ecr · call · frontend · observability</div><div class="a">→</div>
+<div class="b t"><b>CI check on every PR</b>terraform fmt and validate · Trivy config scan</div><div class="a">→</div>
+<div class="b d"><b>terraform plan, then targeted apply</b>Run by the infrastructure lead, not by the pipeline</div><div class="a">→</div>
+<div class="b g"><b>Remote state</b>Encrypted S3 bucket with a lock file, under its own key, separate from AgroConnect</div>
+</div></div>
