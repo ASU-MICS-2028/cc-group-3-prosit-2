@@ -83,6 +83,13 @@ describe.skipIf(!TEST_DATABASE_URL)('sync', () => {
     expect((await db.query(`SELECT outcome, action FROM access_log WHERE patient_id = $1`, [p])).rows).toEqual([{ outcome: 'success', action: 'create' }])
   })
 
+  it('stores a birth year alone (the app\'s "Year of birth") as an estimated date', async () => {
+    const p = randomUUID()
+    expect(await push(chv, { ...patient(p), birthDate: '1988' })).toEqual({ http: 201, status: 'ok', serverVersion: 1 })
+    const row = (await db.query(`SELECT to_char(date_of_birth, 'YYYY-MM-DD') AS dob, birth_date_estimated FROM patients WHERE id = $1`, [p])).rows[0]
+    expect(row).toEqual({ dob: '1988-01-01', birth_date_estimated: true })
+  })
+
   it('treats the same record sent twice as already stored (a lost reply), with one row', async () => {
     const { p } = await setup()
     const r = reading(randomUUID(), p, (await db.query('SELECT id FROM consents WHERE patient_id = $1', [p])).rows[0]!.id as string)
