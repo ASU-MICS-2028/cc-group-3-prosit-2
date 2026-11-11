@@ -17,7 +17,7 @@ import { THRESHOLDS, flagFor } from "../config/thresholds";
 import { ghanaPhone, nameProblem, numberProblem, placeProblem, toNumber, vitalProblem, yearProblem } from "../data/validate";
 import { Heading, KV, Tiles, go, type ScreenDef } from "./kit";
 
-const Emergency = () => <div className="stack"><EmergencyButton onClick={() => go("chv.emergency")} /></div>;
+const Emergency = ({ patient }: { patient?: string }) => <div className="stack"><EmergencyButton onClick={() => go("chv.emergency", patient)} /></div>;
 const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
 const badge = (s: SyncStatus) => <SyncBadge status={s} />;
 const name = (p: Patient) => p.name[0].text;
@@ -50,7 +50,7 @@ function Today() {
       ? <StateView kind="empty" text="No patients yet. Add the first one." action={<PrimaryButton onClick={() => go("chv.register")}>Add patient</PrimaryButton>} />
       : <div className="stack">{data.patients.slice(0, 4).map((v) => <PersonRow key={v.resource.id} name={name(v.resource)} role={(v.resource.address?.[0].city ?? "Patient") + withTags(data.patients)(v)} trailing={badge(v.syncState)} onClick={() => go("chv.patient", v.resource.id)} />)}</div>}
     <Heading>Quick actions</Heading>
-    <Tiles items={[{ icon: "users", label: "Add patient", to: "chv.register" }, { icon: "baby", label: "Mothers & babies", to: "chv.maternal" }, { icon: "calendar-check", label: "Survey", to: "chv.survey" }]} />
+    <Tiles items={[{ icon: "users", label: "Add patient", to: "chv.register" }, { icon: "baby", label: "Mothers & babies", to: "chv.maternal" }, { icon: "calendar-check", label: "Survey", to: "chv.survey" }, { icon: "chat-circle-text", label: "Symptom check", to: "chv.symptoms" }]} />
     <PromoCard title="Vaccination day: Saturday at the clinic" action="Learn more" />
   </>);
 }
@@ -267,8 +267,8 @@ export function PatientDetail({ id, readOnly }: { id?: string; readOnly?: boolea
       </div>
     ))}
     <KV k="Record id" v={<span className="caption tabular">{id.slice(0, 8)}</span>} />
-    {!readOnly && <div className="row"><SecondaryButton onClick={() => go("chv.referral")}>Refer</SecondaryButton></div>}
-    {!readOnly && <Emergency />}
+    {!readOnly && <div className="row"><SecondaryButton onClick={() => go("chv.referral", id)}>Refer</SecondaryButton></div>}
+    {!readOnly && <Emergency patient={id} />}
   </>);
 }
 
@@ -320,7 +320,7 @@ function Vitals({ id }: { id?: string }) {
     <VitalField vital="height" value={v.height} onChange={change("height")} error={show("height")} onBlurTop={touch("height")} />
     {problem && <><Alert>{problem.text}</Alert>{problem.consent && <SecondaryButton onClick={() => go("chv.consent", id)}>Ask for permission</SecondaryButton>}</>}
     <PrimaryButton loading={busy} onClick={save}>Save</PrimaryButton>
-    <Emergency />
+    <Emergency patient={id} />
   </>);
 }
 

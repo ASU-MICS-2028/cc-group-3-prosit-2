@@ -14,7 +14,7 @@ const NETWORKS = new Set(['mtn', 'telecel', 'airteltigo'])
 export const CONSULTATION_FEE = 25
 const SIMULATED_DELAY_MS = 3_000
 const RECHECK_MS = 10_000
-const SYSTEM_ID = '00000000-0000-0000-0000-000000000000'
+export const SYSTEM_ID = '00000000-0000-0000-0000-000000000000'
 type Row = Record<string, unknown>
 
 export class Refusal extends Error {

@@ -416,3 +416,152 @@ UPDATE outbreak_alerts SET status = 'dismissed', decided_by = :ghs, decided_at =
 UPDATE outbreak_alerts SET case_count = 3 WHERE id = :alert1;
 \echo 'SHOULD FAIL: delete the alert'
 DELETE FROM outbreak_alerts WHERE id = :alert1;
+
+\echo '--- 010: surveys ---'
+\set survey1 '''0b000000-0000-0000-0000-000000000001'''
+SET app.user_id = '11111111-1111-1111-1111-111111111111';
+\echo 'SHOULD FAIL: a CHV builds a survey'
+INSERT INTO surveys (id, title, questions) VALUES (:survey1, 'Fever', '[{"id":"q1","text":"Fever?","options":["Yes","No"]}]');
+SET app.user_id = '44444444-4444-4444-4444-444444444444';
+\echo 'SHOULD PASS: a GHS official builds a survey'
+INSERT INTO surveys (id, title, questions) VALUES (:survey1, 'Fever', '[{"id":"q1","text":"Fever?","options":["Yes","No"]}]');
+\echo 'SHOULD FAIL: a survey with no questions'
+INSERT INTO surveys (title, questions) VALUES ('Empty', '[]');
+\echo 'SHOULD FAIL: edit the questions after answers can exist'
+UPDATE surveys SET questions = '[{"id":"q1","text":"Changed","options":["A","B"]}]' WHERE id = :survey1;
+\echo 'SHOULD FAIL: the GHS official records an answer (collectors only)'
+INSERT INTO survey_answers (id, survey_id, answers) VALUES ('0b000000-0000-0000-0000-00000000000a', :survey1, '{"q1":"Yes"}');
+SET app.user_id = '11111111-1111-1111-1111-111111111111';
+\echo 'SHOULD PASS: a CHV records an anonymous answer'
+INSERT INTO survey_answers (id, survey_id, answers) VALUES ('0b000000-0000-0000-0000-00000000000a', :survey1, '{"q1":"Yes"}');
+\echo 'SHOULD FAIL: an answer that is not one of the options'
+INSERT INTO survey_answers (id, survey_id, answers) VALUES ('0b000000-0000-0000-0000-00000000000b', :survey1, '{"q1":"Maybe"}');
+\echo 'SHOULD FAIL: a question left out'
+INSERT INTO survey_answers (id, survey_id, answers) VALUES ('0b000000-0000-0000-0000-00000000000b', :survey1, '{}');
+\echo 'SHOULD FAIL: an extra answer that matches no question'
+INSERT INTO survey_answers (id, survey_id, answers) VALUES ('0b000000-0000-0000-0000-00000000000b', :survey1, '{"q1":"Yes","name":"Ama"}');
+\echo 'SHOULD FAIL: change an answer after sending'
+UPDATE survey_answers SET answers = '{"q1":"No"}' WHERE id = '0b000000-0000-0000-0000-00000000000a';
+\echo 'SHOULD FAIL: delete an answer'
+DELETE FROM survey_answers WHERE id = '0b000000-0000-0000-0000-00000000000a';
+SET app.user_id = '44444444-4444-4444-4444-444444444444';
+\echo 'SHOULD PASS: close the survey'
+UPDATE surveys SET status = 'closed' WHERE id = :survey1;
+\echo 'SHOULD FAIL: reopen it'
+UPDATE surveys SET status = 'open' WHERE id = :survey1;
+SET app.user_id = '11111111-1111-1111-1111-111111111111';
+\echo 'SHOULD FAIL: answer a closed survey'
+INSERT INTO survey_answers (id, survey_id, answers) VALUES ('0b000000-0000-0000-0000-00000000000b', :survey1, '{"q1":"Yes"}');
+\echo 'SHOULD FAIL: delete a survey'
+DELETE FROM surveys WHERE id = :survey1;
+
+\echo '--- 010: pregnancies and children ---'
+\set preg1 '''0c000000-0000-0000-0000-000000000001'''
+\set child1 '''0c000000-0000-0000-0000-000000000002'''
+\set c_ama2 '''cccccccc-0000-0000-0000-00000000010a'''
+INSERT INTO consents (id, patient_id, purpose, given_by, recorded_by, given_at)
+VALUES (:c_ama2, :ama, 'clinical_care', 'patient', :chv, now());
+\echo 'SHOULD FAIL: a pregnancy with withdrawn consent'
+INSERT INTO pregnancies (id, patient_id, consent_id, expected_due_date) VALUES (:preg1, :ama, :c_ama, current_date + 100);
+\echo 'SHOULD FAIL: a pregnancy with someone else''s consent'
+INSERT INTO pregnancies (id, patient_id, consent_id, expected_due_date) VALUES (:preg1, :kofi, :c_ama2, current_date + 100);
+\echo 'SHOULD FAIL: a due date years away'
+INSERT INTO pregnancies (id, patient_id, consent_id, expected_due_date) VALUES (:preg1, :ama, :c_ama2, current_date + 900);
+\echo 'SHOULD PASS: a pregnancy with active consent'
+INSERT INTO pregnancies (id, patient_id, consent_id, expected_due_date) VALUES (:preg1, :ama, :c_ama2, current_date + 100);
+\echo 'SHOULD FAIL: a second active pregnancy for the same patient'
+INSERT INTO pregnancies (id, patient_id, consent_id, expected_due_date) VALUES ('0c000000-0000-0000-0000-000000000009', :ama, :c_ama2, current_date + 90);
+\echo 'SHOULD FAIL: quietly change the due date'
+UPDATE pregnancies SET expected_due_date = current_date + 50 WHERE id = :preg1;
+\echo 'SHOULD FAIL: a child with a date of birth in the future'
+INSERT INTO children (id, mother_id, consent_id, given_name, date_of_birth) VALUES (:child1, :ama, :c_ama2, 'Kwesi', current_date + 1);
+\echo 'SHOULD FAIL: a child over 5 (these records are for the under-fives)'
+INSERT INTO children (id, mother_id, consent_id, given_name, date_of_birth) VALUES (:child1, :ama, :c_ama2, 'Kwesi', current_date - 2000);
+\echo 'SHOULD PASS: a child under the mother''s consent'
+INSERT INTO children (id, mother_id, consent_id, given_name, date_of_birth) VALUES (:child1, :ama, :c_ama2, 'Kwesi', current_date - 60);
+\echo 'SHOULD FAIL: delete a child record'
+DELETE FROM children WHERE id = :child1;
+
+\echo '--- 010: visit schedules ---'
+\set visit1 '''0d000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD FAIL: a visit for nobody'
+INSERT INTO visit_schedules (label, due_on) VALUES ('Antenatal', current_date);
+\echo 'SHOULD FAIL: a visit for both a pregnancy and a child'
+INSERT INTO visit_schedules (pregnancy_id, child_id, label, due_on) VALUES (:preg1, :child1, 'Antenatal', current_date);
+\echo 'SHOULD PASS: a visit for the pregnancy'
+INSERT INTO visit_schedules (id, pregnancy_id, label, due_on) VALUES (:visit1, :preg1, 'Antenatal', current_date);
+\echo 'SHOULD FAIL: done without saying who'
+UPDATE visit_schedules SET done_at = now() WHERE id = :visit1;
+\echo 'SHOULD FAIL: move a planned visit'
+UPDATE visit_schedules SET due_on = current_date + 1 WHERE id = :visit1;
+\echo 'SHOULD PASS: mark the visit done'
+UPDATE visit_schedules SET done_at = now(), done_by = :chv WHERE id = :visit1;
+\echo 'SHOULD FAIL: mark it done a second time'
+UPDATE visit_schedules SET done_at = now(), done_by = :chv WHERE id = :visit1;
+\echo 'SHOULD PASS: close the pregnancy as delivered'
+UPDATE pregnancies SET status = 'delivered' WHERE id = :preg1;
+\echo 'SHOULD FAIL: reopen a closed pregnancy'
+UPDATE pregnancies SET status = 'active' WHERE id = :preg1;
+
+\echo '--- 010: courses and stock ---'
+\set course1 '''0e000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: a course and progress'
+INSERT INTO courses (id, title, lesson_count, pass_mark) VALUES (:course1, 'Safe home visits', 5, 70);
+INSERT INTO course_progress (course_id, practitioner_id, lessons_done) VALUES (:course1, :chv, 3);
+\echo 'SHOULD FAIL: the same person enrolled twice'
+INSERT INTO course_progress (course_id, practitioner_id) VALUES (:course1, :chv);
+\echo 'SHOULD FAIL: finished without a quiz score'
+UPDATE course_progress SET completed_at = now() WHERE course_id = :course1;
+\echo 'SHOULD FAIL: a pass mark over 100'
+INSERT INTO courses (title, lesson_count, pass_mark) VALUES ('Bad', 1, 101);
+\echo 'SHOULD FAIL: delete a course'
+DELETE FROM courses WHERE id = :course1;
+\set stockf '''0e000000-0000-0000-0000-00000000000f'''
+INSERT INTO facilities (id, name, type, region) VALUES (:stockf, 'Dodowa stock test', 'health_centre', 'Greater Accra');
+\echo 'SHOULD PASS: stock at a facility'
+INSERT INTO stock_items (facility_id, name, unit, quantity) VALUES (:stockf, 'ORS sachets', 'sachets', 40);
+\echo 'SHOULD FAIL: the same item twice at one facility'
+INSERT INTO stock_items (facility_id, name, unit, quantity) VALUES (:stockf, 'ORS sachets', 'sachets', 10);
+\echo 'SHOULD FAIL: negative stock'
+UPDATE stock_items SET quantity = -1 WHERE facility_id = :stockf;
+\echo 'SHOULD FAIL: delete a stock item'
+DELETE FROM stock_items WHERE facility_id = :stockf;
+
+\echo '--- 014: healer referrals and stock transfers ---'
+\set healer '''0d000000-0000-0000-0000-000000000001'''
+\set c_heal '''cccccccc-0000-0000-0000-0000000000a1'''
+\set stock2 '''0e000000-0000-0000-0000-000000000010'''
+INSERT INTO practitioners (id, full_name, role, community, practice) VALUES (:healer, 'Synthetic Healer', 'traditional_healer', 'Kintampo', 'Herbal care');
+\echo 'SHOULD FAIL: a directory community on someone who is not a healer'
+UPDATE practitioners SET community = 'Kintampo' WHERE id = :spec;
+SET app.user_id = '11111111-1111-1111-1111-111111111111';  -- the CHV
+\echo 'SHOULD FAIL: a healer referral on clinical-care consent alone'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_kofi, :healer, 'Back pain', 'routine');
+\echo 'SHOULD PASS: record consent for a healer referral'
+INSERT INTO consents (id, patient_id, purpose, given_by, recorded_by, given_at) VALUES (:c_heal, :kofi, 'healer_referral', 'patient', :chv, '2026-11-01 09:00Z');
+\echo 'SHOULD PASS: refer to a healer with that consent'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_heal, :healer, 'Back pain', 'routine');
+\echo 'SHOULD FAIL: that consent does not cover a referral to a doctor'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_heal, :spec, 'Back pain', 'routine');
+\echo 'SHOULD PASS: withdraw the healer consent'
+UPDATE consents SET withdrawn_at = now() WHERE id = :c_heal;
+\echo 'SHOULD FAIL: refer to a healer after consent was withdrawn'
+INSERT INTO referrals (patient_id, consent_id, to_practitioner_id, reason, priority) VALUES (:kofi, :c_heal, :healer, 'Back pain', 'routine');
+SET app.user_id = '99999999-9999-9999-9999-999999999999';  -- act as the admin
+INSERT INTO facilities (id, name, type, region) VALUES (:stock2, 'Kintampo stock test', 'chps', 'Bono East');
+\set tr1 '''0f000000-0000-0000-0000-000000000001'''
+\echo 'SHOULD PASS: move 30 ORS sachets to a facility that has none yet'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (:tr1, :stockf, :stock2, 'ORS sachets', 'sachets', 30);
+SELECT f.name, s.quantity FROM stock_items s JOIN facilities f ON f.id = s.facility_id WHERE s.name = 'ORS sachets' ORDER BY f.name;
+\echo 'SHOULD FAIL: move more than is left (10 left, asked for 11)'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stock2, 'ORS sachets', 'sachets', 11);
+\echo 'SHOULD FAIL: move in the wrong units'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stock2, 'ORS sachets', 'tablets', 1);
+\echo 'SHOULD FAIL: move to the same facility'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stockf, 'ORS sachets', 'sachets', 1);
+\echo 'SHOULD FAIL: move zero'
+INSERT INTO stock_transfers (id, from_facility_id, to_facility_id, item_name, unit, quantity) VALUES (gen_random_uuid(), :stockf, :stock2, 'ORS sachets', 'sachets', 0);
+\echo 'SHOULD FAIL: change a recorded transfer'
+UPDATE stock_transfers SET quantity = 1 WHERE id = :tr1;
+\echo 'SHOULD FAIL: delete a transfer'
+DELETE FROM stock_transfers WHERE id = :tr1;

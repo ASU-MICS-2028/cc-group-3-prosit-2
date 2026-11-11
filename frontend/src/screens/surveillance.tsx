@@ -5,7 +5,7 @@ import { PriorityBadge, VitalCard } from "../components/clinical";
 import { useSession } from "../auth/Session";
 import { useLoad } from "../data/DataProvider";
 import { SurveillanceError, resetTestSurveillance, surveillanceApiFor, type Alert, type Total } from "../data/surveillance";
-import { Heading, Rows, type ScreenDef } from "./kit";
+import { Heading, Rows, Tiles, type ScreenDef } from "./kit";
 
 /* GHS official: surveillance dashboard, map and outbreak alerts (FB-7a).
    Every number is synthetic (D-034), and each screen says so. */
@@ -39,6 +39,9 @@ function Dashboard() {
     {open.length === 0
       ? <p className="body">No possible outbreaks waiting.</p>
       : <Rows items={open.map((a) => ({ name: `Possible outbreak: ${a.condition}`, role: `${a.district}, ${a.case_count} cases`, trailing: <PriorityBadge priority="urgent" />, to: "ghs.alerts" }))} />}
+    <Heading>Emergencies</Heading>
+    <Rows items={[{ name: "Escalated emergencies", role: "Unanswered ones reach you here", to: "ghs.emergencies" }]} />
+    <Tiles items={[{ icon: "calendar-check", label: "Forecasts", to: "ghs.forecast" }, { icon: "chat-circle-text", label: "Surveys", to: "ghs.surveys" }]} />
     <Note />
   </>);
 }
@@ -119,8 +122,25 @@ function OutbreakAlerts() {
   </>);
 }
 
+function ForecastScreen() {
+  const api = useApi();
+  const f = useLoad(async () => api?.forecast(HOME_REGION), []);
+  if (f.error) return <StateView kind="error" text={f.error} />;
+  if (!f.data) return <StateView kind="loading" text="Working out estimates…" />;
+  const items = f.data.forecasts;
+  return (<>
+    <p className="body-strong">Estimates, not predictions.</p>
+    <p className="caption">{HOME_REGION}, week of {fmtWeek(f.data.week_start)}. Method: {f.data.method} A recent spike lifts the estimate, and it knows nothing about the weather, stock or events.</p>
+    {items.length === 0
+      ? <StateView kind="empty" text="Not enough weeks of data for an estimate." />
+      : <Rows items={items.map((x) => ({ name: `${x.condition[0].toUpperCase()}${x.condition.slice(1)} · ${x.district}`, role: `Estimate: about ${x.estimate} cases (${x.low} to ${x.high})` }))} />}
+    <Note />
+  </>);
+}
+
 export const surveillanceScreens: Record<string, ScreenDef> = {
   "ghs.dashboard": { title: "Hi Adwoa", caption: "Public health this week", render: () => <Dashboard /> },
   "ghs.map": { title: "Disease map", render: () => <DiseaseMap /> },
   "ghs.alerts": { title: "Outbreak alerts", render: () => <OutbreakAlerts /> },
+  "ghs.forecast": { title: "Forecasts", caption: "Estimates, not predictions", render: () => <ForecastScreen /> },
 };

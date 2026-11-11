@@ -44,6 +44,22 @@ export async function seedTestUsers(db: Db, password: string) {
     }
     await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = $2`, [PHARMACY_ID, TEST_USERS.find((u) => u.username === 'pharmacist')!.id])
     await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = ANY($2::uuid[])`, [CLINIC_ID, TEST_USERS.filter((u) => u.facility === 'Dodowa clinic area').map((u) => u.id)])
+    // Synthetic healer directory and stock (FB-9b). Made-up people and numbers, labelled so in the app.
+    await q.query(`UPDATE practitioners SET community = 'Kintampo', practice = 'Herbal care (synthetic entry)' WHERE id = $1`, [TEST_USERS.find((u) => u.username === 'healer')!.id])
+    for (const [id, name, community, practice] of [
+      ['00000000-0000-4000-8000-000000000031', 'Maame Afia Pokuaa', 'Techiman', 'Herbal care (synthetic entry)'],
+      ['00000000-0000-4000-8000-000000000032', 'Togbe Kwasi Dzidzor', 'Ho', 'Bone setting (synthetic entry)'],
+    ] as const) {
+      await q.query(
+        `INSERT INTO practitioners (id, full_name, role, community, practice) VALUES ($1, $2, 'traditional_healer', $3, $4)
+         ON CONFLICT (id) DO UPDATE SET community = EXCLUDED.community, practice = EXCLUDED.practice`, [id, name, community, practice])
+    }
+    for (const [facility, name, unit, quantity, reorder] of [
+      [PHARMACY_ID, 'Amlodipine 5 mg', 'tablets', 120, 30], [PHARMACY_ID, 'Paracetamol 500 mg', 'tablets', 14, 50],
+      [CLINIC_ID, 'ORS sachets', 'sachets', 40, 60], [CLINIC_ID, 'Paracetamol 500 mg', 'tablets', 300, 50],
+    ] as const) {
+      await q.query(`INSERT INTO stock_items (facility_id, name, unit, quantity, reorder_level) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (facility_id, name) DO NOTHING`, [facility, name, unit, quantity, reorder])
+    }
     // The sandbox licence register (D-038): not the real GMDC list.
     await q.query(
       `INSERT INTO prescriber_licences (practitioner_id, licence_number, valid_until) VALUES ($1, 'MDC-TEST-0001', '2030-12-31') ON CONFLICT (practitioner_id) DO NOTHING`,

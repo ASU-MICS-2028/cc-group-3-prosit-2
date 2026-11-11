@@ -7,7 +7,7 @@ import { requireActor, type Actor } from '../auth.js'
 import type { Queryable } from '../db.js'
 import { canReach } from './sync.js'
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PRESCRIBERS = new Set(['doctor', 'specialist'])
 const VALID_DAYS = 30
 // Illustrative thresholds. No medical partner or regulator has signed them off, and the report says so.
@@ -16,13 +16,13 @@ const HOURLY_LIMIT = 20 // prescriptions from one prescriber in an hour
 
 type Row = Record<string, unknown>
 
-class Refusal extends Error {
+export class Refusal extends Error {
   constructor(readonly status: number, readonly body: Row, readonly outcome: AccessEntry['outcome'] = 'error') { super(String(body.message)) }
 }
-const invalid = (field: string, message: string) => new Refusal(400, { error: 'invalid_request', field, message })
+export const invalid = (field: string, message: string) => new Refusal(400, { error: 'invalid_request', field, message })
 const FORBIDDEN = (who: string, what: string) => new Refusal(403, { error: 'forbidden', message: `A ${who} account cannot ${what}` }, 'denied')
 
-const text = (b: Row, field: string, max = 200): string => {
+export const text = (b: Row, field: string, max = 200): string => {
   const v = b[field]
   if (typeof v !== 'string' || !v.trim() || v.length > max) throw invalid(field, `${field} is required, up to ${max} characters`)
   return v.trim()

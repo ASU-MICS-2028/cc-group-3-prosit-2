@@ -181,6 +181,7 @@ function DoctorToday() {
       <SecondaryButton disabled={!online || busy} onClick={async () => { setBusy(true); await sync(); setBusy(false); }}>{busy ? "Checking…" : "Check for new visits"}</SecondaryButton>
       {!online && <span className="caption">You're offline. Showing what is saved on this phone.</span>}
     </div>
+    <SecondaryButton onClick={() => go("clinician.recordings")}>Recorded visits</SecondaryButton>
     <Heading>Visits booked with you</Heading>
     {upcoming.length === 0 ? <StateView kind="empty" text={`No visits yet, ${user?.name.split(" ")[0] ?? ""}. New bookings appear here.`} /> : (
       <div className="stack">{upcoming.map((v) => (
@@ -190,11 +191,12 @@ function DoctorToday() {
         </div>
       ))}</div>
     )}
+    <Tiles items={[{ icon: "baby", label: "Mothers & babies", to: "clinician.maternal" }, { icon: "chat-circle-text", label: "Symptom check", to: "clinician.symptoms" }]} />
   </>);
 }
 
 export const visitScreens: Record<string, ScreenDef> = {
-  "chv.care": { title: "Care", render: () => (<><Tiles items={[{ icon: "calendar-check", label: "Book a visit", to: "chv.book" }, { icon: "users", label: "Referrals", to: "chv.referral" }, { icon: "users", label: "Emergencies", to: "chv.emergency" }]} /><Visits /></>) },
+  "chv.care": { title: "Care", render: () => (<><Tiles items={[{ icon: "calendar-check", label: "Book a visit", to: "chv.book" }, { icon: "users", label: "Referrals", to: "chv.referral" }, { icon: "users", label: "Healers", to: "chv.healers" }, { icon: "users", label: "Emergencies", to: "chv.emergency" }]} /><Visits /></>) },
   "chv.book": { title: "Book a visit", render: (id) => <Book patientId={id} key={id ?? "pick"} /> },
   "chv.visits": { title: "Visits", render: () => <Visits /> },
   "clinician.today": { title: "Hi Dr. Mensah", caption: "Visits booked with you", render: () => <DoctorToday /> },

@@ -5,5 +5,5 @@ export default defineConfig({
   plugins: [react()],
   // lets a Cloudflare quick tunnel (https) reach the dev server, so the phone can test fingerprint unlock
   server: { allowedHosts: [".trycloudflare.com"] },
-  test: { environment: "jsdom", globals: true, css: false, setupFiles: ["./src/test/setup.ts"], testTimeout: 30000 },
+  test: { environment: "jsdom", globals: true, css: false, setupFiles: ["./src/test/setup.ts"], env: { VITE_START_IN_TEST_MODE: "true" }, testTimeout: 30000 },
 });

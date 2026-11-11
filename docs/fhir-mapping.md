@@ -3,9 +3,9 @@
 | | |
 | --- | --- |
 | Created | 21 Oct 2026 |
-| Last updated | 9 Nov 2026 (added migrations 004–007) |
+| Last updated | 10 Nov 2026 (added migrations 004–007 and 010) |
 | Lab | Lab 6 Part C |
-| Schema version | migrations 001–007 (9 Nov 2026) |
+| Schema version | migrations 001–007 and 010 (10 Nov 2026) |
 | FHIR version | R4 (4.0.1) |
 | Status | Draft for team review (mapping, gap analysis, data minimisation) |
 
@@ -38,6 +38,11 @@
 | `practitioner_credentials`, `refresh_tokens` (006) | none: sign-in secrets, not health data | n/a |
 | `login_events` (006) | AuditEvent (login) | Good |
 | `sync_records` (007) | The phone's FHIR-shaped JSON, stored as sent | Good: already FHIR-shaped |
+| `surveys`, `survey_answers` (010) | Questionnaire, QuestionnaireResponse | Partial: answers are anonymous, so no subject |
+| `pregnancies` (010) | EpisodeOfCare (+ Condition for the pregnancy) | Partial |
+| `children` (010) | Patient (+ RelatedPerson for the mother) | Partial: name and birth date only |
+| `visit_schedules` (010) | Appointment, status `proposed` | Partial |
+| `courses`, `course_progress`, `stock_items` (010) | none: staff training and stock, not health data | n/a |
 | `created_*` / `updated_*` columns | `meta.lastUpdated` + Provenance | Partial |
 
 ---
@@ -248,6 +253,21 @@ keeps each one as sent, with a version. That's closer to FHIR than our tables ar
 
 **Bottom line.** The schema is FHIR-*shaped*, not FHIR-*compatible*. Every table maps to a resource and most fields convert directly. What remains are gaps in **identity**, **terminology** and **the API layer**: we cannot reliably tell which real person a record belongs to, we validate codes against our own short list, and nothing speaks FHIR's REST protocol yet.
 
+## surveys, pregnancies, children, visit_schedules (010)
+
+Added for E-M part 2 and FB-7b. The fit is partial and deliberately so; the gaps below are minimisation choices, not missing work.
+
+| Column | FHIR element | Fit | Notes |
+| --- | --- | --- | --- |
+| `surveys.questions` | `Questionnaire.item` | 🔁 | JSON of id, text and options; each option is an `answerOption` |
+| `survey_answers.answers` | `QuestionnaireResponse.item` | 🔁 | No `subject`: the row names nobody on purpose |
+| `pregnancies.patient_id` | `EpisodeOfCare.patient` | ✅ | |
+| `pregnancies.expected_due_date` | `Observation` (LOINC EDD) | 🔁 | Expressed as an Observation on export |
+| `pregnancies.status` | `EpisodeOfCare.status` | 🔁 | `active` → active; closed values → finished; `entered_in_error` matches FHIR |
+| `children.mother_id` | `RelatedPerson.patient` | 🔁 | The child is a Patient, the mother a RelatedPerson. A child isn't a separate login |
+| `children.given_name`, `date_of_birth` | `Patient.name[0].given`, `Patient.birthDate` | ✅ | |
+| `visit_schedules` | `Appointment` (status `proposed`) | 🔁 | `label` → `description`; `due_on` → `start`; `done_at` → status `fulfilled` |
+
 ## Closed by design (lab starter → our schema)
 
 The lab asks us to name one missing field. These were the obvious candidates, and the schema already closes them:
@@ -312,6 +332,9 @@ The schema cleanly converts to FHIR R4, but HealthConnect can't yet *exchange* d
 | `country_code` | Legal / all | Decides which country's database holds the record (data residency, Lab 5 Part C). Without it we cannot keep each country's data under its own law. | Keep |
 | `region` | 2, 3 (and 4, aggregated) | Advisories are region-specific: northern Ghana lies in the meningitis belt and malaria seasons differ by region. Scheduling routes patients to a nearby facility. Reporting uses region **only as aggregated counts**. | Keep (see Finding 1) |
 | `preferred_language` | 3 | Advisories only help if the patient can understand them (e.g. Ewe, Twi, Ga). | Keep |
+| `survey_answers.answers` (010) | 4 | Totals for public health. Answers carry no patient column and only fixed choices, so no name can be typed in. | Keep; anonymous by design |
+| `pregnancies.expected_due_date` (010) | 1 | The only pregnancy fact the visit schedule needs; no last-period date or obstetric history is stored. | Keep |
+| `children.given_name`, `date_of_birth` (010) | 1 | Enough for a CHV to recognise the child and date the visits; no surname, sex or address. | Keep |
 | `created_at`, `created_by`, `updated_at`, `updated_by` | Security | Act 843 requires security safeguards for personal data; these show who changed a record and when (D-015). They describe staff actions, not the patient. | Keep |
 
 ## Findings

@@ -52,7 +52,6 @@ export const TABS: Record<Role, TabDef[]> = {
   healer: [
     { screen: "healer.home", label: "Home", icon: "house" },
     { screen: "healer.patients", label: "Patients", icon: "users" },
-    { screen: "healer.remedies", label: "Remedies", icon: "pill" },
     { screen: "me", label: "Me", icon: "user" },
   ],
   ghs: [

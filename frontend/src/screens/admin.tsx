@@ -8,6 +8,7 @@ import { useLoad } from "../data/DataProvider";
 import { AdminError, adminApiFor, type AuditRow, type ExportFormat } from "../data/admin";
 import { cedis } from "../data/payments";
 import { Heading, KV, Tiles } from "./kit";
+import { LowStockCard } from "./healersStock";
 
 const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
 const Loading = () => <StateView kind="loading" text="Loading…" />;
@@ -146,7 +147,8 @@ export function FacilityHome() {
   return (<>
     <p className="body-strong">{data.data!.facility}</p>
     <KV k="People at this facility" v={data.data!.people.length} />
-    <Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }]} />
+    <LowStockCard />
+    <Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }, { icon: "users", label: "Emergencies", to: "facility.emergencies" }, { icon: "calendar-check", label: "Quality review", to: "facility.qa" }]} />
     <ModeNote sample="this is the made-up demo facility" />
   </>);
 }

@@ -76,6 +76,13 @@ The database stores patients, their vital signs, their consent, health workers a
      screens (`frontend/src/screens/surveillance.tsx`), with a test mode that follows the same rule.
    Tests: schema 68 deny / 34 allow / 0 problems; API 7 tests; app 11 tests. Evidence: `evidence/final/FB-7-outbreak-*.png`.
 
+9. **Migration 010: E-M part 2 (with FB-7b).** `db/migrations/010_community_programs.sql`:
+   - **`surveys` / `survey_answers`:** only a GHS official builds; only a CHV or nurse records; choices only (free text would invite names), every question answered, a closed survey stays closed. **Answers name nobody.**
+   - **`pregnancies` / `children`:** the mother's clinical-care consent is required (same trigger as referrals); only the expected due date, or a given name and date of birth, is kept (Act 843). One active pregnancy per person. Not editable: close them, or mark `entered_in_error` and add again.
+   - **`visit_schedules`:** one row per planned visit, for a pregnancy or a child. Done once.
+   - **`courses`, `course_progress`, `stock_items`:** tables only, for FB-8 and later.
+   Insurance is in 011. Tests: **104 deny / 45 allow / 0 problems** (`db/tests/run_tests.sh`).
+
 ## 3. Why we did it this way
 
 | Choice | Why | Rejected |
@@ -256,3 +263,10 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 
 Where it happens: `backend/src/routes/appointments.ts` publishes after `COMMIT` and answers `"event": "not_published"` if SNS
 fails, but nothing retries it. Not built: no `outbox` table yet.
+
+## care_events (migration 012, FB-5)
+
+One append-only table for what happened to a referral or an emergency: raised, each escalation, acknowledged, accepted, and so on, each with the message that went with it. `message` is **only logged**; nothing sends an SMS, and the app says so. `at` is when a step fell due; `recorded_at` is when the row was written. `access_log` now also takes `Referral` and `Emergency`.
+
+
+**Migration 014 (FB-9b):** a referral to or from a healer needs a `healer_referral` consent, not `clinical_care`: its own purpose, because agreeing to clinical care isn't agreeing to be sent to someone outside the clinical team. Writing a row in `stock_transfers` moves the stock in the same statement (an AFTER INSERT trigger), so the record and the levels can't disagree; `stock_items`' CHECK refuses a move of more than is there. It's AFTER, not BEFORE, so a retried id stopped by `ON CONFLICT DO NOTHING` can't move stock twice.

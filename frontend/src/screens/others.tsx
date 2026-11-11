@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Chip, ListenButton, PrimaryButton, SecondaryButton } from "../components/buttons";
 import { SyncBadge } from "../components/display";
-import { Field } from "../components/inputs";
 import { DateStrip, TimeSlots } from "../components/schedule";
-import { CallScreen, EscalationTimeline, PreCall, PriorityBadge, RangeFlag, VitalCard } from "../components/clinical";
+import { CallScreen, PreCall, PriorityBadge, VitalCard } from "../components/clinical";
 import { DispensedList, ImageViewer, Medicines, Prescribe, Verify } from "./prescriptions";
 import { PayFee } from "./payments";
 import { Audit, FacilityHome, FacilityPeople, Revenue, Sdg3, Users } from "./admin";
@@ -26,7 +25,7 @@ export const patient: Record<string, ScreenDef> = {
     <Rows items={[{ name: "Dr. Kofi Mensah", role: "Video visit", hours: "Tue 4 Nov, 8:00 am", to: "patient.visits" }]} />
     <Heading>Reminders</Heading>
     <Rows items={[{ name: "Take your tablets", role: "Every morning" }]} />
-    <Tiles items={[{ icon: "calendar-check", label: "Visits", to: "patient.visits" }, { icon: "pill", label: "Medicines", to: "patient.medicines" }, { icon: "pill", label: "Insurance", to: "patient.insurance" }, { icon: "users", label: "Permission", to: "patient.consent" }]} />
+    <Tiles items={[{ icon: "calendar-check", label: "Visits", to: "patient.visits" }, { icon: "pill", label: "Medicines", to: "patient.medicines" }, { icon: "pill", label: "Insurance", to: "patient.insurance" }, { icon: "users", label: "Permission", to: "patient.consent" }, { icon: "baby", label: "My pregnancy & children", to: "patient.maternal" }]} />
   </>) },
   "patient.visits": { title: "Visits", render: () => <PatientVisits /> },
   "patient.medicines": { title: "Your medicines", caption: "Show the code at the pharmacy", render: () => <Medicines /> },
@@ -46,7 +45,7 @@ export const clinician: Record<string, ScreenDef> = {
   "clinician.today": { title: "Hi Dr. Mensah", caption: "Today's visits", render: () => (<>
     <Rows items={[{ name: "Akosua Boateng", role: "Video visit · Dodowa", hours: "8:00 am", to: "clinician.call" }, { name: "Esi Quaye", role: "Referral · fever, rash", hours: "10:30 am", trailing: <PriorityBadge priority="urgent" />, to: "clinician.patient" }]} />
     <Heading>Emergencies</Heading>
-    <Rows items={[{ name: "Kofi Danso", role: "Not breathing well", trailing: <PriorityBadge priority="emergency" />, to: "clinician.emergency" }]} />
+    <Rows items={[{ name: "Kofi Danso", role: "Not breathing well", trailing: <PriorityBadge priority="emergency" />, to: "clinician.inbox" }]} />
   </>) },
   "clinician.patients": { title: "Patients", render: () => <Rows items={[{ name: "Akosua Boateng", role: "Hypertension", to: "clinician.patient" }, { name: "Esi Quaye", role: "Fever, rash", to: "clinician.patient" }]} /> },
   "clinician.patient": { title: "Esi Quaye", caption: "Fever, rash", render: () => (<>
@@ -58,18 +57,6 @@ export const clinician: Record<string, ScreenDef> = {
   </>) },
   "clinician.images": { title: "Shared images", caption: "Compressed on the phone before sending", render: (param) => <ImageViewer patientId={param} /> },
   "clinician.call": { title: "Video visit", render: () => <CallScreen name="Akosua Boateng" quality="good" recording /> },
-  "clinician.inbox": { title: "Referrals & emergencies", caption: "Most urgent first", render: () => (<>
-    <Rows items={[
-      { name: "Kofi Danso", role: "Emergency · Kintampo", trailing: <PriorityBadge priority="emergency" />, to: "clinician.emergency" },
-      { name: "Esi Quaye", role: "Referral · fever, rash", trailing: <PriorityBadge priority="urgent" />, to: "clinician.patient" },
-      { name: "Yaw Owusu", role: "Referral · cough", trailing: <PriorityBadge priority="routine" />, to: "clinician.patient" },
-    ]} />
-  </>) },
-  "clinician.emergency": { title: "Emergency", caption: "Kofi Danso", render: () => (<>
-    <EscalationTimeline steps={[{ label: "Raised", who: "Ama S.", time: "8:21 am", state: "done" }, { label: "Notified", who: "You", time: "8:21 am", state: "done" }, { label: "Acknowledged", state: "waiting" }]} />
-    <PrimaryButton>I'm on it</PrimaryButton>
-    <SecondaryButton onClick={() => go("clinician.call")}>Start a call</SecondaryButton>
-  </>) },
   "clinician.prescribe": { title: "Prescribe", render: () => <Prescribe /> },
 };
 
@@ -77,14 +64,6 @@ export const clinician: Record<string, ScreenDef> = {
 export const pharmacist: Record<string, ScreenDef> = {
   "pharmacist.verify": { title: "Verify a prescription", render: () => <Verify /> },
   "pharmacist.queue": { title: "Dispensed", render: () => <DispensedList /> },
-  "pharmacist.stock": { title: "Stock", render: () => (<><Rows items={[{ name: "Amlodipine 5 mg", role: "120 tablets" }, { name: "Paracetamol 500 mg", role: "14 tablets", trailing: <RangeFlag flag="check" /> }]} /><TestMode what="The pharmacy network" /></>) },
-};
-
-/* ---------------- Traditional healer ---------------- */
-export const healer: Record<string, ScreenDef> = {
-  "healer.home": { title: "Hi Nana Yaw", caption: "Referrals from the clinic", render: () => (<Rows items={[{ name: "Efua Mensima", role: "Referred with her consent", hours: "Today", to: "healer.patients" }]} />) },
-  "healer.patients": { title: "Patients", caption: "Only people who agreed", render: () => (<><Rows items={[{ name: "Efua Mensima", role: "Back pain · consented" }]} /><SecondaryButton>Refer back to the clinic</SecondaryButton></>) },
-  "healer.remedies": { title: "Remedies in use", render: () => (<><Rows items={[{ name: "Neem leaf tea", role: "Used by 3 patients" }]} /><Field label="Add a remedy" voice /><PrimaryButton>Save</PrimaryButton></>) },
 };
 
 /* ---------------- GHS official ----------------
@@ -98,7 +77,6 @@ export const ghs: Record<string, ScreenDef> = {
 export const facility: Record<string, ScreenDef> = {
   "facility.home": { title: "Your facility", render: () => <FacilityHome /> },
   "facility.users": { title: "People", render: () => <FacilityPeople /> },
-  "facility.stock": { title: "Stock", render: () => (<><Rows items={[{ name: "ORS sachets", role: "40 left", trailing: <RangeFlag flag="check" /> }, { name: "Test kits", role: "200 left" }]} /><PrimaryButton>Request stock</PrimaryButton><TestMode what="This list" /></>) },
   "facility.training": { title: "Training", render: () => <><Rows items={[{ name: "Safe home visits", role: "9 of 14 finished" }, { name: "Recording vitals", role: "14 of 14 finished" }]} /><TestMode what="This list" /></> },
   "facility.reports": { title: "Reports", caption: "Your facility only", render: () => <Sdg3 /> },
 };

@@ -19,8 +19,8 @@ export const LOINC: Record<Vital, { code: string; label: string; ucum: string; d
 };
 export const VITAL_BY_CODE = Object.fromEntries(Object.entries(LOINC).map(([k, v]) => [v.code, k as Vital])) as Record<string, Vital>;
 
-export type Purpose = "clinical_care" | "appointment_reminders" | "health_advisory";
-export const PURPOSES: readonly Purpose[] = ["clinical_care", "appointment_reminders", "health_advisory"];
+export type Purpose = "clinical_care" | "appointment_reminders" | "health_advisory" | "healer_referral";
+export const PURPOSES: readonly Purpose[] = ["clinical_care", "appointment_reminders", "health_advisory", "healer_referral"];
 export type GivenBy = "patient" | "guardian" | "chv_on_behalf";
 export type Gender = "male" | "female" | "other" | "unknown";
 

@@ -185,11 +185,11 @@ export function EscalationTimeline({ steps }: { steps: Step[] }) {
 }
 
 /** With no data connection, offer Call and SMS straight away. */
-export function OfflineEmergencyActions({ number }: { number: string }) {
+export function OfflineEmergencyActions({ number, body }: { number: string; body?: string }) {
   return (
     <div className="row">
       <a className="btn btn-secondary btn-link" href={`tel:${number}`}><Icon name="phone-call" />Call</a>
-      <a className="btn btn-secondary btn-link" href={`sms:${number}`}><Icon name="chat-text" />SMS</a>
+      <a className="btn btn-secondary btn-link" href={`sms:${number}${body ? `?body=${encodeURIComponent(body)}` : ""}`}><Icon name="chat-text" />SMS</a>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PrimaryButton, SecondaryButton } from "../components/buttons";
 import { Field } from "../components/inputs";
 import { Icon, type IconName } from "../components/icons";
@@ -10,6 +10,8 @@ import { CALL_URL } from "../call/engine";
 import { callCodeProblem } from "../data/validate";
 import { adviseNetwork, canReachServer, currentNetwork, generateCode, normaliseCode, type NetworkAdvice } from "../call/network";
 import { useCallEngine } from "../call/useCall";
+import { recordingApiFor } from "../data/recordings";
+import { RecordingBar, settleRecording } from "./recordings";
 import { go, Heading, type ScreenDef } from "./kit";
 
 type Check = { label: string; state: "checking" | "ok" | "problem"; text: string; icon: IconName };
@@ -64,9 +66,11 @@ function CheckList({ checks }: { checks: Check[] }) {
 
 /** Code, then check, then the call, then a short "call ended" page. */
 function CallFlow({ code: codeFromAddress }: { code?: string }) {
-  const { user } = useSession();
-  const { online } = useData();
+  const { user, session } = useSession();
+  const { online, userId } = useData();
   const { api, state } = useCallEngine();
+  const recApi = useMemo(() => recordingApiFor(session!), [session]);
+  const [recNote, setRecNote] = useState<string>();
   const [code, setCode] = useState(codeFromAddress ?? "");
   const [step, setStep] = useState<"code" | "check" | "call">(codeFromAddress ? "check" : "code");
   const [again, setAgain] = useState(0);
@@ -81,17 +85,25 @@ function CallFlow({ code: codeFromAddress }: { code?: string }) {
     if (joining.current || !user || !cleanCode) return;
     joining.current = true;
     setStep("call");
+    setRecNote(undefined);
     try { await api.join({ room: cleanCode, name: user.name, audioOnly }); } finally { joining.current = false; }
   }
 
   const active = ["starting", "waiting", "connecting", "connected", "reconnecting"].includes(state.phase);
-  if (step === "call" && active) return <LiveCall state={state} api={api} remoteLabel="the other person" />;
+  // Only a visit booked in the app can be recorded: the server has to know who the two people are.
+  const appointmentId = /^appt-(.+)$/.exec(cleanCode)?.[1];
+  if (step === "call" && active) return (
+    <LiveCall state={state} api={api} remoteLabel="the other person">
+      {appointmentId && <RecordingBar api={api} state={state} recApi={recApi} isDoctor={user?.role === "clinician"} appointmentId={appointmentId} onDone={(r) => void settleRecording(userId, recApi, r).then(setRecNote)} />}
+    </LiveCall>
+  );
 
   if (step === "call" && (state.phase === "ended" || state.phase === "error")) {
     const mins = Math.floor(state.seconds / 60), secs = state.seconds % 60;
     return (<>
       <StateView kind={state.phase === "error" ? "error" : "empty"} plain text={state.message ?? "The call ended."} />
       {state.phase === "ended" && state.seconds > 0 && <p className="caption" style={{ textAlign: "center" }}>Call length: {mins} min {secs} s</p>}
+      {recNote && <p className="caption" role="status" style={{ textAlign: "center" }}>{recNote}</p>}
       <PrimaryButton onClick={() => { setStep("check"); setAgain((n) => n + 1); }}>Call again</PrimaryButton>
       <SecondaryButton onClick={() => go(user?.role === "chv" ? "chv.care" : "me")}>Back</SecondaryButton>
     </>);

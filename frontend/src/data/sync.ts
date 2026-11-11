@@ -14,16 +14,20 @@ export type PushResult =
 export type PullItem = { id: string; resourceType: string; patientId: string | null; version: number; resource: Resource };
 export type PullPage = { items: PullItem[]; cursor: number; more: boolean };
 
-/** The real implementation will call patient-record-service; today a mock stands in. `pull` downloads what this
+/** patient-record-service (`httpSyncApi`) or, in test mode, the mock. `pull` downloads what this
  *  person is allowed to see that others created (e.g. a doctor sees the visits booked for them). */
 export interface SyncApi {
   push(req: PushRequest): Promise<PushResult>;
   pull?(since: number): Promise<PullPage>;
 }
 
-export class NetworkError extends Error { constructor(msg = "No connection") { super(msg); this.name = "NetworkError"; } }
+/** The record stays on the phone for the next try. `retryAfterMs` is set when the server answered but can't take it now. */
+export class NetworkError extends Error { constructor(msg = "No connection", readonly retryAfterMs?: number) { super(msg); this.name = "NetworkError"; } }
 
-export type SyncSummary = { sent: number; conflicts: number; pending: number; offline: boolean; pulled: number };
+/** The sign-in has ended for good: the person must sign in again. Their queued records stay on the phone. */
+export class SessionExpiredError extends Error { constructor() { super("Your sign-in has ended"); this.name = "SessionExpiredError"; } }
+
+export type SyncSummary = { sent: number; conflicts: number; pending: number; offline: boolean; pulled: number; retryAfterMs?: number };
 
 const running = new Map<string, Promise<SyncSummary>>();
 const again = new Set<string>();
@@ -56,7 +60,7 @@ async function setState(userId: string, id: string, patch: Partial<Row>) {
 }
 
 async function run(userId: string, api: SyncApi): Promise<SyncSummary> {
-  let sent = 0, conflicts = 0, offline = false, pulled = 0;
+  let sent = 0, conflicts = 0, offline = false, pulled = 0, retryAfterMs: number | undefined;
   const ops = (await transact(userId, ["outbox"], "readonly", (s) => getAll<Op>(s.outbox))).sort((a, b) => (a.seq ?? 0) - (b.seq ?? 0));
 
   for (const op of ops) {
@@ -73,7 +77,7 @@ async function run(userId: string, api: SyncApi): Promise<SyncSummary> {
       result = await api.push({ id: row.id, resourceType: row.type, patientId: row.patientId, version: row.version, baseVersion: row.serverVersion, resource });
     } catch (e) {
       await setState(userId, row.id, { syncState: "saved" });          // the phone keeps it; try again later
-      if (e instanceof NetworkError) { offline = true; break; }
+      if (e instanceof NetworkError) { offline = true; retryAfterMs = e.retryAfterMs; break; }
       throw e;
     }
 
@@ -108,11 +112,11 @@ async function run(userId: string, api: SyncApi): Promise<SyncSummary> {
 
   if (!offline && api.pull) {
     try { pulled = await pullAll(userId, api); }
-    catch (e) { if (e instanceof NetworkError) offline = true; else throw e; }
+    catch (e) { if (e instanceof NetworkError) { offline = true; retryAfterMs = e.retryAfterMs; } else throw e; }
   }
 
   const left = await transact(userId, ["records"], "readonly", (s) => getAll<Row>(s.records));
-  return { sent, conflicts, pending: left.filter((r) => r.syncState === "saved" || r.syncState === "sending").length, offline, pulled };
+  return { sent, conflicts, pending: left.filter((r) => r.syncState === "saved" || r.syncState === "sending").length, offline, pulled, retryAfterMs };
 }
 
 /** A person's decision on a conflict: keep what they typed, or take the server's copy. */
@@ -195,4 +199,63 @@ export async function cancelRejected(userId: string, recordId: string): Promise<
     await add(s.outbox, { recordId: row.id, version, queuedAt: now } satisfies Op);
     await add(s.audit, { at: now, userId, action: "resolve-cancel", resourceType: row.type, resourceId: row.id } satisfies AuditEntry);
   });
+}
+
+/* ---------- the real API ---------- */
+
+export const API_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://api-hc.agroconnect.space";
+
+/** About every 20 seconds, never sooner than the server asked, and up to 5 seconds later at random so phones
+ *  don't all come back at the same moment after an outage. */
+export const nextSyncDelay = (retryAfterMs = 0, random = Math.random()) => Math.max(20_000, retryAfterMs) + random * 5_000;
+
+/** A fetch that fails like the rest of sync: no signal, or a signal that hangs, is a NetworkError. */
+export async function reach(url: string, init: RequestInit): Promise<Response> {
+  try { return await fetch(url, { ...init, signal: AbortSignal.timeout(60_000) }); } catch { throw new NetworkError(); }
+}
+
+/** A 503 (database outage) or 429: the server is there but can't take this now. */
+export function busy(res: Response): NetworkError {
+  const seconds = Number(res.headers.get("retry-after"));
+  return new NetworkError("The server is busy", Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0);
+}
+
+/** What sync needs from the sign-in. It lives in Session.tsx so a refreshed token reaches every call. */
+export type LiveAuth = { token(): string; refresh(stale: string): Promise<void>; expire(): void };
+export type TakenSlot = { start: string; end: string };
+
+export function httpSyncApi(auth: LiveAuth, baseUrl = API_URL): Required<SyncApi> & { taken(specialistId: string, fromIso: string, toIso: string): Promise<TakenSlot[]> } {
+  async function call(path: string, body?: unknown): Promise<Response> {
+    const send = (token: string) => reach(baseUrl + path, {
+      method: body === undefined ? "GET" : "POST",
+      headers: { authorization: `Bearer ${token}`, ...(body === undefined ? {} : { "content-type": "application/json" }) },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+    const token = auth.token();
+    let res = await send(token);
+    if (res.status === 401) {
+      await auth.refresh(token);                  // throws if there is no way back but signing in
+      res = await send(auth.token());
+      if (res.status === 401) { auth.expire(); throw new SessionExpiredError(); }
+    }
+    if (res.status === 429 || res.status >= 500) throw busy(res);
+    return res;
+  }
+  async function read<T>(path: string): Promise<T> {
+    const res = await call(path);
+    const data = res.ok ? await res.json().catch(() => null) as T | null : null;
+    if (data === null) throw new NetworkError("Unexpected reply");    // e.g. a Wi-Fi login page
+    return data;
+  }
+  return {
+    async push(req) {
+      const res = await call("/sync/push", req);
+      const data = await res.json().catch(() => null) as PushResult | null;
+      if (data && typeof data.status === "string") return data;       // the body is a PushResult at any status, 409 included
+      if (res.status === 413) return { status: "rejected", reason: "too-large" };
+      return { status: "retry", reason: `unexpected-reply-${res.status}` };
+    },
+    pull: (since) => read<PullPage>(`/sync/pull?since=${since}`),
+    taken: (specialistId, fromIso, toIso) => read<TakenSlot[]>(`/sync/taken?${new URLSearchParams({ specialist: specialistId, from: fromIso, to: toIso }).toString()}`),
+  };
 }
