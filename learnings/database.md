@@ -263,3 +263,8 @@ appointment twice, then look for `duplicate_skipped` in `/aws/lambda/healthconne
 
 Where it happens: `backend/src/routes/appointments.ts` publishes after `COMMIT` and answers `"event": "not_published"` if SNS
 fails, but nothing retries it. Not built: no `outbox` table yet.
+
+## care_events (migration 012, FB-5)
+
+One append-only table for what happened to a referral or an emergency: raised, each escalation, acknowledged, accepted, and so on, each with the message that went with it. `message` is **only logged**; nothing sends an SMS, and the app says so. `at` is when a step fell due; `recorded_at` is when the row was written. `access_log` now also takes `Referral` and `Emergency`.
+

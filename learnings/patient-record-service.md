@@ -273,3 +273,11 @@ The HealthConnect API identifies every caller from a signed token checked agains
 each write in one transaction that tells the database who is acting, so the database's own triggers stamp and audit
 every change. Booking an appointment saves it and its audit record atomically, refuses double-bookings, survives
 offline retries, and then publishes one event that two independent serverless functions consume.
+
+## Referrals and emergencies (FB-5, SVC-7, `backend/src/routes/referrals.ts`)
+
+- **Priority** is worked out by the server from danger signs and vitals (`suggestPriority`), with the reason stored. A person can change it, except that a suggested emergency can't be lowered. The rules are illustrative, like the prescription thresholds.
+- **Escalation** is computed on read: every emergency request first runs `settle()`, as the system account, which steps up any unacknowledged emergency (every 5 minutes, to level 3) and records one `care_events` row per level, stamped with the time it fell due. With no reader the level catches up on the next read. Level 0 is nurses at the facility and the patient's own doctors; 1 is doctors there; 2 is the facility admin; 3 is GHS. Raising the level is what lets the next group see it, on the server.
+- **Who can act:** a referral belongs to its sender and receiver only. Acknowledge needs a responder who isn't the person who raised it. An emergency with no facility recorded is visible to all nurses, because `practitioners.facility_id` isn't filled in everywhere yet.
+- **Accepting a referral** opens the patient's record to that doctor, re-numbering older records so their phone downloads them.
+
