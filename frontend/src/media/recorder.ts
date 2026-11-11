@@ -28,11 +28,24 @@ export async function startRecording(): Promise<Recording> {
     if (name === "NotFoundError") throw new RecorderError("no-microphone", "No microphone was found.");
     throw new RecorderError("failed", "We couldn't start recording. Please try again.");
   }
+  return capture(stream, () => stream.getTracks().forEach((t) => t.stop()));
+}
+
+/** A consultation: both people's voices mixed into one small audio file. Sound only, so a whole visit fits on a phone. */
+export function recordStreams(streams: MediaStream[]): Recording {
+  if (typeof MediaRecorder === "undefined" || typeof AudioContext === "undefined") throw new RecorderError("unsupported", "This phone's browser can't record calls.");
+  const context = new AudioContext();
+  void context.resume();
+  const mixed = context.createMediaStreamDestination();
+  for (const s of streams) if (s.getAudioTracks().length) context.createMediaStreamSource(s).connect(mixed);
+  return capture(mixed.stream, () => void context.close());
+}
+
+function capture(stream: MediaStream, release: () => void): Recording {
   const type = pickType();
   const recorder = new MediaRecorder(stream, { ...(type && { mimeType: type }), audioBitsPerSecond: 16_000 });   // small files for weak networks
   const chunks: Blob[] = [];
   recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-  const release = () => stream.getTracks().forEach((t) => t.stop());
   const finished = new Promise<void>((res) => { recorder.onstop = () => res(); });
   recorder.start();
 

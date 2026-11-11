@@ -107,6 +107,7 @@ export const VISIBLE = `(
   OR ($2 = 'patient' AND s.patient_id = $3)
   OR ($2 = 'chv' AND s.patient_id IN (SELECT id FROM sync_records WHERE resource_type = 'Patient' AND owner = $1))
   OR ($2 IN ('nurse', 'doctor', 'specialist') AND s.patient_id IN (SELECT patient_id FROM sync_records WHERE resource_type = 'Appointment' AND practitioner_id = $1))
+  OR ($2 IN ('doctor', 'specialist') AND s.patient_id IN (SELECT patient_id FROM referrals WHERE to_practitioner_id = $1 AND status IN ('accepted', 'completed')))
 )`
 
 /** May this person add to, or see, this patient's records? */
@@ -117,6 +118,15 @@ export async function canReach(q: Queryable, actor: Actor, patientId: string): P
     [actor.id, actor.role, actor.patientId ?? null, patientId],
   )
   return rows.length > 0
+}
+
+/**
+ * Someone new can now see this patient (a first visit, or an accepted referral). The older records were numbered
+ * before that person's bookmark, so number them again or their phone would never download them.
+ */
+export async function reopenRecords(q: Queryable, patientId: string) {
+  await q.query('SELECT pg_advisory_xact_lock($1, 0)', [LOCK_ORDER])
+  await q.query(`UPDATE sync_records SET seq = nextval('sync_records_seq') WHERE patient_id = $1 AND resource_type <> 'Appointment'`, [patientId])
 }
 
 /** Turns the database's refusals into answers the phone can act on, never a bare 500. */
@@ -201,11 +211,7 @@ export function syncRoutes(app: Express, ctx: Ctx) {
            ON CONFLICT (id) DO UPDATE SET version = EXCLUDED.version, seq = EXCLUDED.seq, resource = EXCLUDED.resource, practitioner_id = EXCLUDED.practitioner_id`,
           [id, resource.resourceType, patient, specialist, actor.id, version, JSON.stringify(resource)],
         )
-        // A doctor's first visit with a patient opens that patient's older records to them. Those were numbered
-        // before the doctor's bookmark, so number them again or the doctor's phone would never download them.
-        if (firstWithThisPatient) {
-          await q.query(`UPDATE sync_records SET seq = nextval('sync_records_seq') WHERE patient_id = $1 AND resource_type <> 'Appointment'`, [patient])
-        }
+        if (firstWithThisPatient) await reopenRecords(q, patient)
         await logAccess(q, entry('success', patient, have ? 'update' : 'create'))
         const isBooking = resource.resourceType === 'Appointment' && resource.status === 'booked' && !wasBooked
         return {

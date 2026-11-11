@@ -22,22 +22,22 @@ HealthConnect is only useful if it outlasts this course, so ownership would pass
 
 | Resource | Decision | Why |
 |---|---|---|
-| HealthConnect API, database, load balancer, call server, PWA | **To confirm from `E-running-resources.txt`**: keep until Prosit 2 is graded | Needed for the live grading window |
-| Load-test or demo-only resources | **To confirm**: stop | Not needed for grading |
-| NAT | NAT instance (`fck-nat`, `t4g.nano`), per the Terraform. **To confirm: no NAT gateways listed** | About $3 a month instead of a NAT gateway |
-| AgroConnect resources | **To confirm** they are as left after Week 5 | Could have been restarted by a teammate testing |
+| HealthConnect: 2 API servers and 1 call server (`t3.micro`), `db.t4g.micro` database, load balancer, PWA | Keep until Prosit 2 is graded | Needed for the live grading window |
+| Load-test or demo-only resources | None running on 9 Nov | Nothing to stop |
+| NAT | NAT instance (`fck-nat`, `t4g.nano`), per the Terraform. No NAT gateways listed on 9 Nov | About $3 a month instead of a NAT gateway |
+| AgroConnect resources | No AgroConnect server, database or load balancer listed in af-south-1 on 9 Nov | Nothing restarted by accident |
 
 **Data retention:** All HealthConnect patient records are invented test data, so we will keep the database only until Prosit 2 is graded, then delete it and its backups with no final snapshot; had they been real people, their records would be erased once no longer needed for the stated purpose, as Act 843 requires, subject to legal review of clinical-record retention periods.
 
 **Access log:** `access_log` holds patient IDs, action, outcome and source IP, and no names. The IPs are the team's own test devices, and the log goes with the database.
 
-**Month-to-date spend:** **To add from `E-month-to-date-spend.txt`**, and record in `Cost_Tracking_Template.xlsx`.
+**Month-to-date spend (1 to 9 November, before credits):** $35.11 for the whole shared account, of which $15.76 is tagged HealthConnect. Credits cover it, so the billed amount is about $0. The account has used $211 of its $400 credits since September. Still to record in `Cost_Tracking_Template.xlsx`.
 
 ## Evidence
 
 - A: `A-pipeline-passing.png`, `A-pipeline-failed.png`
 - B: `B-gitleaks-blocked.png`, `B-gitleaks-finding.txt`. The key was removed: branch and pull request #73 closed unmerged.
-- C: `C-paused.png`, `C-approved.png` (**after the approval-gate PR merges**)
-- D: `infra/`, `D-terraform-plan.txt` (**run `collect.sh`**)
-- E: `E-running-resources.txt`, `E-month-to-date-spend.txt` (**run `collect.sh`**)
-- Architecture diagram with CI/CD and IaC layers (**to update**)
+- C: `C-paused.png`, `C-approved.png`
+- D: `infra/`, `D-terraform-plan.txt`
+- E: `E-running-resources.txt`, `E-month-to-date-spend.txt`, `E-month-to-date-usage-before-credits.txt`
+- Architecture diagram with CI/CD and IaC layers: `architecture-consolidated.png`

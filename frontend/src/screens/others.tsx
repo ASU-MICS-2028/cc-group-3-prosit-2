@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Chip, ListenButton, PrimaryButton, SecondaryButton } from "../components/buttons";
 import { SyncBadge } from "../components/display";
 import { DateStrip, TimeSlots } from "../components/schedule";
-import { CallScreen, EscalationTimeline, PreCall, PriorityBadge, VitalCard } from "../components/clinical";
+import { CallScreen, PreCall, PriorityBadge, VitalCard } from "../components/clinical";
 import { DispensedList, ImageViewer, Medicines, Prescribe, Verify } from "./prescriptions";
 import { PayFee } from "./payments";
 import { Audit, Revenue, Users } from "./admin";
@@ -46,7 +46,7 @@ export const clinician: Record<string, ScreenDef> = {
   "clinician.today": { title: "Hi Dr. Mensah", caption: "Today's visits", render: () => (<>
     <Rows items={[{ name: "Akosua Boateng", role: "Video visit · Dodowa", hours: "8:00 am", to: "clinician.call" }, { name: "Esi Quaye", role: "Referral · fever, rash", hours: "10:30 am", trailing: <PriorityBadge priority="urgent" />, to: "clinician.patient" }]} />
     <Heading>Emergencies</Heading>
-    <Rows items={[{ name: "Kofi Danso", role: "Not breathing well", trailing: <PriorityBadge priority="emergency" />, to: "clinician.emergency" }]} />
+    <Rows items={[{ name: "Kofi Danso", role: "Not breathing well", trailing: <PriorityBadge priority="emergency" />, to: "clinician.inbox" }]} />
   </>) },
   "clinician.patients": { title: "Patients", render: () => <Rows items={[{ name: "Akosua Boateng", role: "Hypertension", to: "clinician.patient" }, { name: "Esi Quaye", role: "Fever, rash", to: "clinician.patient" }]} /> },
   "clinician.patient": { title: "Esi Quaye", caption: "Fever, rash", render: () => (<>
@@ -58,19 +58,6 @@ export const clinician: Record<string, ScreenDef> = {
   </>) },
   "clinician.images": { title: "Shared images", caption: "Compressed on the phone before sending", render: (param) => <ImageViewer patientId={param} /> },
   "clinician.call": { title: "Video visit", render: () => <CallScreen name="Akosua Boateng" quality="good" recording /> },
-  "clinician.inbox": { title: "Referrals & emergencies", caption: "Most urgent first", render: () => (<>
-    <Rows items={[
-      { name: "Kofi Danso", role: "Emergency · Kintampo", trailing: <PriorityBadge priority="emergency" />, to: "clinician.emergency" },
-      { name: "Esi Quaye", role: "Referral · fever, rash", trailing: <PriorityBadge priority="urgent" />, to: "clinician.patient" },
-      { name: "Yaw Owusu", role: "Referral · cough", trailing: <PriorityBadge priority="routine" />, to: "clinician.patient" },
-    ]} />
-    <SecondaryButton onClick={() => go("clinician.healers")}>Traditional healers</SecondaryButton>
-  </>) },
-  "clinician.emergency": { title: "Emergency", caption: "Kofi Danso", render: () => (<>
-    <EscalationTimeline steps={[{ label: "Raised", who: "Ama S.", time: "8:21 am", state: "done" }, { label: "Notified", who: "You", time: "8:21 am", state: "done" }, { label: "Acknowledged", state: "waiting" }]} />
-    <PrimaryButton>I'm on it</PrimaryButton>
-    <SecondaryButton onClick={() => go("clinician.call")}>Start a call</SecondaryButton>
-  </>) },
   "clinician.prescribe": { title: "Prescribe", render: () => <Prescribe /> },
 };
 
@@ -89,7 +76,7 @@ export const ghs: Record<string, ScreenDef> = {
 
 /* ---------------- Health centre admin ---------------- */
 export const facility: Record<string, ScreenDef> = {
-  "facility.home": { title: "Hi Kwabena", caption: "Dodowa clinic area", render: () => (<><div className="row"><VitalCard label="People" value="14" unit="" taken="Volunteers and staff" /><LowStockCard /></div><Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }]} /></>) },
+  "facility.home": { title: "Hi Kwabena", caption: "Dodowa clinic area", render: () => (<><div className="row"><VitalCard label="People" value="14" unit="" taken="Volunteers and staff" /><LowStockCard /></div><Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }, { icon: "users", label: "Emergencies", to: "facility.emergencies" }, { icon: "calendar-check", label: "Quality review", to: "facility.qa" }]} /></>) },
   "facility.users": { title: "People", render: () => (<><Rows items={[{ name: "Ama Serwaa", role: "Community health volunteer" }, { name: "Nurse Adjei", role: "Nurse" }]} /><PrimaryButton>Add a person</PrimaryButton></>) },
   "facility.training": { title: "Training", render: () => <Rows items={[{ name: "Safe home visits", role: "9 of 14 finished" }, { name: "Recording vitals", role: "14 of 14 finished" }]} /> },
   "facility.reports": { title: "Reports", render: () => (<><KV k="Visits this month" v="212" /><KV k="Referrals" v="17" /><SecondaryButton>Export (DHIS2 test)</SecondaryButton></>) },
