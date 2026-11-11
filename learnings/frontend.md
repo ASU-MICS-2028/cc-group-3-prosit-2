@@ -217,6 +217,29 @@ Each has a test that fails if the fix is removed.
 ## Running the frontend tests: use Node 24
 CI runs Node 24, and `main` now has jsdom 30 and vitest 5, which don't start on Node 20 ("Cannot read properties of undefined (reading 'bind')"). On a Mac with nvm: `nvm install 24 && nvm use 24`, then `cd frontend && npm install && npm test`. Without changing your Node, this also works: `npx -y node@24 node_modules/vitest/vitest.mjs run`.
 
+---
+
+# P2: real sign-in and real sync
+
+**In one sentence:** a real account signs in with a password and syncs to patient-record-service; "Use test mode" under the form still gives the made-up people and the browser-storage mock.
+
+- **The switch:** `syncApiFor(session, liveAuth)` in `DataProvider.tsx` follows `session.mode`, like `rxApiFor`. The adapter is `httpSyncApi` in `data/sync.ts`. Build with `VITE_START_IN_TEST_MODE=true` if a demo should open on the test list (the tests do).
+- **Test mode is labelled** on the sign-in screen and under the person's name, and the Test tools on the sync screen only show in test mode.
+- **Expired token:** one refresh at a time (`refresh` in `Session.tsx`, because a refresh token works once). If that fails the person goes to sign-in with a note; the queue, PIN and vault stay, and it sends after they sign back in.
+- **Outage:** a 503 or 429 keeps the record and waits at least `Retry-After`. The 20-second retry now has up to 5 seconds of random delay (`nextSyncDelay`). The API has to send `Access-Control-Expose-Headers: Retry-After`, or a browser can't read it.
+- **Same ids, two kinds of data:** the seeded logins have the demo accounts' ids. A real sign-in clears that id's test data on the phone; test mode refuses an id with real records.
+- **Refused records that aren't bookings** show the reason and stay in "needs attention"; there's no way to fix or discard them on the phone yet.
+- **Not done:** only sync refreshes the token, so another screen can show an error for up to 20 seconds after it expires. Signing out with no signal leaves the refresh token valid on the server until it runs out.
+
+**Check it against a real backend** (skipped without these settings):
+
+```bash
+# Postgres on 55441 with database p2e2e; db/migrate.sh with PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE; then in backend/:
+DATABASE_URL=postgres://postgres:test@localhost:55441/p2e2e TEST_USER_PASSWORD=<12+ chars> npm run seed:test-users
+DATABASE_URL=postgres://postgres:test@localhost:55441/p2e2e JWT_SECRET=<32+ chars> PORT=18441 AUTH_RATE_PER_MINUTE=1000 npx tsx src/server.ts
+# in frontend/ (E2E_PG_CONTAINER is optional: that test stops and restarts the container):
+E2E_API_URL=http://127.0.0.1:18441 E2E_PASSWORD=<same> E2E_PG_CONTAINER=<container> npx vitest run src/test/liveApi.e2e
+```
 ## FB-4b: call recording and the QA list (10 Nov)
 - **Consent:** only the doctor's phone can ask, and only on a call opened from a booked visit (`appt-<id>` code). The doctor's yes is saved on the server, then the other person is asked, their yes is saved, then recording starts. A new id each time: consent never carries over.
 - **Stopping:** either side, at once, and the sound is thrown away. A dropped connection also stops it (a "stop" could no longer get through) but keeps what was recorded, as does the call ending. Resuming needs a fresh yes.

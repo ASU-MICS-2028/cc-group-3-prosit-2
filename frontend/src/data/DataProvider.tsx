@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useSession } from "../auth/Session";
 import { MockServer } from "./mockServer";
-import { syncNow, type SyncApi, type SyncSummary } from "./sync";
+import type { Session } from "../auth/types";
+import { httpSyncApi, nextSyncDelay, syncNow, type LiveAuth, type SyncApi, type SyncSummary } from "./sync";
 import { VaultLockedError } from "./vault";
 
 /** Test mode: one shared mock "server" that remembers its data between page loads. */
@@ -25,10 +26,15 @@ const DataCtx = createContext<Ctx | null>(null);
 
 export type Api = SyncApi & { taken?: (specialistId: string, fromIso: string, toIso: string) => Promise<{ start: string; end: string }[]> };
 
+/** The real API for a real sign-in; otherwise the mock, as this person sees it (what they may download depends on who they are). */
+const syncApiFor = (session: Pick<Session, "mode" | "user">, auth: LiveAuth): Api => (session.mode === "live" ? httpSyncApi(auth) : sharedServer.as({ userId: session.user.id, role: session.user.role }));
+
 export function DataProvider({ children, api: given }: { children: ReactNode; api?: Api }) {
-  const { user, lockNow } = useSession();
-  // The server as this person sees it: what they may download depends on who they are.
-  const api = useMemo<Api>(() => given ?? sharedServer.as({ userId: user!.id, role: user!.role }), [given, user]);
+  const { user, session, liveAuth, lockNow } = useSession();
+  const mode = session!.mode;
+  // Keyed on who this is, not the session object: a refreshed token must not restart the sync timer.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const api = useMemo<Api>(() => given ?? syncApiFor({ mode, user: user! }, liveAuth), [given, mode, user!.id, user!.role, liveAuth]);
   const [simulatedOffline, setSimulated] = useState(false);
   const [deviceOnline, setDeviceOnline] = useState(navigator.onLine);
   const [lastSync, setLastSync] = useState<SyncSummary | null>(null);
@@ -37,6 +43,7 @@ export function DataProvider({ children, api: given }: { children: ReactNode; ap
   const online = deviceOnline && !simulatedOffline;
   const onlineRef = useRef(online);
   onlineRef.current = online;
+  const retryAfter = useRef(0);
 
   const notify = useCallback(() => setChanged((n) => n + 1), []);
 
@@ -44,23 +51,26 @@ export function DataProvider({ children, api: given }: { children: ReactNode; ap
     if (!given) sharedServer.reachable = onlineRef.current;   // test mode: "no signal" cuts the mock server off
     try {
       const summary = await syncNow(userId, api);
+      retryAfter.current = summary.retryAfterMs ?? 0;
       setLastSync(summary);
       if (summary.sent > 0 || summary.conflicts > 0 || summary.pulled > 0) setChanged((n) => n + 1);   // screens reload only if something moved
       return summary;
     } catch (e) {
       if (e instanceof VaultLockedError) { lockNow(); return null; }
-      return null; // an unexpected server error: the records stay saved on the phone for the next try
+      return null; // an unexpected server error or an ended sign-in: the records stay saved on the phone for the next try
     }
   }, [api, userId, lockNow, given]);
 
-  // Send when the signal comes back, and every 20 seconds while the app is open.
+  // Send when the signal comes back, and about every 20 seconds while the app is open.
   useEffect(() => {
     const on = () => { setDeviceOnline(true); void sync(); };
     const off = () => setDeviceOnline(false);
     window.addEventListener("online", on); window.addEventListener("offline", off);
-    const timer = setInterval(() => { if (onlineRef.current) void sync(); }, 20_000);
+    let timer: ReturnType<typeof setTimeout>, stopped = false;
+    const later = () => { if (!stopped) timer = setTimeout(() => { void (onlineRef.current ? sync() : Promise.resolve()).finally(later); }, nextSyncDelay(retryAfter.current)); };
+    later();
     void sync();
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); clearInterval(timer); };
+    return () => { stopped = true; window.removeEventListener("online", on); window.removeEventListener("offline", off); clearTimeout(timer); };
   }, [sync]);
 
   const setSimulatedOffline = useCallback((v: boolean) => { setSimulated(v); onlineRef.current = navigator.onLine && !v; if (!v) void sync(); }, [sync]);

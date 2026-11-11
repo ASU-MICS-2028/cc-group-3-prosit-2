@@ -54,6 +54,7 @@ export function createApp(ctx: Ctx): Express {
       res.set('Access-Control-Allow-Origin', origin)
       res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type')
       res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.set('Access-Control-Expose-Headers', 'Retry-After') // otherwise the app can't read it from another origin
       res.set('Access-Control-Max-Age', '600')
     }
     if (req.method === 'OPTIONS') return void res.status(204).end()
