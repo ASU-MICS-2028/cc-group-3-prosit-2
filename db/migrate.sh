@@ -61,11 +61,17 @@ record() {
     | psql_q -v name="$1" -v sum="$(fingerprint "$2")" >/dev/null
 }
 
-echo "Database: $(psql_q -c "SELECT current_database() || ' on ' || coalesce(inet_server_addr()::text, 'local socket') || ' as ' || current_user")"
+# A failed $(...) inside echo or [ ] doesn't trip set -e, so check the
+# connection here and stop. Otherwise a dead tunnel looks like an empty
+# database and --dry-run lists every migration.
+DB_INFO="$(psql_q -c "SELECT current_database() || ' on ' || coalesce(inet_server_addr()::text, 'local socket') || ' as ' || current_user")" \
+  || { echo "Can't connect to the database (is the tunnel up?). Nothing was applied." >&2; exit 1; }
+echo "Database: $DB_INFO"
 
 # What the logbook already has, as "filename checksum" lines. A dry run never
 # changes the database, so it only reads the logbook if it already exists.
-if [ "$(psql_q -c "SELECT to_regclass('schema_migrations') IS NOT NULL")" = t ]; then
+HAS_LOGBOOK="$(psql_q -c "SELECT to_regclass('schema_migrations') IS NOT NULL")"
+if [ "$HAS_LOGBOOK" = t ]; then
   RECORDED="$(psql_q -F ' ' -c "SELECT filename, checksum FROM schema_migrations ORDER BY filename")"
 elif [ "$MODE" = dry-run ]; then
   RECORDED=""
