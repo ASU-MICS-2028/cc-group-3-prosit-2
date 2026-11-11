@@ -1,10 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { getTextSize, setTextSize } from "./textSize";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/components.css";
 
+setTextSize(getTextSize());
 createRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);
 
 // Offline start: only in the real build (in development the dev server and a saved copy would fight).

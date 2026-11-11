@@ -8,6 +8,7 @@ import { useData, useLoad } from "../data/DataProvider";
 import { newId } from "../data/model";
 import { RecordingError, keepRecording, openRecording, recordingApiFor, type RecordingApi, type RecordingReview, type RecordingRow } from "../data/recordings";
 import { KV, TestMode, type ScreenDef } from "./kit";
+import { t } from "../i18n";
 
 const WHERE = "Sound only. It stays encrypted on the doctor's phone and is not uploaded anywhere.";
 const messageOf = (e: unknown) => (e instanceof RecordingError ? e.message : "We couldn't do that. Please try again.");
@@ -58,34 +59,34 @@ export function RecordingBar({ api, state, recApi, isDoctor, appointmentId, onDo
     void recApi.withdraw(id).catch(() => undefined);
   }
 
-  const alert = problem && <p className="caption" role="alert">{problem}</p>;
+  const alert = problem && <p className="caption" role="alert">{t(problem)}</p>;
   if (rec.status === "asked") return (
     <div className="call-suggest" role="alert">
-      <span className="body-strong">The doctor would like to record this visit.</span>
-      <span className="caption">{WHERE} If you are with the patient, ask them first. A health centre admin may check that the visit met the standard. Either of you can stop at any time, and if you do, the recording is deleted.</span>
+      <span className="body-strong">{t("The doctor would like to record this visit.")}</span>
+      <span className="caption">{t("{WHERE} If you are with the patient, ask them first. A health centre admin may check that the visit met the standard. Either of you can stop at any time, and if you do, the recording is deleted.", { WHERE })}</span>
       {alert}
       <div className="row">
-        <PrimaryButton loading={busy} onClick={() => void agree()}>Yes, record</PrimaryButton>
-        <SecondaryButton onClick={withdraw}>No</SecondaryButton>
+        <PrimaryButton loading={busy} onClick={() => void agree()}>{t("Yes, record")}</PrimaryButton>
+        <SecondaryButton onClick={withdraw}>{t("No")}</SecondaryButton>
       </div>
     </div>
   );
   if (rec.status === "asking") return (
     <div className="call-suggest" role="status">
-      <span>Waiting for the other person to agree. Nothing is being recorded.</span>
-      <SecondaryButton onClick={withdraw}>Stop asking</SecondaryButton>
+      <span>{t("Waiting for the other person to agree. Nothing is being recorded.")}</span>
+      <SecondaryButton onClick={withdraw}>{t("Stop asking")}</SecondaryButton>
     </div>
   );
   if (rec.status === "on") return (
     <div className="call-suggest" role="status">
-      <span className="caption">{WHERE}</span>
-      <SecondaryButton onClick={withdraw}>Stop and delete recording</SecondaryButton>
+      <span className="caption">{t(WHERE)}</span>
+      <SecondaryButton onClick={withdraw}>{t("Stop and delete recording")}</SecondaryButton>
     </div>
   );
   if (!isDoctor || phase !== "connected") return alert || null;
   return (<>
     {alert}
-    <div style={{ position: "relative", zIndex: 3 }}><SecondaryButton disabled={busy} onClick={() => void ask()}>Ask to record this visit</SecondaryButton></div>
+    <div style={{ position: "relative", zIndex: 3 }}><SecondaryButton disabled={busy} onClick={() => void ask()}>{t("Ask to record this visit")}</SecondaryButton></div>
   </>);
 }
 
@@ -99,9 +100,9 @@ function Play({ id }: { id: string }) {
   const [url, setUrl] = useState<string>();
   const [missing, setMissing] = useState(false);
   useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
-  if (missing) return <p className="caption">This recording isn't on this phone.</p>;
-  if (url) return <audio controls src={url} aria-label="Play recording" />;
-  return <TextButton onClick={() => void openRecording(userId, id).then((s) => { if (!s) return setMissing(true); setUrl(URL.createObjectURL(new Blob([s.bytes as BlobPart], { type: s.contentType }))); })}>Play on this phone</TextButton>;
+  if (missing) return <p className="caption">{t("This recording isn't on this phone.")}</p>;
+  if (url) return <audio controls src={url} aria-label={t("Play recording")} />;
+  return <TextButton onClick={() => void openRecording(userId, id).then((s) => { if (!s) return setMissing(true); setUrl(URL.createObjectURL(new Blob([s.bytes as BlobPart], { type: s.contentType }))); })}>{t("Play on this phone")}</TextButton>;
 }
 
 function Row({ r, api, onSaved }: { r: RecordingRow; api: RecordingApi; onSaved: () => void }) {
@@ -114,21 +115,21 @@ function Row({ r, api, onSaved }: { r: RecordingRow; api: RecordingApi; onSaved:
   }
   return (
     <div className="stack" style={{ borderTop: "var(--border-hair) solid var(--mist)", paddingTop: "var(--space-3)" }}>
-      <KV k="Doctor" v={r.doctor} />
-      <KV k="Recorded" v={fmt(r.askedAt)} />
-      {r.seconds !== null && <KV k="Length" v={`${Math.floor(r.seconds / 60)} min ${r.seconds % 60} s`} />}
-      <KV k="Status" v={STATUS[r.status]} />
-      <KV k="Doctor agreed" v={fmt(r.clinicianAgreedAt)} />
-      <KV k="Patient's side agreed" v={fmt(r.patientAgreedAt)} />
-      {r.status === "finished" && <p className="caption">Where it is: encrypted on {r.doctor}'s phone only. Not uploaded.</p>}
+      <KV k={t("Doctor")} v={r.doctor} />
+      <KV k={t("Recorded")} v={fmt(r.askedAt)} />
+      {r.seconds !== null && <KV k={t("Length")} v={t("{min} min {s} s", { min: Math.floor(r.seconds / 60), s: r.seconds % 60 })} />}
+      <KV k={t("Status")} v={STATUS[r.status]} />
+      <KV k={t("Doctor agreed")} v={fmt(r.clinicianAgreedAt)} />
+      <KV k={t("Patient's side agreed")} v={fmt(r.patientAgreedAt)} />
+      {r.status === "finished" && <p className="caption">{t("Where it is: encrypted on {doctor}'s phone only. Not uploaded.", { doctor: r.doctor })}</p>}
       {r.onThisDoctorsPhone && r.status === "finished" && <Play id={r.id} />}
-      {r.reviews.map((v) => <p key={v.reviewer} className="caption">Reviewed by {v.reviewer}, {fmt(v.at)}: {OUTCOME[v.outcome]}{v.note ? `. ${v.note}` : ""}</p>)}
+      {r.reviews.map((v) => <p key={v.reviewer} className="caption">{t("Reviewed by {reviewer}, {when}: {outcome}", { reviewer: v.reviewer, when: fmt(v.at), outcome: t(OUTCOME[v.outcome]) }) + (v.note ? `. ${v.note}` : "")}</p>)}
       {r.mayReview && <>
-        <p className="caption">You can review this. To hear it, listen on {r.doctor}'s phone with them; the sound cannot come to you.</p>
+        <p className="caption">{t("You can review this. To hear it, listen on {doctor}'s phone with them; the sound cannot come to you.", { doctor: r.doctor })}</p>
         <div className="row">{(Object.keys(OUTCOME) as RecordingReview["outcome"][]).map((o) => <Chip key={o} selected={outcome === o} onClick={() => setOutcome(o)}>{OUTCOME[o]}</Chip>)}</div>
-        <Field label="Note (optional)" value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} helper="Don't write the patient's name" />
-        {problem && <p className="caption" role="alert">{problem}</p>}
-        <PrimaryButton disabled={!outcome} onClick={() => void save()}>Save review</PrimaryButton>
+        <Field label={t("Note (optional)")} value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} helper={t("Don't write the patient's name")} />
+        {problem && <p className="caption" role="alert">{t(problem)}</p>}
+        <PrimaryButton disabled={!outcome} onClick={() => void save()}>{t("Save review")}</PrimaryButton>
       </>}
     </div>
   );
@@ -142,13 +143,13 @@ export function RecordingList() {
   const admin = session?.user.role === "facility_admin";
   return (<>
     <p>{admin
-      ? "You can review finished recordings of doctors at your health centre. Recordings someone withdrew never appear here. Each review is saved under your name."
-      : "Recordings of your visits. A health centre admin at your facility can review the finished ones. You can't review your own."}</p>
-    <p className="caption">Only these details are on the server. The sound stays on the doctor's phone, encrypted, until the secure upload is built. If that phone is wiped, the sound is gone.</p>
-    {list.loading ? <StateView kind="loading" text="Loading…" /> : list.error ? <StateView kind="error" text={list.error} />
-      : (list.data ?? []).length === 0 ? <StateView kind="empty" text="No recordings yet." />
+      ? t("You can review finished recordings of doctors at your health centre. Recordings someone withdrew never appear here. Each review is saved under your name.")
+      : t("Recordings of your visits. A health centre admin at your facility can review the finished ones. You can't review your own.")}</p>
+    <p className="caption">{t("Only these details are on the server. The sound stays on the doctor's phone, encrypted, until the secure upload is built. If that phone is wiped, the sound is gone.")}</p>
+    {list.loading ? <StateView kind="loading" text={t("Loading…")} /> : list.error ? <StateView kind="error" text={list.error} />
+      : (list.data ?? []).length === 0 ? <StateView kind="empty" text={t("No recordings yet.")} />
       : <div className="stack">{(list.data ?? []).map((r) => <Row key={r.id} r={r} api={api} onSaved={() => setAgain((n) => n + 1)} />)}</div>}
-    {session?.mode !== "live" && <TestMode what="This list" />}
+    {session?.mode !== "live" && <TestMode what={t("This list")} />}
   </>);
 }
 

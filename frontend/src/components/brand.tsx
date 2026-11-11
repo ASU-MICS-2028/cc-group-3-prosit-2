@@ -1,4 +1,5 @@
-// Logo and mascot: hand-written SVG, colours from tokens (DESIGN-SYSTEM section 3).
+
+import { t } from "../i18n";// Logo and mascot: hand-written SVG, colours from tokens (DESIGN-SYSTEM section 3).
 
 const BUBBLE =
   "M60 10C32 10 12 29 12 54c0 15 8 28 20 36l-6 20 24-13c3.500.500 7 1 10 1 28 0 48-19 48-44S88 10 60 10z";
@@ -45,7 +46,7 @@ export function Mascot({ mood, size = 120 }: { mood: Mood; size?: number }) {
   const closed = mood === "resting";
   const look = mood === "thinking" ? { x: 1.500, y: -3 } : { x: 0, y: 0 };
   return (
-    <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label={`HealthConnect mascot, ${mood}`}>
+    <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label={t("HealthConnect mascot, {mood}", { mood: t(mood) })}>
       <path d={BUBBLE} fill="var(--cream)" />
       {closed ? (
         <>

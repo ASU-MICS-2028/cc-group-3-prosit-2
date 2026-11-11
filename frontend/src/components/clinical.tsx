@@ -4,6 +4,7 @@ import { Icon, type IconName } from "./icons";
 import { IconButton, PrimaryButton, SecondaryButton } from "./buttons";
 import { Field } from "./inputs";
 import { SyncBadge, type SyncStatus } from "./display";
+import { t } from "../i18n";
 
 /* ---------- 7.20 Vitals ---------- */
 
@@ -25,13 +26,13 @@ export function VitalField({ vital, error, value, onChange, diastolic, onDiastol
   if (vital === "bp") {
     return (
       <div className="vital-bp">
-        <Field label={`${label}, top number`} inputMode="decimal" suffix={unit} error={error} onBlur={onBlurTop} {...bind(value, onChange)} />
+        <Field label={t("{label}, top number", { label: t(label) })} inputMode="decimal" suffix={unit} error={error} onBlur={onBlurTop} {...bind(value, onChange)} />
         <span className="vital-slash" aria-hidden>/</span>
-        <Field label="Bottom number" inputMode="decimal" suffix={unit} error={diastolicError} onBlur={onBlurBottom} {...bind(diastolic, onDiastolic)} />
+        <Field label={t("Bottom number")} inputMode="decimal" suffix={unit} error={diastolicError} onBlur={onBlurBottom} {...bind(diastolic, onDiastolic)} />
       </div>
     );
   }
-  return <Field label={label} inputMode="decimal" suffix={unit} error={error} onBlur={onBlurTop} {...bind(value, onChange)} />;
+  return <Field label={t(label)} inputMode="decimal" suffix={unit} error={error} onBlur={onBlurTop} {...bind(value, onChange)} />;
 }
 
 export type Flag = "normal" | "check" | "urgent";
@@ -42,7 +43,7 @@ export function RangeFlag({ flag }: { flag: Flag }) {
   return (
     <span className={`badge flag-${flag}`}>
       <Icon name="warning" size="sm" />
-      {flag === "check" ? "Check" : "Urgent"}
+      {flag === "check" ? t("Check") : t("Urgent")}
     </span>
   );
 }
@@ -50,7 +51,7 @@ export function RangeFlag({ flag }: { flag: Flag }) {
 export function VitalCard({ label, value, unit, taken, flag = "normal" }: { label: string; value: string; unit: string; taken: string; flag?: Flag }) {
   return (
     <div className="vital-card">
-      <span className="caption">{label}</span>
+      <span className="caption">{t(label)}</span>
       <span className="vital-value"><span className="tabular">{value}</span> <span className="caption">{unit}</span></span>
       <span className="caption tabular">{taken}</span>
       <RangeFlag flag={flag} />
@@ -71,20 +72,18 @@ export function PhotoCapture({ state, size, sync, onTake, onRetake, onDelete }: 
   if (state === "empty") {
     return (
       <button className="photo-tile" onClick={onTake}>
-        <Icon name="camera" />
-        Take photo
-      </button>
+        <Icon name="camera" />{t("Take photo")}</button>
     );
   }
   return (
     <div className="photo-done">
-      <span className="photo-thumb" aria-label="Photo preview" role="img" />
+      <span className="photo-thumb" aria-label={t("Photo preview")} role="img" />
       <div className="photo-meta">
         <span className="body-strong tabular">{size}</span>
         {sync && <SyncBadge status={sync} />}
       </div>
-      <IconButton icon="arrow-counter-clockwise" label="Retake photo" onClick={onRetake} />
-      <IconButton icon="trash" label="Delete photo" onClick={onDelete} />
+      <IconButton icon="arrow-counter-clockwise" label={t("Retake photo")} onClick={onRetake} />
+      <IconButton icon="trash" label={t("Delete photo")} onClick={onDelete} />
     </div>
   );
 }
@@ -104,7 +103,7 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
   return (
     <span className={`badge prio-${priority}`}>
       <Icon name={icon} size="sm" />
-      {copy}
+      {t(copy)}
     </span>
   );
 }
@@ -119,7 +118,7 @@ export function QrCode({ value }: { value: string }) {
     qr.make();
     return qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
   }, [value]);
-  return <span className="qr" role="img" aria-label="Verification QR code" dangerouslySetInnerHTML={{ __html: svg }} />;
+  return <span className="qr" role="img" aria-label={t("Verification QR code")} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
 export type RxStatus = "issued" | "dispensed" | "cancelled" | "expired";
@@ -138,14 +137,14 @@ export function PrescriptionCard({ medicine, dose, duration, prescriber, licence
     <article className="rx">
       <header className="rx-head">
         <h3 className="body-strong">{medicine}</h3>
-        <span className={`badge rx-${status}`}><Icon name={icon} size="sm" />{copy}</span>
+        <span className={`badge rx-${status}`}><Icon name={icon} size="sm" />{t(copy)}</span>
       </header>
       <p>{dose}</p>
       <p className="caption">{duration}</p>
-      <p className="caption">{prescriber} · {licence ? `Licence ${licence}` : "No valid licence found"}</p>
+      <p className="caption">{prescriber} · {licence ? t("Licence {licence}", { licence }) : t("No valid licence found")}</p>
       {code && <footer className="rx-verify">
         <div>
-          <span className="caption">Verification code</span>
+          <span className="caption">{t("Verification code")}</span>
           <span className="rx-code tabular">{code}</span>
         </div>
         <QrCode value={qr ?? `hc-rx:${code}`} />
@@ -160,9 +159,7 @@ export function PrescriptionCard({ medicine, dose, duration, prescriber, licence
 export function EmergencyButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button {...props} className={`btn btn-emergency ${props.className ?? ""}`}>
-      <Icon name="siren" />
-      Emergency
-    </button>
+      <Icon name="siren" />{t("Emergency")}</button>
   );
 }
 
@@ -170,13 +167,13 @@ export type Step = { label: string; who?: string; time?: string; state: "done" |
 
 export function EscalationTimeline({ steps }: { steps: Step[] }) {
   return (
-    <ol className="timeline" aria-label="Emergency progress">
+    <ol className="timeline" aria-label={t("Emergency progress")}>
       {steps.map((s) => (
         <li key={s.label} className={`tl-${s.state}`} aria-current={s.state === "waiting" ? "step" : undefined}>
           <span className="tl-dot" aria-hidden>{s.state === "done" && <Icon name="check" size="sm" />}</span>
           <span>
-            <span className="body-strong">{s.label}</span>
-            <span className="caption tabular">{[s.who, s.time].filter(Boolean).join(" · ") || (s.state === "waiting" ? "Waiting for acknowledgement" : "")}</span>
+            <span className="body-strong">{t(s.label)}</span>
+            <span className="caption tabular">{[s.who, s.time].filter(Boolean).join(" · ") || (s.state === "waiting" ? t("Waiting for acknowledgement") : "")}</span>
           </span>
         </li>
       ))}
@@ -188,8 +185,8 @@ export function EscalationTimeline({ steps }: { steps: Step[] }) {
 export function OfflineEmergencyActions({ number, body }: { number: string; body?: string }) {
   return (
     <div className="row">
-      <a className="btn btn-secondary btn-link" href={`tel:${number}`}><Icon name="phone-call" />Call</a>
-      <a className="btn btn-secondary btn-link" href={`sms:${number}${body ? `?body=${encodeURIComponent(body)}` : ""}`}><Icon name="chat-text" />SMS</a>
+      <a className="btn btn-secondary btn-link" href={`tel:${number}`}><Icon name="phone-call" />{t("Call")}</a>
+      <a className="btn btn-secondary btn-link" href={`sms:${number}${body ? `?body=${encodeURIComponent(body)}` : ""}`}><Icon name="chat-text" />{t("SMS")}</a>
     </div>
   );
 }
@@ -203,7 +200,7 @@ export function ConnectionIndicator({ quality }: { quality: Quality }) {
   return (
     <span className={`badge conn conn-${quality}`}>
       <Icon name={quality === "audio" ? "wifi-slash" : "cell-signal-high"} size="sm" />
-      {QUALITY[quality]}
+      {t(QUALITY[quality])}
     </span>
   );
 }
@@ -211,9 +208,7 @@ export function ConnectionIndicator({ quality }: { quality: Quality }) {
 export function RecordingIndicator() {
   return (
     <span className="badge rec-pill" role="status">
-      <span className="rec-dot" aria-hidden />
-      Recording
-    </span>
+      <span className="rec-dot" aria-hidden />{t("Recording")}</span>
   );
 }
 
@@ -228,20 +223,20 @@ export function CallScreen({ quality, recording, audioOnly, muted, camOff, name 
       </div>
       <div className="call-remote">
         <span className="call-name title-2">{name}</span>
-        {audioOnly && <span className="caption">Audio only</span>}
+        {audioOnly && <span className="caption">{t("Audio only")}</span>}
       </div>
-      {!audioOnly && <div className="call-self" aria-label="Your preview" role="img" />}
+      {!audioOnly && <div className="call-self" aria-label={t("Your preview")} role="img" />}
       <div className="call-controls">
-        <button className={`call-btn${muted ? " is-off" : ""}`} aria-label={muted ? "Unmute" : "Mute"} aria-pressed={muted}>
+        <button className={`call-btn${muted ? " is-off" : ""}`} aria-label={muted ? t("Unmute") : t("Mute")} aria-pressed={muted}>
           <Icon name={muted ? "microphone-slash" : "microphone"} />
         </button>
-        <button className={`call-btn${camOff ? " is-off" : ""}`} aria-label={camOff ? "Turn camera on" : "Turn camera off"} aria-pressed={camOff}>
+        <button className={`call-btn${camOff ? " is-off" : ""}`} aria-label={camOff ? t("Turn camera on") : t("Turn camera off")} aria-pressed={camOff}>
           <Icon name={camOff ? "video-camera-slash" : "video-camera"} />
         </button>
-        <button className={`call-btn${audioOnly ? " is-off" : ""}`} aria-label="Switch to audio only" aria-pressed={audioOnly}>
+        <button className={`call-btn${audioOnly ? " is-off" : ""}`} aria-label={t("Switch to audio only")} aria-pressed={audioOnly}>
           <Icon name="phone" />
         </button>
-        <button className="call-end" aria-label="End call"><Icon name="phone-disconnect" /></button>
+        <button className="call-end" aria-label={t("End call")}><Icon name="phone-disconnect" /></button>
       </div>
     </div>
   );
@@ -258,8 +253,8 @@ export function PreCall({ provider, time }: { provider: string; time: string }) 
           <li key={k}><Icon name="check-circle" size="sm" /><span className="body-strong">{k}</span><span className="caption">{v}</span></li>
         ))}
       </ul>
-      <PrimaryButton>Join call</PrimaryButton>
-      <SecondaryButton>Join with audio only</SecondaryButton>
+      <PrimaryButton>{t("Join call")}</PrimaryButton>
+      <SecondaryButton>{t("Join with audio only")}</SecondaryButton>
     </div>
   );
 }

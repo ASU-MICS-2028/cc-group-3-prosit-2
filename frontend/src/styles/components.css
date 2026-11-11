@@ -363,3 +363,24 @@ img.photo-thumb { object-fit: cover; background: var(--lavender-tint); }
 .notice { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); background: var(--warn-bg); color: var(--text); }
 .notice > .icon { color: var(--warn-fg); margin-top: var(--space-0-5); }
 .notice .stack { gap: var(--space-2); flex: 1; }
+
+/* ---------- Large text (FB-11): at 200% and in longer languages, things grow taller instead of spilling sideways ---------- */
+body { overflow-wrap: break-word; }
+.btn-primary { height: auto; min-height: var(--h-button); padding-block: var(--space-2); text-align: center; }
+.btn-secondary { height: auto; min-height: var(--h-button-secondary); padding-block: var(--space-2); text-align: center; }
+.btn-emergency { height: auto; min-height: var(--h-button); padding: var(--space-2) var(--space-4); }
+.confirm-actions .btn { white-space: normal; }
+.chip { height: auto; min-height: var(--h-chip); padding-block: var(--space-1); white-space: normal; text-align: left; max-width: 100%; }
+.badge { height: auto; min-height: var(--h-badge); white-space: normal; }
+.field-box, .field-box:has(input[inputmode="decimal"]) { height: auto; min-height: var(--h-input); }
+.field-box input { min-height: var(--h-input); }
+.tile-label, .promo-title, .wordmark, .whoami-text, .person-text { min-width: 0; max-width: 100%; }
+.wordmark { flex-wrap: wrap; }
+.whoami { border-radius: var(--radius-lg); flex-wrap: wrap; }
+.whoami-text { flex: 1 1 7rem; }
+.promo { flex-wrap: wrap; }
+.promo-body { flex: 1 1 10rem; max-width: none; }
+.tile-grid { grid-template-columns: repeat(auto-fill, minmax(max(var(--min-tile-w), 9rem), 1fr)); }   /* one column at 200% */
+/* Nav labels stop growing once five tabs no longer fit across the phone; the icons and aria-labels stay. */
+.navtab { flex: 1 1 0; min-width: 0; padding-inline: 0; }
+.navtab-label { font-size: min(0.75rem, 3.3vw); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

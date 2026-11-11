@@ -9,6 +9,7 @@ import { useSession } from "../auth/Session";
 import { fingerprintEnrolled, unlockWithFingerprint } from "../auth/webauthn";
 import { createVault, isUnlocked, unlockVault } from "../data/vault";
 import { wipeLocalData } from "../data/wipe";
+import { t } from "../i18n";
 
 const digits = (v: string) => v.replace(/\D/g, "");
 
@@ -47,23 +48,23 @@ export function PinSetup({ onDone }: { onDone: () => void }) {
     return (
       <main className="gallery lock">
         <Logo size={64} full label="HealthConnect" />
-        <h1 className="title-1">Choose a passphrase</h1>
-        <p className="caption">It protects the health records saved on this phone. You'll type it when the phone has been restarted. Use four words you can remember, like "blue goat river morning". It never leaves this phone, and nobody can reset it.</p>
-        <Field label="Passphrase" type="password" autoComplete="new-password" value={phrase} onChange={(e) => setPhrase(e.target.value)} helper="At least 10 characters" />
-        <Field label="Type it again" type="password" autoComplete="new-password" value={phrase2} onChange={(e) => setPhrase2(e.target.value)} error={error} />
-        <PrimaryButton onClick={nextStep}>Continue</PrimaryButton>
+        <h1 className="title-1">{t("Choose a passphrase")}</h1>
+        <p className="caption">{t("It protects the health records saved on this phone. You'll type it when the phone has been restarted. Use four words you can remember, like \"blue goat river morning\". It never leaves this phone, and nobody can reset it.")}</p>
+        <Field label={t("Passphrase")} type="password" autoComplete="new-password" value={phrase} onChange={(e) => setPhrase(e.target.value)} helper={t("At least 10 characters")} />
+        <Field label={t("Type it again")} type="password" autoComplete="new-password" value={phrase2} onChange={(e) => setPhrase2(e.target.value)} error={error} />
+        <PrimaryButton onClick={nextStep}>{t("Continue")}</PrimaryButton>
       </main>
     );
   }
   return (
     <main className="gallery lock">
       <Logo size={64} full label="HealthConnect" />
-      <h1 className="title-1">Choose a PIN</h1>
-      <p className="caption">A short PIN opens the app again after it has been in the background for 5 minutes. It stays on this phone.</p>
-      <Field label="PIN (4 to 6 digits)" type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin} onChange={(e) => setP(digits(e.target.value))} />
-      <Field label="Type it again" type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin2} onChange={(e) => setP2(digits(e.target.value))} error={error} />
-      <PrimaryButton loading={busy} onClick={save}>Save</PrimaryButton>
-      <SecondaryButton onClick={() => { setError(undefined); setStep("passphrase"); }}>Back</SecondaryButton>
+      <h1 className="title-1">{t("Choose a PIN")}</h1>
+      <p className="caption">{t("A short PIN opens the app again after it has been in the background for 5 minutes. It stays on this phone.")}</p>
+      <Field label={t("PIN (4 to 6 digits)")} type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin} onChange={(e) => setP(digits(e.target.value))} />
+      <Field label={t("Type it again")} type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin2} onChange={(e) => setP2(digits(e.target.value))} error={error} />
+      <PrimaryButton loading={busy} onClick={save}>{t("Save")}</PrimaryButton>
+      <SecondaryButton onClick={() => { setError(undefined); setStep("passphrase"); }}>{t("Back")}</SecondaryButton>
     </main>
   );
 }
@@ -81,7 +82,7 @@ export function LockScreen() {
 
   async function failed(result: "wrong" | "signed-out") {
     if (result === "signed-out") { await wipeLocalData(user!.id); await signOut(); return; }
-    setError(`That isn't right. ${attemptsLeft(user!.id)} tries left.`);
+    setError(t("That isn't right. {n} tries left.", { n: attemptsLeft(user!.id) }));
   }
 
   async function submit() {
@@ -100,16 +101,16 @@ export function LockScreen() {
   }
 
   return (
-    <main className="gallery lock" aria-label="App locked">
+    <main className="gallery lock" aria-label={t("App locked")}>
       <Logo size={64} full label="HealthConnect" />
-      <h1 className="title-1">{withPin ? "Enter your PIN" : "Enter your passphrase"}</h1>
-      {!withPin && <p className="caption">The phone was restarted, so your passphrase is needed to open the saved records.</p>}
+      <h1 className="title-1">{withPin ? t("Enter your PIN") : t("Enter your passphrase")}</h1>
+      {!withPin && <p className="caption">{t("The phone was restarted, so your passphrase is needed to open the saved records.")}</p>}
       {withPin
-        ? <Field label="PIN" type="password" inputMode="numeric" autoComplete="current-password" maxLength={6} value={secret} onChange={(e) => setSecret(digits(e.target.value))} error={error} />
-        : <Field label="Passphrase" type="password" autoComplete="current-password" value={secret} onChange={(e) => setSecret(e.target.value)} error={error} />}
-      <PrimaryButton loading={busy} disabled={withPin ? secret.length < 4 : secret.length < 1} onClick={submit}>Unlock</PrimaryButton>
-      {canFinger && <SecondaryButton onClick={async () => { if (await unlockWithFingerprint(user.id)) unlock(); else setError("Fingerprint didn't work. Use your PIN."); }}>Use fingerprint</SecondaryButton>}
-      <SecondaryButton onClick={() => signOut()}>{session?.mode === "test" ? "Switch account" : "Sign out"}</SecondaryButton>
+        ? <Field label={t("PIN")} type="password" inputMode="numeric" autoComplete="current-password" maxLength={6} value={secret} onChange={(e) => setSecret(digits(e.target.value))} error={error} />
+        : <Field label={t("Passphrase")} type="password" autoComplete="current-password" value={secret} onChange={(e) => setSecret(e.target.value)} error={error} />}
+      <PrimaryButton loading={busy} disabled={withPin ? secret.length < 4 : secret.length < 1} onClick={submit}>{t("Unlock")}</PrimaryButton>
+      {canFinger && <SecondaryButton onClick={async () => { if (await unlockWithFingerprint(user.id)) unlock(); else setError("Fingerprint didn't work. Use your PIN."); }}>{t("Use fingerprint")}</SecondaryButton>}
+      <SecondaryButton onClick={() => signOut()}>{session?.mode === "test" ? t("Switch account") : t("Sign out")}</SecondaryButton>
     </main>
   );
 }

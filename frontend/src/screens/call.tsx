@@ -13,6 +13,7 @@ import { useCallEngine } from "../call/useCall";
 import { recordingApiFor } from "../data/recordings";
 import { RecordingBar, settleRecording } from "./recordings";
 import { go, Heading, type ScreenDef } from "./kit";
+import { t } from "../i18n";
 
 type Check = { label: string; state: "checking" | "ok" | "problem"; text: string; icon: IconName };
 
@@ -56,8 +57,8 @@ function CheckList({ checks }: { checks: Check[] }) {
       {checks.map((c) => (
         <li key={c.label}>
           <Icon name={c.state === "ok" ? "check-circle" : c.state === "problem" ? "warning" : c.icon} size="sm" />
-          <span className="body-strong">{c.label}</span>
-          <span className="caption" role={c.state === "problem" ? "alert" : undefined}>{c.text}</span>
+          <span className="body-strong">{t(c.label)}</span>
+          <span className="caption" role={c.state === "problem" ? "alert" : undefined}>{t(c.text)}</span>
         </li>
       ))}
     </ul>
@@ -101,21 +102,21 @@ function CallFlow({ code: codeFromAddress }: { code?: string }) {
   if (step === "call" && (state.phase === "ended" || state.phase === "error")) {
     const mins = Math.floor(state.seconds / 60), secs = state.seconds % 60;
     return (<>
-      <StateView kind={state.phase === "error" ? "error" : "empty"} plain text={state.message ?? "The call ended."} />
-      {state.phase === "ended" && state.seconds > 0 && <p className="caption" style={{ textAlign: "center" }}>Call length: {mins} min {secs} s</p>}
-      {recNote && <p className="caption" role="status" style={{ textAlign: "center" }}>{recNote}</p>}
-      <PrimaryButton onClick={() => { setStep("check"); setAgain((n) => n + 1); }}>Call again</PrimaryButton>
-      <SecondaryButton onClick={() => go(user?.role === "chv" ? "chv.care" : "me")}>Back</SecondaryButton>
+      <StateView kind={state.phase === "error" ? "error" : "empty"} plain text={state.message ?? t("The call ended.")} />
+      {state.phase === "ended" && state.seconds > 0 && <p className="caption" style={{ textAlign: "center" }}>{t("Call length: {mins} min {secs} s", { mins, secs })}</p>}
+      {recNote && <p className="caption" role="status" style={{ textAlign: "center" }}>{t(recNote)}</p>}
+      <PrimaryButton onClick={() => { setStep("check"); setAgain((n) => n + 1); }}>{t("Call again")}</PrimaryButton>
+      <SecondaryButton onClick={() => go(user?.role === "chv" ? "chv.care" : "me")}>{t("Back")}</SecondaryButton>
     </>);
   }
 
   if (step === "code") {
     return (<>
-      <p>A video visit needs a call code. One person makes the code and sends it to the other. Both type the same code.</p>
-      <Field label="Call code" value={code} onChange={(e) => setCode(e.target.value)} maxLength={64} autoCapitalize="none" autoComplete="off" helper="Capital letters and spaces don't matter" error={callCodeProblem(code) ?? undefined} />
-      <SecondaryButton onClick={() => setCode(generateCode())}>Make a code</SecondaryButton>
-      {cleanCode && typeof navigator.share === "function" && <SecondaryButton onClick={() => void navigator.share({ title: "HealthConnect video visit", text: `Join my HealthConnect video visit. Call code: ${cleanCode}` }).catch(() => undefined)}>Send the code…</SecondaryButton>}
-      <PrimaryButton disabled={!cleanCode || !!callCodeProblem(code)} onClick={() => setStep("check")}>Continue</PrimaryButton>
+      <p>{t("A video visit needs a call code. One person makes the code and sends it to the other. Both type the same code.")}</p>
+      <Field label={t("Call code")} value={code} onChange={(e) => setCode(e.target.value)} maxLength={64} autoCapitalize="none" autoComplete="off" helper={t("Capital letters and spaces don't matter")} error={callCodeProblem(code) ?? undefined} />
+      <SecondaryButton onClick={() => setCode(generateCode())}>{t("Make a code")}</SecondaryButton>
+      {cleanCode && typeof navigator.share === "function" && <SecondaryButton onClick={() => void navigator.share({ title: t("HealthConnect video visit"), text: t("Join my HealthConnect video visit. Call code: {code}", { code: cleanCode }) }).catch(() => undefined)}>{t("Send the code…")}</SecondaryButton>}
+      <PrimaryButton disabled={!cleanCode || !!callCodeProblem(code)} onClick={() => setStep("check")}>{t("Continue")}</PrimaryButton>
     </>);
   }
 
@@ -124,17 +125,17 @@ function CallFlow({ code: codeFromAddress }: { code?: string }) {
   const audioFirst = advice.recommendAudioOnly;
   return (<>
     <div className="precall">
-      <h2 className="title-2">Before you join</h2>
-      <p className="caption">Call code: <span className="body-strong tabular">{cleanCode}</span></p>
+      <h2 className="title-2">{t("Before you join")}</h2>
+      <p className="caption">{t("Call code:")}{" "}<span className="body-strong tabular">{cleanCode}</span></p>
       <CheckList checks={checks} />
-      {advice.level !== "good" && online && <p className="caption" role="status">{advice.text}</p>}
+      {advice.level !== "good" && online && <p className="caption" role="status">{t(advice.text)}</p>}
     </div>
-    <PrimaryButton disabled={blocked} onClick={() => join(audioFirst)}>{audioFirst ? "Join with audio only" : "Join call"}</PrimaryButton>
-    <SecondaryButton disabled={blocked} onClick={() => join(!audioFirst)}>{audioFirst ? "Join with video" : "Join with audio only"}</SecondaryButton>
-    <SecondaryButton onClick={() => setAgain((n) => n + 1)}>Check again</SecondaryButton>
-    {!codeFromAddress && <SecondaryButton onClick={() => setStep("code")}>Change the code</SecondaryButton>}
-    <Heading>Tips</Heading>
-    <p className="caption">Hold the phone steady and face a window. If the picture freezes, switch to audio only. You'll be asked to allow the camera and microphone.</p>
+    <PrimaryButton disabled={blocked} onClick={() => join(audioFirst)}>{audioFirst ? t("Join with audio only") : t("Join call")}</PrimaryButton>
+    <SecondaryButton disabled={blocked} onClick={() => join(!audioFirst)}>{audioFirst ? t("Join with video") : t("Join with audio only")}</SecondaryButton>
+    <SecondaryButton onClick={() => setAgain((n) => n + 1)}>{t("Check again")}</SecondaryButton>
+    {!codeFromAddress && <SecondaryButton onClick={() => setStep("code")}>{t("Change the code")}</SecondaryButton>}
+    <Heading>{t("Tips")}</Heading>
+    <p className="caption">{t("Hold the phone steady and face a window. If the picture freezes, switch to audio only. You'll be asked to allow the camera and microphone.")}</p>
   </>);
 }
 

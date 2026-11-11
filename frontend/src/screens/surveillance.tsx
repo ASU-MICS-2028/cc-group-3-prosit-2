@@ -6,13 +6,16 @@ import { useSession } from "../auth/Session";
 import { useLoad } from "../data/DataProvider";
 import { SurveillanceError, resetTestSurveillance, surveillanceApiFor, type Alert, type Total } from "../data/surveillance";
 import { Heading, Rows, Tiles, type ScreenDef } from "./kit";
+import { t } from "../i18n";
 
 /* GHS official: surveillance dashboard, map and outbreak alerts (FB-7a).
    Every number is synthetic (D-034), and each screen says so. */
 
 const HOME_REGION = "Greater Accra"; // the demo official's region; a real account would carry it
 const SYNTHETIC_NOTE = "Synthetic data: shaped by Ghana 2022 DHS regional figures, but these case counts are made up.";
-const Note = () => <p className="caption">{SYNTHETIC_NOTE}</p>;
+const Note = () => <p className="caption">{t(SYNTHETIC_NOTE)}</p>;
+/** Condition names are codes on the server ("malaria"); only the label shown is translated. */
+const cond = (c: string) => t(c[0].toUpperCase() + c.slice(1));
 const sum = (ts: Total[]) => ts.reduce((s, t) => s + t.case_count, 0);
 const fmtWeek = (d: string | null) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString([], { day: "numeric", month: "short" }) : "");
 
@@ -26,20 +29,20 @@ function Dashboard() {
   const region = useLoad(async () => api?.summary(HOME_REGION), []);
   const alerts = useLoad(async () => api?.alerts(), []);
   if (region.error || alerts.error) return <StateView kind="error" text={region.error ?? alerts.error ?? ""} />;
-  if (!region.data || !alerts.data) return <StateView kind="loading" text="Loading this week's figures…" />;
+  if (!region.data || !alerts.data) return <StateView kind="loading" text={t("Loading this week's figures…")} />;
   const totals = region.data.totals;
   const open = alerts.data.filter((a) => a.status === "suggested" && a.region === HOME_REGION);
   return (<>
-    <p className="caption">{HOME_REGION} · week of {fmtWeek(region.data.week_start)}</p>
+    <p className="caption">{t("{HOME_REGION} · week of {fmtWeek}", { HOME_REGION, fmtWeek: fmtWeek(region.data.week_start) })}</p>
     <div className="row">
-      <VitalCard label="Cases this week" value={String(sum(totals))} unit="" taken="All conditions" />
-      <VitalCard label="Malaria" value={String(sum(totals.filter((t) => t.condition === "malaria")))} unit="" taken="This week" />
+      <VitalCard label={t("Cases this week")} value={String(sum(totals))} unit="" taken={t("All conditions")} />
+      <VitalCard label={t("Malaria")} value={String(sum(totals.filter((t) => t.condition === "malaria")))} unit="" taken={t("This week")} />
     </div>
-    <Heading>Needs a decision</Heading>
+    <Heading>{t("Needs a decision")}</Heading>
     {open.length === 0
-      ? <p className="body">No possible outbreaks waiting.</p>
-      : <Rows items={open.map((a) => ({ name: `Possible outbreak: ${a.condition}`, role: `${a.district}, ${a.case_count} cases`, trailing: <PriorityBadge priority="urgent" />, to: "ghs.alerts" }))} />}
-    <Heading>Emergencies</Heading>
+      ? <p className="body">{t("No possible outbreaks waiting.")}</p>
+      : <Rows items={open.map((a) => ({ name: t("Possible outbreak: {condition}", { condition: cond(a.condition) }), role: t("{district}, {n} cases", { district: a.district, n: a.case_count }), trailing: <PriorityBadge priority="urgent" />, to: "ghs.alerts" }))} />}
+    <Heading>{t("Emergencies")}</Heading>
     <Rows items={[{ name: "Escalated emergencies", role: "Unanswered ones reach you here", to: "ghs.emergencies" }]} />
     <Tiles items={[{ icon: "calendar-check", label: "Forecasts", to: "ghs.forecast" }, { icon: "chat-circle-text", label: "Surveys", to: "ghs.surveys" }]} />
     <Note />
@@ -51,7 +54,7 @@ function DiseaseMap() {
   const all = useLoad(async () => api?.summary(), []);
   const alerts = useLoad(async () => api?.alerts(), []);
   if (all.error) return <StateView kind="error" text={all.error} />;
-  if (!all.data) return <StateView kind="loading" text="Loading the map…" />;
+  if (!all.data) return <StateView kind="loading" text={t("Loading the map…")} />;
   const flagged = new Set((alerts.data ?? []).filter((a) => a.status !== "dismissed").map((a) => a.district));
   const districts = [...new Set(all.data.totals.map((t) => t.district))];
   // Ranked by the AVERAGE per district, not the total: regions report from different numbers of
@@ -64,7 +67,7 @@ function DiseaseMap() {
     })
     .sort((a, b) => b.perDistrict - a.perDistrict);
   return (<>
-    <Heading>{HOME_REGION}, by district</Heading>
+    <Heading>{t("{HOME_REGION}, by district", { HOME_REGION })}</Heading>
     <div className="tile-grid">
       {districts.filter((d) => all.data!.totals.some((t) => t.district === d && t.region === HOME_REGION)).map((d) => (
         <div key={d} className="tile">
@@ -73,9 +76,9 @@ function DiseaseMap() {
           {flagged.has(d) && <PriorityBadge priority="urgent" />}
         </div>))}
     </div>
-    <Heading>All 16 regions, busiest first</Heading>
-    <Rows items={byRegion.map((r) => ({ name: r.region, role: `${r.perDistrict} cases per district this week${r.districts > 1 ? ` (average of ${r.districts} districts)` : ""}` }))} />
-    <p className="caption">Week of {fmtWeek(all.data.week_start)}. Districts with a possible outbreak are marked.</p>
+    <Heading>{t("All 16 regions, busiest first")}</Heading>
+    <Rows items={byRegion.map((r) => ({ name: r.region, role: r.districts > 1 ? t("{n} cases per district this week (average of {d} districts)", { n: r.perDistrict, d: r.districts }) : t("{n} cases per district this week", { n: r.perDistrict }) }))} />
+    <p className="caption">{t("Week of {fmtWeek}. Districts with a possible outbreak are marked.", { fmtWeek: fmtWeek(all.data.week_start) })}</p>
     <Note />
   </>);
 }
@@ -88,12 +91,12 @@ function OutbreakAlerts() {
   const [problem, setProblem] = useState<string>();
   const alerts = useLoad(async () => api?.alerts(), [version]);
   if (alerts.error) return <StateView kind="error" text={alerts.error} />;
-  if (!alerts.data) return <StateView kind="loading" text="Checking for outbreaks…" />;
+  if (!alerts.data) return <StateView kind="loading" text={t("Checking for outbreaks…")} />;
   // Test mode only: clear the test decisions so the demo outbreak needs a decision again.
   const reset = session?.mode === "test"
-    ? <TextButton onClick={() => { resetTestSurveillance(session); setVersion((v) => v + 1); }}>Start the demo again (test mode)</TextButton>
+    ? <TextButton onClick={() => { resetTestSurveillance(session); setVersion((v) => v + 1); }}>{t("Start the demo again (test mode)")}</TextButton>
     : null;
-  if (alerts.data.length === 0) return <><StateView kind="empty" text="No possible outbreaks this week." />{reset}</>;
+  if (alerts.data.length === 0) return <><StateView kind="empty" text={t("No possible outbreaks this week.")} />{reset}</>;
 
   async function decide(a: Alert, decision: "confirmed" | "dismissed") {
     if (!api || busy) return;
@@ -104,17 +107,17 @@ function OutbreakAlerts() {
   }
 
   return (<>
-    {problem && <p role="alert" className="field-note has-error">{problem}</p>}
+    {problem && <p role="alert" className="field-note has-error">{t(problem)}</p>}
     {alerts.data.map((a) => (
       <section key={a.id} className="stack">
-        <Rows items={[{ name: `${a.condition[0].toUpperCase()}${a.condition.slice(1)} · ${a.district}`, role: `${a.case_count} cases, usually ${a.baseline}`,
-          trailing: a.status === "suggested" ? <PriorityBadge priority="urgent" /> : <span className="caption">{a.status === "confirmed" ? "Confirmed" : "Not an outbreak"}</span> }]} />
+        <Rows items={[{ name: `${cond(a.condition)} · ${a.district}`, role: t("{n} cases, usually {usual}", { n: a.case_count, usual: a.baseline }),
+          trailing: a.status === "suggested" ? <PriorityBadge priority="urgent" /> : <span className="caption">{a.status === "confirmed" ? t("Confirmed") : t("Not an outbreak")}</span> }]} />
         <p className="body">{a.reason}</p>
         {a.status === "suggested" ? (<>
-          <PrimaryButton loading={busy === a.id} onClick={() => decide(a, "confirmed")}>Confirm and alert the area</PrimaryButton>
-          <SecondaryButton disabled={busy === a.id} onClick={() => decide(a, "dismissed")}>Not an outbreak</SecondaryButton>
+          <PrimaryButton loading={busy === a.id} onClick={() => decide(a, "confirmed")}>{t("Confirm and alert the area")}</PrimaryButton>
+          <SecondaryButton disabled={busy === a.id} onClick={() => decide(a, "dismissed")}>{t("Not an outbreak")}</SecondaryButton>
         </>) : a.alert_sent_at
-          ? <p className="caption">Test mode: the community alert was logged at {new Date(a.alert_sent_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}, not texted.</p>
+          ? <p className="caption">{t("Test mode: the community alert was logged at {time}, not texted.", { time: new Date(a.alert_sent_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) })}</p>
           : null}
       </section>))}
     <Note />
@@ -126,14 +129,14 @@ function ForecastScreen() {
   const api = useApi();
   const f = useLoad(async () => api?.forecast(HOME_REGION), []);
   if (f.error) return <StateView kind="error" text={f.error} />;
-  if (!f.data) return <StateView kind="loading" text="Working out estimates…" />;
+  if (!f.data) return <StateView kind="loading" text={t("Working out estimates…")} />;
   const items = f.data.forecasts;
   return (<>
-    <p className="body-strong">Estimates, not predictions.</p>
-    <p className="caption">{HOME_REGION}, week of {fmtWeek(f.data.week_start)}. Method: {f.data.method} A recent spike lifts the estimate, and it knows nothing about the weather, stock or events.</p>
+    <p className="body-strong">{t("Estimates, not predictions.")}</p>
+    <p className="caption">{t("{HOME_REGION}, week of {fmtWeek}. Method: {method} A recent spike lifts the estimate, and it knows nothing about the weather, stock or events.", { HOME_REGION, fmtWeek: fmtWeek(f.data.week_start), method: f.data.method })}</p>
     {items.length === 0
-      ? <StateView kind="empty" text="Not enough weeks of data for an estimate." />
-      : <Rows items={items.map((x) => ({ name: `${x.condition[0].toUpperCase()}${x.condition.slice(1)} · ${x.district}`, role: `Estimate: about ${x.estimate} cases (${x.low} to ${x.high})` }))} />}
+      ? <StateView kind="empty" text={t("Not enough weeks of data for an estimate.")} />
+      : <Rows items={items.map((x) => ({ name: `${cond(x.condition)} · ${x.district}`, role: t("Estimate: about {n} cases ({low} to {high})", { n: x.estimate, low: x.low, high: x.high }) }))} />}
     <Note />
   </>);
 }

@@ -68,13 +68,19 @@ describe("components use tokens only", () => {
   });
 
   it("EB Garamond is never used below 22px", () => {
-    const sizes = [...tokens.matchAll(/--t-[\w-]+:\s*\d+\s+(\d+)px\/\d+px var\(--font-display\)/g)].map((m) => Number(m[1]));
+    const sizes = [...tokens.matchAll(/--t-[\w-]+:\s*\d+\s+([\d.]+)rem\/[\d.]+rem var\(--font-display\)/g)].map((m) => Number(m[1]) * 16);
     expect(sizes.length).toBeGreaterThan(0);
     for (const s of sizes) expect(s).toBeGreaterThanOrEqual(22);
   });
 
   it("no text token is smaller than 12px, body at least 16px", () => {
-    expect(tokens).toMatch(/--t-body:\s*400 16px/);
-    expect(tokens).toMatch(/--t-caption:\s*400 14px/);
+    expect(tokens).toMatch(/--t-body:\s*400 1rem/);
+    expect(tokens).toMatch(/--t-caption:\s*400 0.875rem/);
+  });
+
+  it("text sizes are in rem, so the phone's text size and 200% zoom scale them", () => {
+    const type = [...tokens.matchAll(/--t-[\w-]+:[^;]+;/g)].map((m) => m[0]).filter((d) => /\d/.test(d));
+    expect(type.length).toBeGreaterThan(10);
+    for (const d of type) expect(d, d).not.toMatch(/px/);
   });
 });

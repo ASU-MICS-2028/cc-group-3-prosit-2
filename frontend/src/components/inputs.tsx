@@ -1,6 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { Icon } from "./icons";
 import { MicButton } from "./buttons";
+import { t } from "../i18n";
 
 type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> & {
   label: string;
@@ -14,17 +15,18 @@ type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> & {
 };
 
 /** 7.12: label above (never placeholder-only), helper or error below. */
-export function Field({ label, helper, error, prefix, suffix, voice, forceFocus, className = "", ...rest }: FieldProps) {
+export function Field({ label, helper, error, prefix, suffix, voice, forceFocus, className = "", placeholder, ...rest }: FieldProps) {
   const id = useId();
   const noteId = `${id}-note`;
-  const note = error ?? helper;
+  const note = error ? t(error) : helper && t(helper);
   return (
     <div className={`field${error ? " has-error" : ""}${forceFocus ? " is-focus" : ""} ${className}`}>
-      <label htmlFor={id} className="field-label">{label}</label>
+      <label htmlFor={id} className="field-label">{t(label)}</label>
       <div className="field-box">
         {prefix && <span className="field-affix">{prefix}</span>}
         <input
           {...rest}
+          placeholder={placeholder && t(placeholder)}
           id={id}
           aria-invalid={error ? true : undefined}
           aria-describedby={note ? noteId : undefined}
@@ -52,7 +54,7 @@ export function SearchField({ label = "Search", ...rest }: InputHTMLAttributes<H
   return (
     <label className="search">
       <Icon name="magnifying-glass" size="sm" />
-      <input {...rest} type="search" aria-label={label} />
+      <input {...rest} placeholder={rest.placeholder && t(rest.placeholder)} type="search" aria-label={t(label)} />
     </label>
   );
 }

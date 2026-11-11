@@ -9,6 +9,7 @@ import { cancelRejected, conflictOf, rejectedOf, resolveConflict } from "../data
 import type { Appointment, Consent, Resource } from "../data/model";
 import { SPECIALISTS, dayStartUtc, slotsForDay } from "../config/people";
 import { Heading, go, type ScreenDef } from "./kit";
+import { t } from "../i18n";
 
 function SyncScreen() {
   const { userId, sync, online, simulatedOffline, setSimulatedOffline, server, notify, lastSync } = useData();
@@ -43,7 +44,7 @@ function SyncScreen() {
         if (new Date(iso) <= now || busy.some((a) => a.start < end && iso < a.end)) continue;
         const a: Appointment = { resourceType: "Appointment", id: crypto.randomUUID(), status: "booked", start: iso, end, participant: [{ actor: { reference: "Patient/another-phone", display: "Another patient" }, status: "accepted" }, { actor: { reference: `Practitioner/${doctor.id}`, display: doctor.name }, status: "accepted" }] };
         server.store.set(a.id, { version: 1, resource: a, owner: "another-phone", patientId: null });
-        return setNote(`Pretended another phone booked ${doctor.name} on ${new Date(iso).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}. Turn "Pretend I'm offline" on, book that time, then turn it off.`);
+        return setNote(t("Pretended another phone booked {doctor} on {when}. Turn \"Pretend I'm offline\" on, book that time, then turn it off.", { doctor: doctor.name, when: new Date(iso).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) }));
       }
     }
     setNote("No free time found this week.");
@@ -52,26 +53,26 @@ function SyncScreen() {
   return (<>
     <div className="row">
       <SyncBadge status={waiting > 0 ? "saved" : "sent"} />
-      <span className="caption">{online ? "Connected" : simulatedOffline ? "Pretending to be offline" : "No signal"}</span>
+      <span className="caption">{online ? t("Connected") : simulatedOffline ? t("Pretending to be offline") : t("No signal")}</span>
     </div>
-    <PrimaryButton loading={busy} disabled={waiting === 0 && online} onClick={send}>Send now</PrimaryButton>
-    {note && <p role="status" className="caption">{note}</p>}
-    {lastSync?.offline && <p className="caption">{lastSync.retryAfterMs !== undefined ? "Last try: the server was busy." : "Last try: no signal."}</p>}
+    <PrimaryButton loading={busy} disabled={waiting === 0 && online} onClick={send}>{t("Send now")}</PrimaryButton>
+    {note && <p role="status" className="caption">{t(note)}</p>}
+    {lastSync?.offline && <p className="caption">{lastSync.retryAfterMs !== undefined ? t("Last try: the server was busy.") : t("Last try: no signal.")}</p>}
     {error && <StateView kind="error" plain text={error} />}
-    <Heading>Your records</Heading>
-    {data && data.length === 0 && <StateView kind="empty" text="Nothing saved on this phone yet." />}
+    <Heading>{t("Your records")}</Heading>
+    {data && data.length === 0 && <StateView kind="empty" text={t("Nothing saved on this phone yet.")} />}
     <div className="stack">
       {data?.map((a) => <PersonRow key={a.id} name={a.label} role={new Date(a.updatedAt).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} trailing={<SyncBadge status={a.syncState} />} onClick={a.syncState === "attention" ? () => go("conflict", a.id) : undefined} />)}
     </div>
     {session?.mode === "test" && <>
-    <Heading>Test tools</Heading>
-    <p className="caption">For testing only. Not part of the real app.</p>
+    <Heading>{t("Test tools")}</Heading>
+    <p className="caption">{t("For testing only. Not part of the real app.")}</p>
     <div className="row">
-      <Chip selected={simulatedOffline} onClick={() => setSimulatedOffline(!simulatedOffline)}>Pretend I'm offline</Chip>
-      <SecondaryButton onClick={pretendOtherPhone}>Pretend another phone edited a permission</SecondaryButton>
-      <SecondaryButton onClick={pretendOtherBooking}>Pretend another phone booked the first free time</SecondaryButton>
-      <SecondaryButton onClick={() => { server.loseNextReply = true; setNote("The next send will reach the server, but the reply will be lost. Add a patient and press Send now."); }}>Lose the next reply</SecondaryButton>
-      <SecondaryButton onClick={() => { server.clear(); notify(); setNote("The test server was emptied."); }}>Empty the test server</SecondaryButton>
+      <Chip selected={simulatedOffline} onClick={() => setSimulatedOffline(!simulatedOffline)}>{t("Pretend I'm offline")}</Chip>
+      <SecondaryButton onClick={pretendOtherPhone}>{t("Pretend another phone edited a permission")}</SecondaryButton>
+      <SecondaryButton onClick={pretendOtherBooking}>{t("Pretend another phone booked the first free time")}</SecondaryButton>
+      <SecondaryButton onClick={() => { server.loseNextReply = true; setNote("The next send will reach the server, but the reply will be lost. Add a patient and press Send now."); }}>{t("Lose the next reply")}</SecondaryButton>
+      <SecondaryButton onClick={() => { server.clear(); notify(); setNote("The test server was emptied."); }}>{t("Empty the test server")}</SecondaryButton>
     </div>
     </>}
   </>);
@@ -102,11 +103,11 @@ function Rejected({ id, reason, patientId, isBooking }: { id: string; reason: st
   const [busy, setBusy] = useState(false);
   const done = async (next: () => void) => { setBusy(true); await cancelRejected(userId, id); notify(); void sync(); next(); };
   return (<>
-    <p>{REJECTED[reason] ?? "The server could not accept this."}</p>
+    <p>{REJECTED[reason] ?? t("The server could not accept this.")}</p>
     {isBooking ? <>
-      <PrimaryButton loading={busy} onClick={() => done(() => go("chv.book", patientId ?? undefined))}>Choose another time</PrimaryButton>
-      <SecondaryButton disabled={busy} onClick={() => done(() => go("chv.visits"))}>Cancel this visit</SecondaryButton>
-    </> : <SecondaryButton onClick={() => go("sync")}>Back to sending</SecondaryButton>}
+      <PrimaryButton loading={busy} onClick={() => done(() => go("chv.book", patientId ?? undefined))}>{t("Choose another time")}</PrimaryButton>
+      <SecondaryButton disabled={busy} onClick={() => done(() => go("chv.visits"))}>{t("Cancel this visit")}</SecondaryButton>
+    </> : <SecondaryButton onClick={() => go("sync")}>{t("Back to sending")}</SecondaryButton>}
   </>);
 }
 
@@ -117,12 +118,12 @@ function Conflict({ id }: { id?: string }) {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string>();
   if (error) return <StateView kind="error" plain text={error} />;
-  if (loading || refused.loading) return <StateView kind="loading" text="Opening…" />;
+  if (loading || refused.loading) return <StateView kind="loading" text={t("Opening…")} />;
   if (refused.data && id) {
     const res = refused.data.resource;
     return <Rejected id={id} reason={refused.data.reason} patientId={res.resourceType === "Appointment" ? res.participant[0].actor.reference.replace("Patient/", "") : null} isBooking={res.resourceType === "Appointment"} />;
   }
-  if (!data || !id) return <StateView kind="empty" plain text="Nothing needs your attention here." action={<SecondaryButton onClick={() => go("sync")}>Back to sending</SecondaryButton>} />;
+  if (!data || !id) return <StateView kind="empty" plain text={t("Nothing needs your attention here.")} action={<SecondaryButton onClick={() => go("sync")}>{t("Back to sending")}</SecondaryButton>} />;
 
   const a = flat(data.mine as Resource), b = flat(data.theirs as Resource);
   const diffs = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter((k) => a[k] !== b[k]);
@@ -138,16 +139,16 @@ function Conflict({ id }: { id?: string }) {
     } catch (e) { setProblem(e instanceof Error ? e.message : "We couldn't save your choice."); setBusy(false); }
   }
   return (<>
-    <p>Two versions of this record are different. Nothing was lost. Choose which one to keep.</p>
+    <p>{t("Two versions of this record are different. Nothing was lost. Choose which one to keep.")}</p>
     {diffs.map((k) => (
       <div className="kv" key={k}>
         <span className="body-strong">{human(k)}</span>
-        <span style={{ textAlign: "right" }}><span className="caption">This phone: </span>{a[k] ?? "(empty)"}<br /><span className="caption">Other: </span>{b[k] ?? "(empty)"}</span>
+        <span style={{ textAlign: "right" }}><span className="caption">{t("This phone:")}{" "}</span>{a[k] ?? t("(empty)")}<br /><span className="caption">{t("Other:")}{" "}</span>{b[k] ?? t("(empty)")}</span>
       </div>
     ))}
-    {problem && <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{problem}</p>}
-    <PrimaryButton loading={busy} onClick={() => choose("mine")}>Keep the version on this phone</PrimaryButton>
-    <SecondaryButton disabled={busy} onClick={() => choose("theirs")}>Use the other version</SecondaryButton>
+    {problem && <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{t(problem)}</p>}
+    <PrimaryButton loading={busy} onClick={() => choose("mine")}>{t("Keep the version on this phone")}</PrimaryButton>
+    <SecondaryButton disabled={busy} onClick={() => choose("theirs")}>{t("Use the other version")}</SecondaryButton>
   </>);
 }
 

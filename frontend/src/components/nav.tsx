@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Icon, type IconName } from "./icons";
 import { IconButton } from "./buttons";
+import { t } from "../i18n";
 
 export type Tab = { key: string; label: string; icon: IconName };
 
@@ -8,11 +9,11 @@ export type Tab = { key: string; label: string; icon: IconName };
 export function BottomNav({ tabs, active, onSelect }: { tabs: Tab[]; active: string; onSelect?: (key: string) => void }) {
   if (tabs.length > 5) throw new Error("BottomNav allows at most 5 tabs");
   return (
-    <nav className="bottomnav" aria-label="Main">
-      {tabs.map((t) => (
-        <button key={t.key} aria-label={t.label} aria-current={t.key === active ? "page" : undefined} className={`navtab${t.key === active ? " is-active" : ""}`} onClick={() => onSelect?.(t.key)}>
-          <span className="navtab-icon"><Icon name={t.icon} /></span>
-          <span className="navtab-label">{t.label}</span>
+    <nav className="bottomnav" aria-label={t("Main")}>
+      {tabs.map((tab) => (
+        <button key={tab.key} aria-label={t(tab.label)} aria-current={tab.key === active ? "page" : undefined} className={`navtab${tab.key === active ? " is-active" : ""}`} onClick={() => onSelect?.(tab.key)}>
+          <span className="navtab-icon"><Icon name={tab.icon} /></span>
+          <span className="navtab-label">{t(tab.label)}</span>
         </button>
       ))}
     </nav>
@@ -27,8 +28,8 @@ export function Header(props:
     return (
       <header className="header header-home">
         <div>
-          <h1 className="title-1">{props.greeting}</h1>
-          {props.subtitle && <p className="caption">{props.subtitle}</p>}
+          <h1 className="title-1">{t(props.greeting)}</h1>
+          {props.subtitle && <p className="caption">{t(props.subtitle)}</p>}
         </div>
         <div className="header-actions">{props.actions}</div>
       </header>
@@ -36,12 +37,12 @@ export function Header(props:
   }
   return (
     <header className="header header-inner">
-      <IconButton icon="arrow-left" label="Back" onClick={props.onBack} />
+      <IconButton icon="arrow-left" label={t("Back")} onClick={props.onBack} />
       <div className="header-title">
-        <h1 className="title-2">{props.title}</h1>
-        {props.caption && <p className="caption">{props.caption}</p>}
+        <h1 className="title-2">{t(props.title)}</h1>
+        {props.caption && <p className="caption">{t(props.caption)}</p>}
       </div>
-      <IconButton icon="dots-three" label="More" onClick={props.onMore} />
+      <IconButton icon="dots-three" label={t("More")} onClick={props.onMore} />
     </header>
   );
 }
@@ -56,9 +57,9 @@ export function Sheet({ open = true, onClose, title, children, inline }: { open?
   }, [open, inline, onClose]);
   if (!open) return null;
   const sheet = (
-    <div className="sheet" role="dialog" aria-modal={!inline} aria-label={title}>
+    <div className="sheet" role="dialog" aria-modal={!inline} aria-label={t(title)}>
       <span className="sheet-handle" aria-hidden />
-      <h2 className="heading">{title}</h2>
+      <h2 className="heading">{t(title)}</h2>
       {children}
     </div>
   );
@@ -75,9 +76,9 @@ export function ConfirmDialog({ title, body, cancel, confirm, onClose, inline }:
     return () => window.removeEventListener("keydown", onKey);
   }, [inline, onClose]);
   const dialog = (
-    <div className="sheet confirm-sheet" role="alertdialog" aria-modal={!inline} aria-label={title}>
+    <div className="sheet confirm-sheet" role="alertdialog" aria-modal={!inline} aria-label={t(title)}>
       <span className="sheet-handle" aria-hidden />
-      <h2 className="heading">{title}</h2>
+      <h2 className="heading">{t(title)}</h2>
       <div className="confirm-body">{body}</div>
       <div className="confirm-actions">{confirm}{cancel}</div>
     </div>

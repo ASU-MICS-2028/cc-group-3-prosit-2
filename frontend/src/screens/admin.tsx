@@ -9,9 +9,10 @@ import { AdminError, adminApiFor, type AuditRow, type ExportFormat } from "../da
 import { cedis } from "../data/payments";
 import { Heading, KV, Tiles } from "./kit";
 import { LowStockCard } from "./healersStock";
+import { t } from "../i18n";
 
-const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{children}</p>;
-const Loading = () => <StateView kind="loading" text="Loading…" />;
+const Alert = ({ children }: { children: React.ReactNode }) => <p role="alert" className="field-note has-error"><Icon name="warning" size="sm" />{typeof children === "string" ? t(children) : children}</p>;
+const Loading = () => <StateView kind="loading" text={t("Loading…")} />;
 const when = (iso: string) => new Date(iso).toLocaleString([], { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 function useAdmin() {
@@ -20,7 +21,7 @@ function useAdmin() {
 }
 const ModeNote = ({ sample }: { sample: string }) => {
   const { session } = useSession();
-  return session?.mode === "live" ? null : <p className="caption">Test mode: {sample}.</p>;
+  return session?.mode === "live" ? null : <p className="caption">{t("Test mode: {sample}.", { sample: t(sample) })}</p>;
 };
 
 export function Users() {
@@ -41,12 +42,12 @@ export function Users() {
     <div className="stack">
       {list.data?.map((u) => (
         <div key={u.id} className="stack">
-          <PersonRow name={u.name} role={`${u.role ? ROLE_LABEL[u.role] : "No app role"}${u.facility ? ` · ${u.facility}` : ""}${u.locked ? " · Locked" : ""}${u.active ? "" : " · Switched off"}`} {...(u.lastSignIn ? { hours: when(u.lastSignIn) } : {})} />
-          {u.id !== me?.id && <SecondaryButton onClick={() => void flip(u.id, !u.active)}>{u.active ? `Switch off ${u.name}` : `Switch on ${u.name}`}</SecondaryButton>}
+          <PersonRow name={u.name} role={`${t(u.role ? ROLE_LABEL[u.role] : "No app role")}${u.facility ? ` · ${u.facility}` : ""}${u.locked ? ` · ${t("Locked")}` : ""}${u.active ? "" : ` · ${t("Switched off")}`}`} {...(u.lastSignIn ? { hours: when(u.lastSignIn) } : {})} />
+          {u.id !== me?.id && <SecondaryButton onClick={() => void flip(u.id, !u.active)}>{u.active ? t("Switch off {name}", { name: u.name }) : t("Switch on {name}", { name: u.name })}</SecondaryButton>}
         </div>
       ))}
     </div>
-    <ModeNote sample="these are the made-up demo accounts" />
+    <ModeNote sample={t("these are the made-up demo accounts")} />
   </>);
 }
 
@@ -59,18 +60,18 @@ export function Audit() {
   const log = useLoad(() => admin.audit(outcome), [outcome]);
   return (<>
     <div className="row">
-      <Chip selected={!outcome} onClick={() => setOutcome(undefined)}>All</Chip>
-      <Chip selected={outcome === "denied"} onClick={() => setOutcome("denied")}>Refused</Chip>
-      <Chip selected={outcome === "error"} onClick={() => setOutcome("error")}>Failed</Chip>
+      <Chip selected={!outcome} onClick={() => setOutcome(undefined)}>{t("All")}</Chip>
+      <Chip selected={outcome === "denied"} onClick={() => setOutcome("denied")}>{t("Refused")}</Chip>
+      <Chip selected={outcome === "error"} onClick={() => setOutcome("error")}>{t("Failed")}</Chip>
     </div>
-    {log.loading ? <Loading /> : log.error ? <Alert>{log.error}</Alert> : !log.data?.items.length ? <StateView kind="empty" text="Nothing to show." /> : <div className="stack">
-      {log.data.items.map((r) => <PersonRow key={r.id} name={r.who} role={`${ACTION[r.action] ?? r.action} ${r.resourceType.toLowerCase()} · ${OUTCOME[r.outcome]}`} hours={when(r.at)} />)}
+    {log.loading ? <Loading /> : log.error ? <Alert>{log.error}</Alert> : !log.data?.items.length ? <StateView kind="empty" text={t("Nothing to show.")} /> : <div className="stack">
+      {log.data.items.map((r) => <PersonRow key={r.id} name={r.who} role={`${t(ACTION[r.action] ?? r.action)} ${r.resourceType.toLowerCase()} · ${t(OUTCOME[r.outcome])}`} hours={when(r.at)} />)}
     </div>}
     {log.data && <>
-      <Heading>Sign-ins, last 7 days</Heading>
-      {log.data.signInsLast7Days.map((s) => <KV key={s.outcome} k={s.outcome.replace(/_/g, " ")} v={s.n} />)}
+      <Heading>{t("Sign-ins, last 7 days")}</Heading>
+      {log.data.signInsLast7Days.map((s) => <KV key={s.outcome} k={t(s.outcome.replace(/_/g, " "))} v={s.n} />)}
     </>}
-    <ModeNote sample="these are sample rows" />
+    <ModeNote sample={t("these are sample rows")} />
   </>);
 }
 
@@ -84,14 +85,14 @@ export function Revenue() {
   const real = data.data!.lines.filter((l) => !l.simulated), simulated = data.data!.lines.filter((l) => l.simulated);
   const sum = (ls: typeof real) => ls.reduce((n, l) => n + l.total, 0);
   return (<>
-    <Heading>Real test-mode payments</Heading>
-    {real.length === 0 ? <p className="caption">None yet.</p> : real.map((l) => <KV key={l.purpose} k={`${PURPOSE[l.purpose] ?? l.purpose} (${l.payments})`} v={cedis(l.total)} />)}
-    {real.length > 0 && <KV k="Total" v={cedis(sum(real))} />}
-    <Heading>Simulated, not real money</Heading>
-    {simulated.length === 0 ? <p className="caption">None.</p> : simulated.map((l) => <KV key={l.purpose} k={`${PURPOSE[l.purpose] ?? l.purpose} (${l.payments})`} v={cedis(l.total)} />)}
-    {data.data!.pending > 0 && <KV k="Still waiting for approval" v={data.data!.pending} />}
-    <KV k="Training" v="No sales yet" />
-    <ModeNote sample="only this device's test payments are counted" />
+    <Heading>{t("Real test-mode payments")}</Heading>
+    {real.length === 0 ? <p className="caption">{t("None yet.")}</p> : real.map((l) => <KV key={l.purpose} k={`${PURPOSE[l.purpose] ?? l.purpose} (${l.payments})`} v={cedis(l.total)} />)}
+    {real.length > 0 && <KV k={t("Total")} v={cedis(sum(real))} />}
+    <Heading>{t("Simulated, not real money")}</Heading>
+    {simulated.length === 0 ? <p className="caption">{t("None.")}</p> : simulated.map((l) => <KV key={l.purpose} k={`${PURPOSE[l.purpose] ?? l.purpose} (${l.payments})`} v={cedis(l.total)} />)}
+    {data.data!.pending > 0 && <KV k={t("Still waiting for approval")} v={data.data!.pending} />}
+    <KV k={t("Training")} v={t("No sales yet")} />
+    <ModeNote sample={t("only this device's test payments are counted")} />
   </>);
 }
 
@@ -122,20 +123,20 @@ export function Sdg3() {
   if (report.error) return <Alert>{report.error}</Alert>;
   const r = report.data!;
   return (<>
-    <p className="caption">{r.scope}, {r.period.code}. Sandbox: counted from what this system holds, and its records are synthetic. These are activity counts related to SDG 3 targets, not the official indicators.</p>
+    <p className="caption">{t("{scope}, {code}. Sandbox: counted from what this system holds, and its records are synthetic. These are activity counts related to SDG 3 targets, not the official indicators.", { scope: r.scope, code: r.period.code })}</p>
     <div className="stack">
-      {r.figures.map((f) => <div key={f.code}><KV k={`${f.label} (target ${f.target})`} v={`${f.value}${f.unit ? ` ${f.unit}` : ""}`} /><p className="caption">{f.counts}</p></div>)}
+      {r.figures.map((f) => <div key={f.code}><KV k={t("{label} (target {target})", { label: t(f.label), target: f.target })} v={`${f.value}${f.unit ? ` ${t(f.unit)}` : ""}`} /><p className="caption">{t(f.counts)}</p></div>)}
     </div>
-    <Heading>Left out, and why</Heading>
+    <Heading>{t("Left out, and why")}</Heading>
     <div className="stack">
-      {r.omitted.map((o) => <div key={o.label}><p className="body-strong">{o.label}</p><p className="caption">{o.why}</p></div>)}
+      {r.omitted.map((o) => <div key={o.label}><p className="body-strong">{t(o.label)}</p><p className="caption">{t(o.why)}</p></div>)}
     </div>
-    <Heading>Sandbox exports</Heading>
-    <p className="caption">Totals only. Saved to this device and sent to no external system. FHIR files are FHIR-shaped, not FHIR-compatible, and none of these has been validated by DHIS2 or WHO.</p>
+    <Heading>{t("Sandbox exports")}</Heading>
+    <p className="caption">{t("Totals only. Saved to this device and sent to no external system. FHIR files are FHIR-shaped, not FHIR-compatible, and none of these has been validated by DHIS2 or WHO.")}</p>
     {problem && <Alert>{problem}</Alert>}
-    <div className="stack">{FORMATS.map((f) => <SecondaryButton key={f.format} onClick={() => void download(f.format)}>Download {f.label}</SecondaryButton>)}</div>
-    {saved && <p role="status" className="caption">{saved}</p>}
-    <ModeNote sample="these are sample numbers" />
+    <div className="stack">{FORMATS.map((f) => <SecondaryButton key={f.format} onClick={() => void download(f.format)}>{t("Download {label}", { label: t(f.label) })}</SecondaryButton>)}</div>
+    {saved && <p role="status" className="caption">{t(saved)}</p>}
+    <ModeNote sample={t("these are sample numbers")} />
   </>);
 }
 
@@ -146,10 +147,10 @@ export function FacilityHome() {
   if (data.error) return <Alert>{data.error}</Alert>;
   return (<>
     <p className="body-strong">{data.data!.facility}</p>
-    <KV k="People at this facility" v={data.data!.people.length} />
+    <KV k={t("People at this facility")} v={data.data!.people.length} />
     <LowStockCard />
     <Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }, { icon: "users", label: "Emergencies", to: "facility.emergencies" }, { icon: "calendar-check", label: "Quality review", to: "facility.qa" }]} />
-    <ModeNote sample="this is the made-up demo facility" />
+    <ModeNote sample={t("this is the made-up demo facility")} />
   </>);
 }
 
@@ -159,8 +160,8 @@ export function FacilityPeople() {
   if (data.loading) return <Loading />;
   if (data.error) return <Alert>{data.error}</Alert>;
   return (<>
-    <div className="stack">{data.data!.people.map((p) => <PersonRow key={p.id} name={p.name} role={`${p.role ? ROLE_LABEL[p.role] : "No app role"}${p.active ? "" : " · Switched off"}`} />)}</div>
-    <p className="caption">To add someone, ask the platform admin.</p>
-    <ModeNote sample="these are the made-up demo accounts" />
+    <div className="stack">{data.data!.people.map((p) => <PersonRow key={p.id} name={p.name} role={`${t(p.role ? ROLE_LABEL[p.role] : "No app role")}${p.active ? "" : ` · ${t("Switched off")}`}`} />)}</div>
+    <p className="caption">{t("To add someone, ask the platform admin.")}</p>
+    <ModeNote sample={t("these are the made-up demo accounts")} />
   </>);
 }

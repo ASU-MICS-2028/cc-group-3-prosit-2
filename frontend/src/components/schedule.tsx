@@ -1,11 +1,12 @@
 import { Chip } from "./buttons";
+import { t } from "../i18n";
 
 export type Day = { key: string; weekday: string; date: number };
 
 /** 7.9: date strip. Selected day is a lavender circle with an ink number and underline. */
 export function DateStrip({ days, selected, onSelect }: { days: Day[]; selected: string; onSelect?: (key: string) => void }) {
   return (
-    <div className="datestrip" role="listbox" aria-label="Choose a day">
+    <div className="datestrip" role="listbox" aria-label={t("Choose a day")}>
       {days.map((d) => (
         <button key={d.key} role="option" aria-selected={d.key === selected} className={`day${d.key === selected ? " is-selected" : ""}`} onClick={() => onSelect?.(d.key)}>
           <span className="caption">{d.weekday}</span>
