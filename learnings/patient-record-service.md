@@ -179,9 +179,17 @@ Until then, nothing has been tested against the real votex365. The client is the
 
 **Revenue:** only successful payments count, and simulated money is shown apart, so test money can't pass as income.
 
-**Not done:** adding a user from the screen (use the seed script), editing a role, and settings, which is still a display. The Roles screen describes the design, and it says so: healer and facility limits aren't built, and `GET /patients/:id` isn't limited to a person's own patients. In test mode the audit rows are samples, also labelled.
+**Not done:** adding a user from the screen (use the seed script), editing a role, and settings, which is still a display. The Roles screen describes the design, and it says so: healer limits aren't built, and `GET /patients/:id` isn't limited to a person's own patients. In test mode the audit rows are samples, also labelled.
 
 **Check it:** `npm test` in `backend/` and `frontend/`. Evidence: `evidence/final/FB-10-admin-*.png`.
+
+### SDG 3, exports, facility limit (FB-10b, FB-10c)
+
+**Facility limit:** `backend/src/routes/reporting.ts`, `scopeOf()`. A health centre admin's facility comes from `practitioners.facility_id` in the database; asking for another with `?facilityId=` is a 403, and an account with no facility gets 403, never national data. `npm run seed:test-users` must be re-run so the test admin is linked to its facility.
+
+**Figures:** each one sits beside its SQL and its "what this counts" text. All are for the current calendar quarter unless the text says otherwise. A figure with nothing to measure is left out with a reason, not shown as 0. Not computable and left out: maternal and child mortality, incidence rates, UHC index, population cover, appointments kept (nothing records a visit took place), rural/urban gap, change against baseline.
+
+**Exports:** `GET /reporting/export/fhir|dhis2|who`, totals only, downloaded in the browser, sent nowhere. All three use placeholder codes and are labelled sandbox and synthetic. FHIR is FHIR-shaped, not compatible (`docs/fhir-mapping.md`); none is validated by DHIS2 or WHO. Referrals and emergencies are counted, but no API writes them until FB-5 merges. Stock and training are still labelled made-up: there are no tables for them.
 
 ### Insurance (FB-9a, 8 Nov)
 

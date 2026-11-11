@@ -17,6 +17,7 @@ import { paymentRoutes, webhookBodyParser } from './routes/payments.js'
 import { prescriptionRoutes } from './routes/prescriptions.js'
 import { referralRoutes } from './routes/referrals.js'
 import { recordingRoutes } from './routes/recordings.js'
+import { reportingRoutes } from './routes/reporting.js'
 import { surveillanceRoutes } from './routes/surveillance.js'
 import { syncBodyParser, syncRoutes } from './routes/sync.js'
 
@@ -109,6 +110,7 @@ export function createApp(ctx: Ctx): Express {
   paymentRoutes(app, ctx, { insurance_premium: insurancePremium })
   insuranceRoutes(app, ctx)
   adminRoutes(app, ctx)
+  reportingRoutes(app, ctx)
 
   app.use((_req, res) => void res.status(404).json({ error: 'not_found', message: 'Not found' }))
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {

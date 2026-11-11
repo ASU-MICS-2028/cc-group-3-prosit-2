@@ -1,0 +1,19 @@
+FB-10c: health centre admin limited to their own facility. Local test server and synthetic data; not the live system.
+
+GET /reporting/sdg3 as facility_admin
+  200 {"scope":"Dodowa clinic area","figures":["patients_with_readings=0","readings_recorded=0","appointments_booked=0","referrals_received=0","prescriptions_dispensed=0","emergencies_raised=0"]}
+
+GET /reporting/sdg3?facilityId=<second facility> as facility_admin
+  403 {"error":"other_facility","message":"You can only see your own facility"}
+
+GET /reporting/export/dhis2?facilityId=<second facility> as facility_admin
+  403 {"error":"other_facility","message":"You can only see your own facility"}
+
+GET /facility/people?facilityId=<second facility> as facility_admin
+  403 {"error":"other_facility","message":"You can only see your own facility"}
+
+GET /facility/people as facility_admin
+  200 {"facility":"Dodowa clinic area","people":[{"id":"00000000-0000-4000-8000-000000000001","name":"Ama Serwaa","role":"chv","active":true},{"id":"00000000-0000-4000-8000-000000000007","name":"Kwabena Ofori","role":"facility_admin","active":true}]}
+
+GET /facility/people as ghs
+  403 {"error":"forbidden","message":"A ghs_official account cannot open this"}

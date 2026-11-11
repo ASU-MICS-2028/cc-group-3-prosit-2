@@ -6,6 +6,10 @@ export type AdminUser = { id: string; name: string; role: keyof typeof ROLE_LABE
 export type AuditRow = { id: string; at: string; who: string; role: string | null; resourceType: string; action: string; outcome: "success" | "denied" | "not_found" | "error"; patientId: string | null };
 export type Audit = { items: AuditRow[]; signInsLast7Days: { outcome: string; n: number }[] };
 export type Revenue = { currency: "GHS"; lines: { purpose: string; simulated: boolean; payments: number; total: number }[]; pending: number };
+export type Sdg3 = { sandbox: true; synthetic: true; scope: string; period: { code: string; start: string; end: string }; figures: { code: string; label: string; counts: string; target: string; unit?: string; value: number }[]; omitted: { label: string; why: string }[] };
+export type ExportFormat = "fhir" | "dhis2" | "who";
+export type ExportFile = { notice: { sandbox: true; synthetic: true; label: string; conformance: string }; format: ExportFormat; scope: string; period: Sdg3["period"]; payload: unknown };
+export type FacilityPeople = { facility: string; people: { id: string; name: string; role: keyof typeof ROLE_LABEL | null; active: boolean }[] };
 export class AdminError extends Error { constructor(readonly code: string, message: string) { super(message); this.name = "AdminError"; } }
 
 export interface AdminApi {
@@ -13,6 +17,9 @@ export interface AdminApi {
   setActive(id: string, active: boolean): Promise<void>;
   audit(outcome?: AuditRow["outcome"]): Promise<Audit>;
   revenue(): Promise<Revenue>;
+  sdg3(): Promise<Sdg3>;
+  exportFile(format: ExportFormat): Promise<ExportFile>;
+  facilityPeople(): Promise<FacilityPeople>;
 }
 
 const API_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? "https://api-hc.agroconnect.space";
@@ -31,16 +38,52 @@ export function httpAdminApi(token: string, baseUrl = API_URL): AdminApi {
     setActive: (id, active) => call("POST", `/admin/users/${id}/${active ? "activate" : "deactivate"}`),
     audit: (outcome) => call("GET", `/admin/audit${outcome ? `?outcome=${outcome}` : ""}`),
     revenue: () => call("GET", "/admin/revenue"),
+    sdg3: () => call("GET", "/reporting/sdg3"),
+    exportFile: (format) => call("GET", `/reporting/export/${format}`),
+    facilityPeople: () => call("GET", "/facility/people"),
   };
 }
 
 const OFF = "hc.mock.admin.off.v1";
 const offList = (): string[] => { try { return JSON.parse(localStorage.getItem(OFF) ?? "[]") as string[]; } catch { return []; } };
 
+const SAMPLE: Sdg3["figures"] = [
+  { code: "readings_recorded", target: "3.8", label: "Readings recorded", counts: "Sample number for test mode. Live, it counts readings this quarter.", value: 42 },
+  { code: "referrals_received", target: "3.8", label: "Referrals", counts: "Sample number for test mode. Live, it counts referrals created this quarter.", value: 6 },
+];
+const SAMPLE_NATIONAL: Sdg3["figures"] = [
+  { code: "patients_registered", target: "3.8", label: "Patients on the system", counts: "Sample number for test mode. Live, it counts every patient record held.", value: 120 },
+];
+const SAMPLE_OMITTED = [{ label: "Maternal mortality ratio (3.1.1)", why: "No deaths or live births are stored." }, { label: "Disease incidence per 1,000 people (3.3)", why: "Case counts are stored, but no population for any district." }];
+const SAMPLE_CONFORMANCE: Record<ExportFormat, string> = {
+  fhir: "FHIR-shaped, not FHIR-compatible. Not checked with a FHIR validator.",
+  dhis2: "Follows the layout of a DHIS2 dataValueSet, with placeholder codes. Not imported into or validated by DHIS2.",
+  who: "A layout of our own. Not a WHO schema, and not validated by or submitted to WHO.",
+};
+
 /** Test mode: the demo accounts, sample audit rows, and this device's test payments. */
 export function mockAdminApi(session: Session): AdminApi {
   const need = () => { if (session.user.role !== "platform_admin") throw new AdminError("forbidden", "Only a platform admin can open this."); };
+  const facility = session.user.role === "facility_admin";
+  const reporting = async (): Promise<Sdg3> => {
+    if (!facility && !["ghs", "platform_admin"].includes(session.user.role)) throw new AdminError("forbidden", "This account cannot open reports.");
+    return { sandbox: true, synthetic: true, scope: facility ? session.user.facility ?? "Your facility" : "All facilities", period: { code: "2026Q4", start: "2026-10-01T00:00:00.000Z", end: new Date().toISOString() }, figures: facility ? SAMPLE : [...SAMPLE_NATIONAL, ...SAMPLE], omitted: SAMPLE_OMITTED };
+  };
   return {
+    sdg3: reporting,
+    async exportFile(format) {
+      const { scope, period, figures } = await reporting();
+      const payload = format === "fhir"
+        ? { resourceType: "Bundle", type: "collection", meta: { tag: [{ system: "http://terminology.hl7.org/CodeSystem/v3-ActReason", code: "HTEST" }] }, entry: [{ resource: { resourceType: "MeasureReport", status: "complete", type: "summary", measure: "urn:healthconnect:sandbox:sdg3", group: figures.map((f) => ({ code: { text: f.label }, population: [{ count: f.value }] })) } }] }
+        : format === "dhis2"
+          ? { dataSet: "SANDBOX_HC_SDG3", idScheme: "code", period: period.code, orgUnit: "SANDBOX_TEST", dataValues: figures.map((f) => ({ dataElement: `SANDBOX_${f.code.toUpperCase()}`, period: period.code, orgUnit: "SANDBOX_TEST", value: String(f.value) })) }
+          : { country: "GH", reporter: scope, period: period.code, indicators: figures.map(({ code, label, value }) => ({ code, label, value })), weeklyDiseaseCases: [] };
+      return { notice: { sandbox: true, synthetic: true, label: "SANDBOX: test-mode sample numbers. Generated as a download and sent to no external system.", conformance: SAMPLE_CONFORMANCE[format] }, format, scope, period, payload };
+    },
+    async facilityPeople() {
+      if (!facility) throw new AdminError("forbidden", "Only a health centre admin can open this.");
+      return { facility: session.user.facility ?? "Your facility", people: mockAuthApi.demoAccounts().filter((u) => u.facility === session.user.facility).map((u) => ({ id: u.id, name: u.name, role: u.role, active: true })) };
+    },
     async users() {
       need();
       const off = offList();

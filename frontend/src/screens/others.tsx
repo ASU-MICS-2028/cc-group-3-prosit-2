@@ -5,9 +5,8 @@ import { DateStrip, TimeSlots } from "../components/schedule";
 import { CallScreen, PreCall, PriorityBadge, VitalCard } from "../components/clinical";
 import { DispensedList, ImageViewer, Medicines, Prescribe, Verify } from "./prescriptions";
 import { PayFee } from "./payments";
-import { Audit, Revenue, Users } from "./admin";
+import { Audit, FacilityHome, FacilityPeople, Revenue, Sdg3, Users } from "./admin";
 import { Insurance } from "./insurance";
-import { LowStockCard } from "./healersStock";
 import { DAYS, Heading, KV, Rows, SLOTS, TestMode, Tiles, go, sync, type ScreenDef } from "./kit";
 
 /* ---------------- Patient ---------------- */
@@ -70,24 +69,25 @@ export const pharmacist: Record<string, ScreenDef> = {
 /* ---------------- GHS official ----------------
    Dashboard, map and alerts are real now: screens/surveillance.tsx (FB-7a). */
 export const ghs: Record<string, ScreenDef> = {
-  "ghs.policy": { title: "Policy dashboard", render: () => (<><KV k="Rural specialist visits" v="+120%" /><KV k="Maternal visits kept" v="82%" /><KV k="Emergency response" v="31 min" /><Tiles items={[{ icon: "calendar-check", label: "SDG 3", to: "ghs.sdg" }]} /><SecondaryButton>Export (DHIS2 test)</SecondaryButton></>) },
-  "ghs.sdg": { title: "SDG 3 impact", render: () => (<><KV k="Maternal complications" v="-12%" /><KV k="People with cover" v="41%" /><KV k="Rural vs urban gap" v="-8 pts" /><TestMode what="These indicators" /></>) },
+  "ghs.policy": { title: "Policy dashboard", render: () => (<><KV k="Rural specialist visits" v="+120%" /><KV k="Maternal visits kept" v="82%" /><KV k="Emergency response" v="31 min" /><Tiles items={[{ icon: "calendar-check", label: "SDG 3 and exports", to: "ghs.sdg" }]} /><TestMode what="This dashboard" /></>) },
+  "ghs.sdg": { title: "SDG 3 impact", caption: "What the records can support", render: () => <Sdg3 /> },
 };
 
 /* ---------------- Health centre admin ---------------- */
 export const facility: Record<string, ScreenDef> = {
-  "facility.home": { title: "Hi Kwabena", caption: "Dodowa clinic area", render: () => (<><div className="row"><VitalCard label="People" value="14" unit="" taken="Volunteers and staff" /><LowStockCard /></div><Tiles items={[{ icon: "users", label: "Reports", to: "facility.reports" }, { icon: "users", label: "Emergencies", to: "facility.emergencies" }, { icon: "calendar-check", label: "Quality review", to: "facility.qa" }]} /></>) },
-  "facility.users": { title: "People", render: () => (<><Rows items={[{ name: "Ama Serwaa", role: "Community health volunteer" }, { name: "Nurse Adjei", role: "Nurse" }]} /><PrimaryButton>Add a person</PrimaryButton></>) },
-  "facility.training": { title: "Training", render: () => <Rows items={[{ name: "Safe home visits", role: "9 of 14 finished" }, { name: "Recording vitals", role: "14 of 14 finished" }]} /> },
-  "facility.reports": { title: "Reports", render: () => (<><KV k="Visits this month" v="212" /><KV k="Referrals" v="17" /><SecondaryButton>Export (DHIS2 test)</SecondaryButton></>) },
+  "facility.home": { title: "Your facility", render: () => <FacilityHome /> },
+  "facility.users": { title: "People", render: () => <FacilityPeople /> },
+  "facility.training": { title: "Training", render: () => <><Rows items={[{ name: "Safe home visits", role: "9 of 14 finished" }, { name: "Recording vitals", role: "14 of 14 finished" }]} /><TestMode what="This list" /></> },
+  "facility.reports": { title: "Reports", caption: "Your facility only", render: () => <Sdg3 /> },
 };
 
 /* ---------------- Platform admin ---------------- */
 export const platform: Record<string, ScreenDef> = {
   "platform.users": { title: "Users", render: () => <Users /> },
-  "platform.roles": { title: "Roles", caption: "What each role should reach", render: () => (<><KV k="CHV" v="Their patients, vitals, referrals" /><KV k="Patient" v="Their own record and bookings" /><KV k="Doctor, nurse, specialist" v="Patients with a visit with them" /><KV k="Pharmacist" v="Prescriptions only" /><KV k="Traditional healer" v="Patients referred with consent" /><KV k="GHS official" v="Anonymised totals only" /><KV k="Health centre admin" v="Their own facility" /><KV k="Platform admin" v="Users, audit, revenue; no health records" /><p className="caption">This is the design. The server checks each person's role on every request. Some per-patient and per-facility limits are still being built.</p></>) },
+  "platform.roles": { title: "Roles", caption: "What each role should reach", render: () => (<><KV k="CHV" v="Their patients, vitals, referrals" /><KV k="Patient" v="Their own record and bookings" /><KV k="Doctor, nurse, specialist" v="Patients with a visit with them" /><KV k="Pharmacist" v="Prescriptions only" /><KV k="Traditional healer" v="Patients referred with consent" /><KV k="GHS official" v="Anonymised totals only" /><KV k="Health centre admin" v="Their own facility" /><KV k="Platform admin" v="Users, audit, revenue; no health records" /><p className="caption">This is the design. The server checks each person's role on every request. Some per-patient limits are still being built.</p></>) },
   "platform.audit": { title: "Audit log", caption: "Who did what. No health data", render: () => <Audit /> },
-  "platform.settings": { title: "Settings", render: () => (<><KV k="Emergency escalation after" v="5 minutes" /><KV k="Reminder language" v="Patient's own" /><Chip selected>Test mode on</Chip><SecondaryButton onClick={() => go("platform.revenue")}>Revenue</SecondaryButton></>) },
+  "platform.settings": { title: "Settings", render: () => (<><KV k="Emergency escalation after" v="5 minutes" /><KV k="Reminder language" v="Patient's own" /><Chip selected>Test mode on</Chip><SecondaryButton onClick={() => go("platform.revenue")}>Revenue</SecondaryButton><SecondaryButton onClick={() => go("platform.sdg3")}>SDG 3 and exports</SecondaryButton></>) },
+  "platform.sdg3": { title: "SDG 3 impact", caption: "What the records can support", render: () => <Sdg3 /> },
   "platform.revenue": { title: "Revenue", caption: "Successful payments only", render: () => <Revenue /> },
 };
 

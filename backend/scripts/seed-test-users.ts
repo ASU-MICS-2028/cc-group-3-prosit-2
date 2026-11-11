@@ -29,6 +29,7 @@ export async function seedTestUsers(db: Db, password: string) {
   await db.withTransaction(SYSTEM_ID, async (q: Queryable) => {
     await q.query(`INSERT INTO patients (id, full_name) VALUES ($1, 'Akosua Boateng') ON CONFLICT (id) DO NOTHING`, [PATIENT_ID])
     await q.query(`INSERT INTO facilities (id, name, type, region, district) VALUES ($1, 'Test pharmacy', 'pharmacy', 'Greater Accra', 'Shai Osudoku') ON CONFLICT (id) DO NOTHING`, [PHARMACY_ID])
+    await q.query(`INSERT INTO facilities (id, name, type, region, district) VALUES ($1, 'Dodowa clinic area', 'clinic', 'Greater Accra', 'Shai Osudoku') ON CONFLICT (id) DO NOTHING`, [CLINIC_ID])
     for (const u of TEST_USERS) {
       await q.query(
         `INSERT INTO practitioners (id, full_name, role, facility, patient_id) VALUES ($1, $2, $3, $4, $5)
@@ -42,8 +43,7 @@ export async function seedTestUsers(db: Db, password: string) {
       )
     }
     await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = $2`, [PHARMACY_ID, TEST_USERS.find((u) => u.username === 'pharmacist')!.id])
-    await q.query(`INSERT INTO facilities (id, name, type, region, district) VALUES ($1, 'Dodowa clinic', 'health_centre', 'Greater Accra', 'Shai Osudoku') ON CONFLICT (id) DO NOTHING`, [CLINIC_ID])
-    await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = $2`, [CLINIC_ID, TEST_USERS.find((u) => u.username === 'facility_admin')!.id])
+    await q.query(`UPDATE practitioners SET facility_id = $1 WHERE id = ANY($2::uuid[])`, [CLINIC_ID, TEST_USERS.filter((u) => u.facility === 'Dodowa clinic area').map((u) => u.id)])
     // Synthetic healer directory and stock (FB-9b). Made-up people and numbers, labelled so in the app.
     await q.query(`UPDATE practitioners SET community = 'Kintampo', practice = 'Herbal care (synthetic entry)' WHERE id = $1`, [TEST_USERS.find((u) => u.username === 'healer')!.id])
     for (const [id, name, community, practice] of [

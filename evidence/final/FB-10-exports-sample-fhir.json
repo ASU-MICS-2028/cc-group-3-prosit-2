@@ -1,0 +1,5766 @@
+{
+  "notice": {
+    "sandbox": true,
+    "synthetic": true,
+    "label": "SANDBOX: synthetic data, totals only. Generated as a download and sent to no external system.",
+    "conformance": "FHIR-shaped, not FHIR-compatible (see docs/fhir-mapping.md). It follows the layout of FHIR R4 MeasureReport, but has not been checked with a FHIR validator, and its codes and measure address are local placeholders."
+  },
+  "format": "fhir",
+  "scope": "All facilities",
+  "period": {
+    "code": "2026Q4",
+    "start": "2026-10-01T00:00:00.000Z",
+    "end": "2026-11-10T06:54:05.524Z"
+  },
+  "payload": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "timestamp": "2026-11-10T06:54:05.524Z",
+    "meta": {
+      "tag": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+          "code": "HTEST",
+          "display": "test health data"
+        }
+      ]
+    },
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              }
+            ]
+          },
+          "reporter": {
+            "display": "All facilities"
+          },
+          "period": {
+            "start": "2026-10-01T00:00:00.000Z",
+            "end": "2026-11-10T06:54:05.524Z"
+          },
+          "group": [
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "patients_registered"
+                  }
+                ],
+                "text": "Patients on the system"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Every patient record held, from any date. All are synthetic people."
+                  },
+                  "count": 1
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "insurance_enrolments"
+                  }
+                ],
+                "text": "Insurance enrolments"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Patients enrolled in a plan on this system, from any date, whether or not a premium has been paid."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "outbreaks_confirmed"
+                  }
+                ],
+                "text": "Outbreaks confirmed"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Suggested outbreak alerts a GHS official confirmed this quarter."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "patients_with_readings"
+                  }
+                ],
+                "text": "Patients with a reading"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Different patients with at least one reading this quarter, not marked entered-in-error. For a facility: taken by that facility's staff."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "readings_recorded"
+                  }
+                ],
+                "text": "Readings recorded"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Vital-sign and lab readings this quarter, not marked entered-in-error. For a facility: taken by that facility's staff."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "appointments_booked"
+                  }
+                ],
+                "text": "Appointments booked"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Appointments starting this quarter that were not cancelled. For a facility: with that facility's doctors."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "referrals_received"
+                  }
+                ],
+                "text": "Referrals"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Referrals created this quarter, except cancelled ones. For a facility: sent to it or to one of its staff."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "prescriptions_dispensed"
+                  }
+                ],
+                "text": "Prescriptions dispensed"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Prescriptions a pharmacist dispensed this quarter. For a facility: dispensed there."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "emergencies_raised"
+                  }
+                ],
+                "text": "Emergencies raised"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Emergency alerts raised this quarter, except cancelled ones. For a facility: raised for it."
+                  },
+                  "count": 0
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "cases_diarrhoea_synthetic"
+                  }
+                ],
+                "text": "Diarrhoea cases (synthetic)"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Weekly district case counts added up for weeks starting this quarter. Source: synthetic. A count, not a rate."
+                  },
+                  "count": 651
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "cases_malaria_synthetic"
+                  }
+                ],
+                "text": "Malaria cases (synthetic)"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Weekly district case counts added up for weeks starting this quarter. Source: synthetic. A count, not a rate."
+                  },
+                  "count": 1278
+                }
+              ]
+            },
+            {
+              "code": {
+                "coding": [
+                  {
+                    "system": "urn:healthconnect:sandbox:figure",
+                    "code": "cases_cholera_synthetic"
+                  }
+                ],
+                "text": "Cholera cases (synthetic)"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "Weekly district case counts added up for weeks starting this quarter. Source: synthetic. A count, not a rate."
+                  },
+                  "count": 24
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Asunafo North, Ahafo"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 14
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Kumasi, Ashanti"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sunyani, Bono"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Techiman, Bono East"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Cape Coast, Central"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "New Juaben South, Eastern"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 13
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Adenta, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga East, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "cholera"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga West, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Shai-Osudoku, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "East Mamprusi, North East"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 25
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Tamale, Northern"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 14
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Krachi East, Oti"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 19
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "West Gonja, Savannah"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 21
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Bolgatanga, Upper East"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 32
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Wa Municipal, Upper West"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 26
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ho Municipal, Volta"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sekondi-Takoradi, Western"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sefwi Wiawso, Western North"
+          },
+          "period": {
+            "start": "2026-10-05",
+            "end": "2026-10-11"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Asunafo North, Ahafo"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 19
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Kumasi, Ashanti"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sunyani, Bono"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 14
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Techiman, Bono East"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 18
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Cape Coast, Central"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 13
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "New Juaben South, Eastern"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Adenta, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga East, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "cholera"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga West, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Shai-Osudoku, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "East Mamprusi, North East"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 21
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Tamale, Northern"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Krachi East, Oti"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 21
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "West Gonja, Savannah"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 14
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 23
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Bolgatanga, Upper East"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 25
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Wa Municipal, Upper West"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 27
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ho Municipal, Volta"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sekondi-Takoradi, Western"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 19
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sefwi Wiawso, Western North"
+          },
+          "period": {
+            "start": "2026-10-12",
+            "end": "2026-10-18"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Asunafo North, Ahafo"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Kumasi, Ashanti"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sunyani, Bono"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Techiman, Bono East"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 21
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Cape Coast, Central"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "New Juaben South, Eastern"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Adenta, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga East, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "cholera"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga West, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Shai-Osudoku, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "East Mamprusi, North East"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 13
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 22
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Tamale, Northern"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Krachi East, Oti"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 16
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "West Gonja, Savannah"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 13
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 24
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Bolgatanga, Upper East"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 25
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Wa Municipal, Upper West"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 24
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ho Municipal, Volta"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sekondi-Takoradi, Western"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 21
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sefwi Wiawso, Western North"
+          },
+          "period": {
+            "start": "2026-10-19",
+            "end": "2026-10-25"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Asunafo North, Ahafo"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 18
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Kumasi, Ashanti"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sunyani, Bono"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Techiman, Bono East"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Cape Coast, Central"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 13
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "New Juaben South, Eastern"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Adenta, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga East, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "cholera"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga West, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Shai-Osudoku, Greater Accra"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "East Mamprusi, North East"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 19
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Tamale, Northern"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 17
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Krachi East, Oti"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 18
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "West Gonja, Savannah"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 19
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Bolgatanga, Upper East"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 26
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Wa Municipal, Upper West"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 22
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ho Municipal, Volta"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sekondi-Takoradi, Western"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 19
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sefwi Wiawso, Western North"
+          },
+          "period": {
+            "start": "2026-10-26",
+            "end": "2026-11-01"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Asunafo North, Ahafo"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 14
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Kumasi, Ashanti"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sunyani, Bono"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Techiman, Bono East"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 16
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Cape Coast, Central"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "New Juaben South, Eastern"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 13
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Adenta, Greater Accra"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga East, Greater Accra"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "cholera"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ga West, Greater Accra"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Shai-Osudoku, Greater Accra"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 4
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "East Mamprusi, North East"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 24
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Tamale, Northern"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 12
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 17
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Krachi East, Oti"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 10
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 15
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "West Gonja, Savannah"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 20
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Bolgatanga, Upper East"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 6
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 30
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Wa Municipal, Upper West"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 5
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 26
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Ho Municipal, Volta"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 7
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 11
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sekondi-Takoradi, Western"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 2
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 18
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MeasureReport",
+          "status": "complete",
+          "type": "summary",
+          "measure": "urn:healthconnect:sandbox:sdg3",
+          "date": "2026-11-10T06:54:05.524Z",
+          "meta": {
+            "tag": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+              },
+              {
+                "system": "urn:healthconnect:sandbox:source",
+                "code": "synthetic"
+              }
+            ]
+          },
+          "subject": {
+            "display": "Sefwi Wiawso, Western North"
+          },
+          "period": {
+            "start": "2026-11-02",
+            "end": "2026-11-08"
+          },
+          "group": [
+            {
+              "code": {
+                "text": "diarrhoea"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 8
+                }
+              ]
+            },
+            {
+              "code": {
+                "text": "malaria"
+              },
+              "population": [
+                {
+                  "code": {
+                    "text": "cases"
+                  },
+                  "count": 9
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

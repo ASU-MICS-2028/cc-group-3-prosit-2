@@ -1,9 +1,51 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { useEffect, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Sdg3 } from "../screens/admin";
 import { AdminError, httpAdminApi, mockAdminApi } from "../data/admin";
 import { canOpen } from "../auth/roles";
 import type { Session } from "../auth/types";
 
 const session = (role: Session["user"]["role"], id = "00000000-0000-4000-8000-000000000008"): Session => ({ token: "t", mode: "test", user: { id, name: "T", role } });
+
+const fake = vi.hoisted(() => ({ session: null as unknown }));
+vi.mock("../auth/Session", () => ({ useSession: () => ({ session: fake.session, user: (fake.session as Session | null)?.user }) }));
+vi.mock("../data/DataProvider", () => ({ useLoad: <T,>(load: () => Promise<T>) => {
+  const [state, set] = useState<{ data?: T; loading: boolean }>({ loading: true });
+  useEffect(() => { void load().then((data) => set({ data, loading: false })); }, []);
+  return state;
+} }));
+
+describe("the SDG 3 page and facility limit in test mode", () => {
+  const person = (role: Session["user"]["role"], facility?: string): Session => ({ token: "t", mode: "test", user: { id: "x", name: "T", role, ...(facility ? { facility } : {}) } });
+
+  it("says what each figure counts, says what is left out, and saves a labelled file", async () => {
+    fake.session = person("ghs");
+    const create = vi.fn((_: Blob) => "blob:x");
+    vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: create, revokeObjectURL: vi.fn() }));
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    render(<Sdg3 />);
+    expect(await screen.findByText(/it counts every patient record held/)).toBeTruthy();
+    expect(screen.getByText("Maternal mortality ratio (3.1.1)")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /FHIR-shaped/ }));
+    expect((await screen.findByRole("status")).textContent).toMatch(/SANDBOX.*FHIR-shaped, not FHIR-compatible/);
+    expect(click).toHaveBeenCalled();
+    const file = JSON.parse(await create.mock.calls[0]![0].text()) as { notice: { sandbox: boolean; synthetic: boolean } };
+    expect(file.notice).toMatchObject({ sandbox: true, synthetic: true });
+    vi.unstubAllGlobals();
+    click.mockRestore();
+  });
+  it("gives a facility admin only their facility, and no national figures", async () => {
+    const api = mockAdminApi(person("facility_admin", "Dodowa clinic area"));
+    expect((await api.sdg3()).scope).toBe("Dodowa clinic area");
+    expect((await api.sdg3()).figures.map((f) => f.code)).not.toContain("patients_registered");
+    expect((await api.facilityPeople()).people.map((p) => p.name).sort()).toEqual(["Ama Serwaa", "Kwabena Ofori"]);
+  });
+  it("refuses roles that have no reports", async () => {
+    await expect(mockAdminApi(person("chv")).sdg3()).rejects.toMatchObject({ code: "forbidden" });
+    await expect(mockAdminApi(person("ghs")).facilityPeople()).rejects.toMatchObject({ code: "forbidden" });
+  });
+});
 
 describe("test-mode admin", () => {
   beforeEach(() => localStorage.clear());
