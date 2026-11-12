@@ -139,3 +139,9 @@ variable "ecr_repository_arn" {
   type        = string
   description = "The API image repository; the role may pull from this one only"
 }
+
+variable "api_rate_per_minute" {
+  type        = string
+  description = "Raise the per-address request limit for a load test (API_RATE_PER_MINUTE). Empty keeps the app default of 600."
+  default     = ""
+}
