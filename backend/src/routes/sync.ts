@@ -53,16 +53,21 @@ function patientOf(r: Json): string {
 const specialistOf = (r: Json) => r.resourceType === 'Appointment' ? refId(r.participant?.[1]?.actor?.reference, 'Practitioner', 'participant[1]') : null
 const extension = (r: Json, url: string): Json | undefined => Array.isArray(r.extension) ? (r.extension as Json[]).find((e) => e?.url === url) : undefined
 
+/** FHIR allows a birth year alone ("1988") or year and month; many patients know only roughly. The DATE column
+ *  gets the first day of that year or month, flagged as estimated. The phone's own copy keeps what was typed. */
+const birthDate = (d: unknown): [string | null, boolean] =>
+  typeof d !== 'string' ? [null, false] : /^\d{4}$/.test(d) ? [`${d}-01-01`, true] : /^\d{4}-\d{2}$/.test(d) ? [`${d}-01`, true] : [d, false]
+
 /** Writes the phone's record into its proper table, so the database's own rules decide (consent, ranges, double booking). */
 async function project(q: Queryable, r: Json, actor: Actor) {
   switch (r.resourceType) {
     case 'Patient':
       // ponytail: the app's "village" goes in `region` until a village column is justified (docs/fhir-mapping.md).
       await q.query(
-        `INSERT INTO patients (id, full_name, phone, date_of_birth, gender, region, preferred_language) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO patients (id, full_name, phone, date_of_birth, birth_date_estimated, gender, region, preferred_language) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          ON CONFLICT (id) DO UPDATE SET full_name = EXCLUDED.full_name, phone = EXCLUDED.phone, date_of_birth = EXCLUDED.date_of_birth,
-           gender = EXCLUDED.gender, region = EXCLUDED.region, preferred_language = EXCLUDED.preferred_language`,
-        [r.id, text(r.name?.[0]?.text, 'name'), r.telecom?.[0]?.value ?? null, r.birthDate ?? null, r.gender ?? null, r.address?.[0]?.city ?? null, r.communication?.[0]?.language?.text ?? null],
+           birth_date_estimated = EXCLUDED.birth_date_estimated, gender = EXCLUDED.gender, region = EXCLUDED.region, preferred_language = EXCLUDED.preferred_language`,
+        [r.id, text(r.name?.[0]?.text, 'name'), r.telecom?.[0]?.value ?? null, ...birthDate(r.birthDate), r.gender ?? null, r.address?.[0]?.city ?? null, r.communication?.[0]?.language?.text ?? null],
       )
       return
     case 'Consent':
