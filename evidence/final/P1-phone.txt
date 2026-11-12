@@ -1,0 +1,15 @@
+P1 real-phone checks, 12 Nov 2026 01:13-01:20 (Africa/Accra), Joseph's iPhone, live app https://app-hc.agroconnect.space
+Source: two screen recordings in Drive, prosit 2/ (ScreenRecording_11-12-2026 01-13-21 and 01-20-13). Frames here.
+
+- Runs full screen without the browser bar (opened from the home screen).
+- "Fingerprint unlock": the first attempt failed ("It didn't work. You can try again."); the second saved a passkey, confirmed with Face ID (this iPhone has no fingerprint sensor), and showed "Fingerprint turned on."
+- Airplane mode on: "You're offline. Changes are saved on this phone."
+- Voice note recorded offline on a synthetic patient (Afua Quartey) after allowing the microphone: 71 KB, shown as waiting.
+- Airplane mode off: the voice note changed to "Sent".
+
+SVC-4 test payment, same phone, signed in as the test patient:
+- Visit Fri 13 Nov 10:00, ₵25.00 -> "waiting for approval" -> votex365 checkout in TEST MODE (no money moves) -> Pay -> "Payment Successful".
+- Back in the app: Receipts "Consultation fee, 12 Nov 2026, ₵25.00 · Paid".
+- Seen in passing: after paying, the Pay screen still offers the same visit for payment (a second attempt would be refused as already paid).
+
+Not covered: a real 2G network, an Android phone, a phone with a fingerprint sensor.
