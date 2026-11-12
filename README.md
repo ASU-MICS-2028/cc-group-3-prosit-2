@@ -64,10 +64,10 @@ _Updated 11 Nov 2026. Every feature PR up to #83 is merged and deployed; RDS has
 
 | Task | Due | Tier | Status |
 |---|---|---|---|
-| L6-B1b KMS key, `rds.force_ssl`, HTTPS-only bucket | Sat 7 | 1 | 🟢 Ready |
-| L6-X Why the failover dropped requests; L8-C resource audit | Sun 8 | 1, 2 | 🟢 Ready |
-| E2 Load test: 1,000 users, 50,000 records | Tue 10 | 1 | 🟢 Ready |
-| E3 Uptime case: alarms, health checks, tested restore | Tue 10 | 1 | 🟢 Ready |
+| L6-B1b KMS key, `rds.force_ssl`, HTTPS-only bucket | Sat 7 | 1 | ✅ Done 12 Nov: force_ssl on, HTTPS-only buckets, own KMS key proven on a restored copy (live DB still on `aws/rds`) |
+| L6-X Why the failover dropped requests; L8-C resource audit | Sun 8 | 1, 2 | ✅ L6-X: most likely the ALB still routing to the stopped server for a few seconds (`evidence/final/E2-E3-results.md`) |
+| E2 Load test: 1,000 users, 50,000 records | Tue 10 | 1 | ✅ Done 12 Nov: 68.9% stored at 1,000 at once, 0 outages, limit is the DB connection pool (`evidence/final/E2-E3-results.md`) |
+| E3 Uptime case: alarms, health checks, tested restore | Tue 10 | 1 | ✅ Restore tested 12 Nov: 153 s copy + 487 s restore |
 | SVC-2 Media uploads to S3; FB-8 education library | Tue 10 | 2, 3 | 🟢 Ready (not built; the report can give the design) |
 | R-E Report section: architecture, cost, load test, TURN, platform choice | Wed 11 | 1 | 🔄 Draft in the report; Eugene to confirm |
 

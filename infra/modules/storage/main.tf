@@ -18,6 +18,31 @@ resource "aws_s3_bucket_public_access_block" "media" {
   restrict_public_buckets = true
 }
 
+# L6-B1b: refuse any request that isn't HTTPS.
+data "aws_iam_policy_document" "media_tls" {
+  statement {
+    sid       = "DenyInsecureTransport"
+    effect    = "Deny"
+    actions   = ["s3:*"]
+    resources = [aws_s3_bucket.media.arn, "${aws_s3_bucket.media.arn}/*"]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "media" {
+  bucket     = aws_s3_bucket.media.id
+  policy     = data.aws_iam_policy_document.media_tls.json
+  depends_on = [aws_s3_bucket_public_access_block.media]
+}
+
 resource "aws_s3_bucket_versioning" "media" {
   bucket = aws_s3_bucket.media.id
   versioning_configuration {
