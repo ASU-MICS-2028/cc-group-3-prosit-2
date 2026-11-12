@@ -102,3 +102,9 @@ variable "monthly_budget_critical_usd" {
   type        = number
   default     = 100
 }
+
+variable "api_rate_per_minute" {
+  type        = string
+  description = "Load tests only: per-address request limit on the API. Leave empty for the default (600)."
+  default     = ""
+}

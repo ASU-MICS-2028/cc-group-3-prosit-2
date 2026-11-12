@@ -74,6 +74,7 @@ module "compute" {
   db_master_user_secret_arn = module.database.master_user_secret_arn
   jwt_secret_arn            = aws_secretsmanager_secret.jwt.arn
   votex_secret_arn          = aws_secretsmanager_secret.votex.arn
+  api_rate_per_minute       = var.api_rate_per_minute
   appointment_topic_arn     = module.events.topic_arn
   media_bucket_policy_json  = module.storage.app_access_policy_json
   image_tag_param_name      = module.cicd.image_tag_param_name

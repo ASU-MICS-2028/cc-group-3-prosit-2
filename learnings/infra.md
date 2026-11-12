@@ -330,3 +330,17 @@ Numbers behind it: one event in, two copies out (SNS: 3 messages published and 6
 hour of 26 Oct); both log groups per appointment in `evidence/lab7/outputs_B_logs.txt`; durations, memory and cold
 starts from each function's `REPORT` log lines (9 runs each, 26 Oct, including the 3 failing runs of the deliberate bad
 message).
+
+## E2 load test and E3 restore (12 Nov)
+
+- **One load machine = one address.** The API limits requests per address (600/min), and the ALB writes the real
+  address, so a single k6 machine can't spread itself out. Raise `api_rate_per_minute` for the test, then set it back
+  (each change is a rolling server swap).
+- **The first limit you hit is the connection pool, not CPU.** 10 connections per server with a 5 s wait: at 1,000
+  users at once, 22% got 503 while API CPU sat at 26% and RDS at 63%. Auto scaling to 4 servers helped (40 connections).
+- **A Terraform apply of `module.compute` resets the server count** to the configured 2. That scales in gracefully
+  (draining), but don't run it in the middle of a load test.
+- **Restore timing:** 153 s to copy a 20 GB snapshot under a new KMS key, 487 s to restore it. A snapshot restore
+  doesn't accept `--manage-master-user-password`; the copy keeps the original password.
+- **Test the HTTPS-only rule** with `aws s3 ls ... --endpoint-url http://s3.af-south-1.amazonaws.com`: it must say
+  "explicit deny in a resource-based policy".

@@ -1,0 +1,16 @@
+### E3 restore test 2026-11-12T00:46:42Z, source snapshot rds:healthconnect-dev-postgres-2026-11-11-02-05
+customer-managed key: arn:aws:kms:af-south-1:315224414532:key/545b67d7-0926-413a-a05a-44f65387628f (rotation on)
+copy start 2026-11-12T00:46:45Z
+copy done  2026-11-12T00:49:18Z (153 s) under arn:aws:kms:af-south-1:315224414532:key/545b67d7-0926-413a-a05a-44f65387628f
+restore start 2026-11-12T00:49:19Z
+
+aws: [ERROR]: An error occurred (InvalidParameterValue) when calling the RestoreDBInstanceFromDBSnapshot operation: The parameter ManageMasterUserPassword is not valid for engine: postgres.
+
+
+# second attempt (restore flag fixed; reuses the copy above)
+### E3 restore test 2026-11-12T00:52:27Z, source snapshot rds:healthconnect-dev-postgres-2026-11-11-02-05
+customer-managed key: arn:aws:kms:af-south-1:315224414532:key/545b67d7-0926-413a-a05a-44f65387628f (rotation on)
+copy already made (see first run)
+restore start 2026-11-12T00:52:29Z
+restore done  2026-11-12T01:00:36Z (487 s)
+available	True	arn:aws:kms:af-south-1:315224414532:key/545b67d7-0926-413a-a05a-44f65387628f	healthconnect-dev-restore-test.cfe28yc422fl.af-south-1.rds.amazonaws.com

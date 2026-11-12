@@ -184,6 +184,7 @@ locals {
       -e DB_SECRET_ARN="${var.db_master_user_secret_arn}" \
       -e JWT_SECRET_ARN="${var.jwt_secret_arn}" \
       -e VOTEX_SECRET_ARN="${var.votex_secret_arn}" \
+      -e API_RATE_PER_MINUTE="${var.api_rate_per_minute}" \
       -e APPOINTMENT_TOPIC_ARN="${var.appointment_topic_arn}" \
       "$IMAGE"
   EOT

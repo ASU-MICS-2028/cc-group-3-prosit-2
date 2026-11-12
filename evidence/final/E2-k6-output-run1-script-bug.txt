@@ -1,0 +1,49 @@
+# k6 run 1 (not counted: script bug, readings sent without their consent link, so all 30,000 were refused with 400)
+k6 exit 99
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{kind:push}
+    ✗ 'p(95)<2000' p(95)=5.17s
+
+    http_req_failed
+    ✗ 'rate<0.01' rate=59.99%
+
+    records_stored
+    ✗ 'count>=50000' count=20000
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 50000  454.524895/s
+    checks_succeeded...: 40.00% 20000 out of 50000
+    checks_failed......: 60.00% 30000 out of 50000
+
+    ✗ stored (201)
+      ↳  40% — ✓ 20000 / ✗ 30000
+
+    CUSTOM
+    records_stored.................: 20000  181.809958/s
+
+    HTTP
+    http_req_duration..............: avg=2.04s min=6.34ms  med=1.48s  max=7.3s   p(90)=4.78s  p(95)=5.17s 
+      { expected_response:true }...: avg=1.77s min=10.06ms med=1.75s  max=5.91s  p(90)=3.81s  p(95)=4.33s 
+      { kind:push }................: avg=2.04s min=6.34ms  med=1.48s  max=7.3s   p(90)=4.78s  p(95)=5.17s 
+    http_req_failed................: 59.99% 30000 out of 50001
+    http_reqs......................: 50001  454.533985/s
+
+    EXECUTION
+    iteration_duration.............: avg=10.3s min=71.89ms med=10.31s max=22.38s p(90)=16.77s p(95)=17.96s
+    iterations.....................: 10000  90.904979/s
+    vus............................: 136    min=136            max=1000
+    vus_max........................: 1000   min=1000           max=1000
+
+    NETWORK
+    data_received..................: 46 MB  414 kB/s
+    data_sent......................: 30 MB  269 kB/s
+
+
+
+time="2026-11-12T00:59:22Z" level=error msg="thresholds on metrics 'http_req_duration{kind:push}, http_req_failed, records_stored' have been crossed"
+	
