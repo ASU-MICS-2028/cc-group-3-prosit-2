@@ -4,6 +4,8 @@ Automated end-to-end walkthrough of the HealthConnect PWA, recorded with Playwri
 stitched with ffmpeg (title card + clip per scene, intro and outro cards). Output: `healthconnect-demo.mp4`,
 1280×720, 30 fps, H.264, no audio (narrate live). Same approach as Group 3's Prosit 1 video.
 
+**Live run, 12 Nov 2026 00:30:** all 10 scenes passed against app-hc; 4 min 20 s. The first live run (11 Nov) found a real bug: a patient with only a year of birth was refused by the API, fixed in #88. Role screenshots from this run: `evidence/final/F2-role-*.png`.
+
 The mp4 is **not committed** (it's in `.gitignore`); the final copy lives in the group Google Drive.
 
 ## What the video shows (in order)
