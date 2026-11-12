@@ -73,12 +73,13 @@
 | 2026-11-11 | Joseph Etse | Claude Code (Anthropic) | FB-11 (#86): every screen in English and Twi, three empty language files, text size to 200%; the Twi was machine-drafted. Also the demo video script (Playwright, like Prosit 1) | 13 new tests including a check that every screen of every role has Twi; screenshots at 200% looked at; the Twi still needs a native speaker; demo rehearsed in Test mode only |
 | 2026-11-11 | Joseph Etse | Claude Code (Anthropic) | Admin guide (`docs/admin-guide.md`) for the health centre and platform admins | Every button and screen named was checked against `frontend/src/screens/` and `auth/roles.ts` |
 | 2026-11-11 | Joseph Etse | Claude Code (Anthropic) | Found while recording the demo on the live app: a patient registered with only a year of birth was refused by the API; fix stores it as an estimated date | Request and reply logged live (422, "invalid input syntax for type date"); new API test; all 254 API tests pass |
+| 2026-11-12 | Eugene | Claude Code | E2 load test (k6 script, temporary load machine, rate-limit switch), E3 restore under a new customer-managed KMS key, HTTPS-only bucket policies, results write-up (`evidence/final/E2-E3-results.md`) | I approved each step; every number is copied from k6, CloudWatch or the AWS CLI output in `evidence/final/`; the first k6 run's script bug and the first restore call's error are reported, not hidden |
 
 ## Sign-off
 
 | Member | Signature / date |
 |---|---|
 | Joseph Etse | |
-| Eugene Sewor | |
+| Eugene Sewor | Eugene Sewor, 12 Nov 2026 |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |

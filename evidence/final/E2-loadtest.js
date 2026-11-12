@@ -45,11 +45,14 @@ export default function (data) {
   const now = new Date().toISOString()
   push(data.token, { resourceType: 'Patient', id: p, name: [{ text: `LOADTEST ${__VU}-${__ITER}` }], gender: __ITER % 2 ? 'male' : 'female',
     birthDate: String(1950 + (__VU % 60)), address: [{ city: 'Loadtest' }] })
-  push(data.token, { resourceType: 'Consent', id: uuidv4(), status: 'active', scope: { coding: [{ system: 's', code: 'patient-privacy' }] },
+  const c = uuidv4()
+  push(data.token, { resourceType: 'Consent', id: c, status: 'active', scope: { coding: [{ system: 's', code: 'patient-privacy' }] },
     category: [{ coding: [{ system: 'p', code: 'clinical_care' }] }], patient: { reference: `Patient/${p}` }, dateTime: now, performer: [{ display: 'patient' }] })
   for (let i = 0; i < 3; i++) {
     push(data.token, { resourceType: 'Observation', id: uuidv4(), status: 'final', category: [{ coding: [{ system: 's', code: 'vital-signs' }] }],
       code: { coding: [{ system: 'http://loinc.org', code: '8310-5' }] }, subject: { reference: `Patient/${p}` }, effectiveDateTime: now,
-      valueQuantity: { value: 36.5 + i * 0.3, unit: '°C', system: 'u', code: 'Cel' } })
+      valueQuantity: { value: 36.5 + i * 0.3, unit: '°C', system: 'u', code: 'Cel' },
+      // Each reading names the consent it was taken under (the API refuses it otherwise).
+      extension: [{ url: 'https://healthconnect.example/observation-consent', valueReference: { reference: `Consent/${c}` } }] })
   }
 }

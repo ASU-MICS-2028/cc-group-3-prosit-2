@@ -1,0 +1,49 @@
+# k6 run 2 (counted run), 2026-11-12T01:01:08Z to 2026-11-12T01:06:13Z, from a t3.medium in af-south-1a
+k6 exit 99
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{kind:push}
+    ✗ 'p(95)<2000' p(95)=8.76s
+
+    http_req_failed
+    ✗ 'rate<0.01' rate=31.08%
+
+    records_stored
+    ✗ 'count>=50000' count=34457
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 50000  172.048217/s
+    checks_succeeded...: 68.91% 34457 out of 50000
+    checks_failed......: 31.08% 15543 out of 50000
+
+    ✗ stored (201)
+      ↳  68% — ✓ 34457 / ✗ 15543
+
+    CUSTOM
+    records_stored.................: 34457  118.565308/s
+
+    HTTP
+    http_req_duration..............: avg=5.25s  min=7.68ms med=5s     max=27.67s p(90)=7.61s  p(95)=8.76s 
+      { expected_response:true }...: avg=4.65s  min=58.4ms med=4.42s  max=27.67s p(90)=6.31s  p(95)=6.92s 
+      { kind:push }................: avg=5.25s  min=7.68ms med=5s     max=27.67s p(90)=7.61s  p(95)=8.76s 
+    http_req_failed................: 31.08% 15543 out of 50001
+    http_reqs......................: 50001  172.051658/s
+
+    EXECUTION
+    iteration_duration.............: avg=26.34s min=7.03s  med=24.67s max=1m6s   p(90)=34.65s p(95)=37.25s
+    iterations.....................: 10000  34.409643/s
+    vus............................: 16     min=16             max=1000
+    vus_max........................: 1000   min=1000           max=1000
+
+    NETWORK
+    data_received..................: 46 MB  157 kB/s
+    data_sent......................: 34 MB  118 kB/s
+
+
+
+time="2026-11-12T01:06:04Z" level=error msg="thresholds on metrics 'http_req_duration{kind:push}, http_req_failed, records_stored' have been crossed"
+	
