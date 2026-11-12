@@ -44,7 +44,7 @@ without the link to their consent, so the API correctly refused all 30,000 with 
 UUID"). Its 10,000 patients and 10,000 consents were stored. Output kept in
 [`E2-k6-output-run1-script-bug.txt`](E2-k6-output-run1-script-bug.txt).
 
-**Left in the database:** both runs' `LOADTEST` records (54,457 records; just under 20,000 patients). Deleting
+**Left in the database:** 54,459 `LOADTEST` records and 18,192 patients (both runs, plus 2 records from a one-patient check while finding the run-1 bug). Deleting
 is blocked by design (audit triggers), so they stay, named `LOADTEST …`, owned by `loadtest_chv`, which is
 switched off. Only that account sees them in a patient list; admin and surveillance totals include them.
 
