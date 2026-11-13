@@ -82,5 +82,5 @@
 |---|---|
 | Joseph Etse | Josetseph, 12 Nov, 2026 |
 | Eugene Sewor | Eugene Sewor, 12 Nov 2026 |
-| Elise Kennedy-Angbo | |
+| Elise Kennedy-Angbo | Elise Kennedy-Angbo, 13 Nov 2026 |
 | Perfect Elorm Avugla |Perfect Avugla, 13 Nov, 2026 | 
