@@ -80,7 +80,7 @@
 
 | Member | Signature / date |
 |---|---|
-| Joseph Etse | |
+| Joseph Etse | Josetseph, 12 Nov, 2026 |
 | Eugene Sewor | Eugene Sewor, 12 Nov 2026 |
 | Elise Kennedy-Angbo | |
 | Perfect Avugla | |
