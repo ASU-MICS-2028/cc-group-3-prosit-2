@@ -11,21 +11,20 @@ Three screens from the community health volunteer's visit to a patient, in order
 clinician to check**. People and readings are made up; screens from 5 November.
 
 These are three of about 60 screens. HealthConnect is one installable web app (PWA) with eight roles, and each person
-sees only their own role's screens after signing in:
+sees only their own role's screens after signing in. All data is synthetic.
 
-| Role | What they do in the app | State |
+| Role | What they do in the app | Status |
 |---|---|---|
-| **Community health volunteer** | Register patients, record permission and vitals offline, sync when there's signal, book visits, join video visits, refer, raise an emergency, surveys, mothers and babies, learning | Working with live data: patients, permission, vitals, sync, booking, video visits, photos. The rest are previews |
-| **Patient** | Their visits, video visits, their permissions, paying the fee, health insurance, learning | Video visits work; the rest are previews |
-| **Clinician** | Today's patients, patient records, shared images, video visits, referrals and emergencies, prescribing | Video visits work; prescribing is in review (#57) |
-| **Pharmacist** | Verify a prescription, queue, stock | In review (#57) |
-| **Traditional healer** | Their patients, remedies in use | Preview |
-| **Ghana Health Service official** | Surveillance dashboard, disease map, outbreak alerts, policy and SDG 3 views | Surveillance, map and alerts work with synthetic data; policy and SDG views are previews |
-| **Health centre admin** | Staff, stock, training, reports for their own facility | Preview |
-| **Platform admin** | Users, roles, audit log, settings | In review (#59) |
+| **Community health volunteer** | Register patients, record permission and vitals offline, sync when there's signal, book visits, join video visits, refer, raise an emergency, surveys, mothers and babies, learning | Built. Learning shows sample content only |
+| **Patient** | Their visits, video visits, their permissions, paying the fee, health insurance, learning | Built. Fees run in votex365's test mode (no real money); insurance plans and the NHIS check are simulated |
+| **Clinician** | Today's patients, patient records, shared images, video visits, referrals and emergencies, prescribing | Built |
+| **Pharmacist** | Verify a prescription, queue, stock | Built. One-time dispense enforced by the database; the pharmacy network is simulated |
+| **Traditional healer** | Their patients, referrals with consent, remedies in use | Built on synthetic data |
+| **Ghana Health Service official** | Surveillance dashboard, disease map, outbreak alerts, policy and SDG 3 views | Built on synthetic data. Forecasts are four-week averages, labelled as estimates |
+| **Health centre admin** | Staff, stock, training, reports for their own facility | Built. FHIR, DHIS2 and WHO exports are sandbox downloads, not validated; training shows sample content |
+| **Platform admin** | Users, roles, audit log, revenue, settings | Built. Settings are read-only in this version |
 
-"Preview" screens show sample rows and say so on the screen ("Test mode"); they are connected to the API task by task
-(see the task tables below).
+The app signs in and syncs against the live API. A labelled "Test mode" switch shows sample data instead, for demos without a network.
 
 ## Architecture
 
@@ -47,58 +46,33 @@ the team shares it with the lecturer directly.
 
 Everything runs in AWS `af-south-1` (Cape Town). No real patient data is stored anywhere.
 
-## Everything to do now, and who does it
+## What's built, and what isn't
 
-_Updated 11 Nov 2026. Every feature PR up to #83 is merged and deployed; RDS has migrations 001–014 (Eugene, 11 Nov). Midsem Thu 12 Nov. Working deadline Fri 13 Nov (being confirmed). Full plan, with evidence file names: [`PLAN.md`](./PLAN.md#final-sprint-6-to-13-nov-one-week-to-finish-lab-8-and-prosit-2)._
+Built and live: offline records with sync and conflict handling; sign-in for eight roles; video visits (with consented
+call recording kept on the doctor's phone); referrals with suggested priority and emergency escalation; prescriptions
+with fraud flags and one-time dispensing; surveillance and outbreak alerts; maternal and child care and surveys;
+healer referrals and medicine stock; facility admin and the SDG 3 dashboard; English and Twi.
 
-### Joseph
+Simulated or test mode: mobile-money fees (votex365 test mode), health insurance and NHIS, the GMDC licence check,
+the pharmacy network, and the FHIR, DHIS2 and WHO exports.
 
-| Task | Due | Tier | Status |
-|---|---|---|---|
-| X1 Ask the facilitator: final dates and format, Lab 8 session and partner team | Fri 6 | 1 | 🟢 Ready |
-| FB-11 Languages (English and Twi; Ewe, Dagbani, Hausa files ready), 200% text size | Tue 10 | 3 | 🔄 Being built (taken over from Perfect); Twi needs a native speaker's check |
-| F2 Demo recording end to end, role screenshots for `evidence/final/` | Fri 13 | 1 | 🟢 Ready (all features live) |
-| F1 Final report (finished Fri 13) | Fri 13 | 1 | 🔄 Draft in Drive, `prosit 2/Final/`; marked text waits on each owner |
+Not built: the health education library and certificates (needs media uploads to S3), and patient fingerprint
+matching. The final report explains each choice and the next step.
 
-### Eugene
+## What's in this repository
 
-| Task | Due | Tier | Status |
-|---|---|---|---|
-| L6-B1b KMS key, `rds.force_ssl`, HTTPS-only bucket | Sat 7 | 1 | ✅ Done 12 Nov: force_ssl on, HTTPS-only buckets, own KMS key proven on a restored copy (live DB still on `aws/rds`) |
-| L6-X Why the failover dropped requests; L8-C resource audit | Sun 8 | 1, 2 | ✅ L6-X: most likely the ALB still routing to the stopped server for a few seconds (`evidence/final/E2-E3-results.md`) |
-| E2 Load test: 1,000 users, 50,000 records | Tue 10 | 1 | ✅ Done 12 Nov: 68.9% stored at 1,000 at once, 0 outages, limit is the DB connection pool (`evidence/final/E2-E3-results.md`) |
-| E3 Uptime case: alarms, health checks, tested restore | Tue 10 | 1 | ✅ Restore tested 12 Nov: 153 s copy + 487 s restore |
-| SVC-2 Media uploads to S3; FB-8 education library | Tue 10 | 2, 3 | 🟢 Ready (not built; the report can give the design) |
-| R-E Report section: architecture, cost, load test, TURN, platform choice | Wed 11 | 1 | 🔄 Draft in the report; Eugene to confirm |
+| Path | What it holds |
+|---|---|
+| [`frontend/`](./frontend/) | The PWA (React, offline storage, sync, eight roles) |
+| [`backend/`](./backend/) | The API: `patient-record-service`, Node/TypeScript |
+| [`db/`](./db/) | PostgreSQL migrations 001–014 (FHIR-aligned) and their tests |
+| [`functions/`](./functions/) | Lambda functions for the event layer (SNS → SQS → Lambda) |
+| [`infra/`](./infra/) | Terraform for AWS `af-south-1` |
+| [`docs/`](./docs/README.md) | Decisions (ADRs), FHIR mapping, data decisions, admin guide, architecture diagram, AI-tools usage |
+| [`evidence/`](./evidence/README.md) | Lab and final evidence: screenshots, outputs and the scripts that produced them |
+| [`learnings/`](./learnings/README.md) | How each part works, in plain words |
+| [`knowledge/`](./knowledge/README.md) | Background: the brief, labs, lectures, Prosit 1 |
+| [`PLAN.md`](./PLAN.md) | The full plan we worked from, stage by stage |
 
-### Elise
-
-| Task | Due | Tier | Status |
-|---|---|---|---|
-| R-L Report section: FHIR, minimisation, HIPAA mapping, DHS data, community engagement | Wed 11 | 1 | 🔄 Draft in the report; Elise to confirm |
-| L8-B3 Written peer review, 200 words | End of Week 8 | 1 | ⛔ Needs the Lab 8 session |
-
-### Perfect
-
-| Task | Due | Tier | Status |
-|---|---|---|---|
-| P1 Phone checks on the live app; airplane-mode demo; tick the checklist | Sat 7 | 1 | 🟢 Ready |
-| L8-A1 Check the redrawn diagram (#63, consolidated version in `evidence/lab9/`) | Before the session | 1 | 🟢 Ready |
-| R-P Report section: PWA, offline, WebRTC on 2G and 3G, accessibility | Wed 11 | 1 | 🔄 Draft in the report; Perfect to confirm |
-| L8-B2 Before and after diagrams | Session day | 1 | ⛔ Needs the Lab 8 session |
-
-### Everyone
-
-| Task | Due | Status |
-|---|---|---|
-| L8-B1 The Lab 8 session: present, answer, review, take notes | Session day | ⛔ Date from X1 |
-| Lab 9 package: agree the sustainability and retention text; add the spend row to the cost template | Fri 13 | 🔄 Draft PDF in Drive, `prosit 2/Final/` |
-| Each person's paragraph in the report, in your own words | Fri 13 | 🟢 Ready |
-| F3 Peer assessment and AI sign-off | Fri 13 | ⛔ Needs F1 |
-
-**Every day:** check in by 21:00 (done, next, stuck). Approve PRs within 3 hours. Save evidence as you go: [`evidence/final/`](./evidence/README.md#final-sprint-evidence). Progress: run `npm run progress` in `frontend/`, or see [`BUILD-CHECKLIST.md`](./BUILD-CHECKLIST.md).
-
----
-
-Everything else: [`PLAN.md`](./PLAN.md) (all stages, done and to come) · [`CONTRIBUTING.md`](./CONTRIBUTING.md) (how we work, repo map) · [`AGENTS.md`](./AGENTS.md) (for coding assistants).
-**This page lists only what's open now.** When a task changes state, update it here and in `PLAN.md` in the same PR; remove it from here once it's done.
+How we worked: [`CONTRIBUTING.md`](./CONTRIBUTING.md). AI use is declared in
+[`docs/ai-tools-usage.md`](./docs/ai-tools-usage.md), signed by all four members.
