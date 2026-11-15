@@ -19,7 +19,7 @@ If a teammate has to ask you how your part works, the note was not simple enough
 
 | Path | What goes here | Owner |
 |---|---|---|
-| `README.md` | **Everything open now**, and who has each task. Nothing finished (D-025) | Whoever changes a task's state |
+| `README.md` | What HealthConnect is, what's built, how to try it, and a map of the repo (during the build it listed open tasks, D-025) | Joseph |
 | `PLAN.md` | Every stage and task in order, with owners, blockers, "done when" and each lab's deliverables checklist | Joseph (everyone updates their own rows) |
 | `docs/` | **Architecture Decision Records (ADRs)** and the documents they point to ([index](./docs/README.md)) | Joseph (editor); each decision's author |
 | `learnings/` | **What each of us did and learned**, in the simplest words, so nobody has to redo it to understand it ([how](./learnings/README.md)) | Each owner |
